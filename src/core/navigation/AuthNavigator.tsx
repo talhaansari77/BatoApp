@@ -18,15 +18,15 @@ export function AuthNavigator() {
 
   return (
     <Stack.Navigator
-      // initialRouteName="Splash"
+      initialRouteName="Login"
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
       }}
     >
-      {/* <Stack.Screen name="Welcome" component={WelcomeScreen} /> */}
+      <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
-      {/* <Stack.Screen name="Register" component={RegisterScreen} /> */}
+      <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="OtpVerification" component={OtpVerificationScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       {/* <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} /> */}

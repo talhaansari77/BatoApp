@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { LayoutChangeEvent, Pressable, View } from "react-native";
+import { LayoutChangeEvent, Pressable, TextInput, View } from "react-native";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -9,6 +9,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { Host, Picker } from "@expo/ui";
 
 import { AuthStackParamList } from "../../../core/navigation/navigation.types";
 import { Screen } from "../../../shared/ui/templates/Screen";
@@ -28,6 +29,16 @@ const TAB_HEIGHT = 44;
 
 const SPRING_CONFIG = { damping: 18, stiffness: 180, mass: 0.9 };
 
+// Gulf-region defaults for the country code picker — extend as needed.
+const COUNTRY_CODES = [
+  { flag: "🇰🇼", name: "Kuwait", dialCode: "+965" },
+  { flag: "🇸🇦", name: "Saudi Arabia", dialCode: "+966" },
+  { flag: "🇦🇪", name: "UAE", dialCode: "+971" },
+  { flag: "🇧🇭", name: "Bahrain", dialCode: "+973" },
+  { flag: "🇶🇦", name: "Qatar", dialCode: "+974" },
+  { flag: "🇴🇲", name: "Oman", dialCode: "+968" },
+];
+
 export function LoginScreen({ navigation }: Props) {
   const theme = useAppTheme();
 
@@ -36,6 +47,12 @@ export function LoginScreen({ navigation }: Props) {
   const [fileNumber, setFileNumber] = useState("");
   const [civilId, setCivilId] = useState("");
   const [whatsappNumber, setWhatsappNumber] = useState("");
+
+  // Each phone field gets its own calling code, in case the mobile login
+  // number and the WhatsApp OTP number end up belonging to different
+  // countries. Both default to Kuwait.
+  const [mobileCallingCode, setMobileCallingCode] = useState("+965");
+  const [whatsappCallingCode, setWhatsappCallingCode] = useState("+965");
 
   const isMobileLogin = loginMethod === "mobile";
 
@@ -76,10 +93,7 @@ export function LoginScreen({ navigation }: Props) {
 
   return (
     <Screen
-      title="Login"
-      subtitle="Access your BATO account"
-      // showBack
-      // onBackPress={() => navigation.goBack()}
+      title="LOGIN"
       footer={<AppButton title="Send OTP" onPress={handleSendOtp} />}
     >
       <AuthCard
@@ -95,79 +109,6 @@ export function LoginScreen({ navigation }: Props) {
           layout={LinearTransition.springify().damping(18).stiffness(180)}
           style={{ gap: theme.spacing.md }}
         >
-          {/* Login method switch */}
-          <View
-            onLayout={handleSwitchLayout}
-            style={{
-              flexDirection: "row",
-              padding: SWITCH_PADDING,
-              borderRadius: 12,
-              backgroundColor: theme.colors.cardMuted,
-              gap: SWITCH_GAP,
-            }}
-          >
-            {/* Sliding pill indicator, positioned behind the two tabs */}
-            {tabWidth > 0 && (
-              <Animated.View
-                pointerEvents="none"
-                style={[
-                  {
-                    position: "absolute",
-                    top: SWITCH_PADDING,
-                    left: SWITCH_PADDING,
-                    width: tabWidth,
-                    height: TAB_HEIGHT,
-                    borderRadius: 9,
-                    backgroundColor: theme.colors.card,
-                    borderWidth: 1,
-                    borderColor: theme.colors.border,
-                  },
-                  pillStyle,
-                ]}
-              />
-            )}
-
-            <Pressable
-              onPress={() => handleMethodChange("mobile")}
-              style={{
-                flex: 1,
-                minHeight: TAB_HEIGHT,
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: 9,
-              }}
-            >
-              <AppText
-                variant="bodyMedium"
-                color={
-                  isMobileLogin ? theme.colors.text : theme.colors.textMuted
-                }
-              >
-                Mobile Number
-              </AppText>
-            </Pressable>
-
-            <Pressable
-              onPress={() => handleMethodChange("file")}
-              style={{
-                flex: 1,
-                minHeight: TAB_HEIGHT,
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: 9,
-              }}
-            >
-              <AppText
-                variant="bodyMedium"
-                color={
-                  !isMobileLogin ? theme.colors.text : theme.colors.textMuted
-                }
-              >
-                File Number
-              </AppText>
-            </Pressable>
-          </View>
-
           {/* Each method's fields is a distinct keyed element, so Reanimated
               treats a method switch as an unmount/mount and animates the
               enter/exit automatically — no manual fade sequencing needed. */}
@@ -178,19 +119,33 @@ export function LoginScreen({ navigation }: Props) {
               exiting={FadeOut.duration(120)}
               style={{ gap: theme.spacing.md }}
             >
-              <AppInput
+              <PhoneNumberField
                 label="Registered Number"
-                placeholder="🇰🇼  +965  500 12345"
-                keyboardType="phone-pad"
                 leftIcon="Phone"
-                onChangeText={setMobileNumber}
+                callingCode={mobileCallingCode}
+                onCallingCodeChange={setMobileCallingCode}
                 value={mobileNumber}
+                onChangeText={setMobileNumber}
               />
 
               <AppText variant="small" color={theme.colors.textMuted}>
                 We'll send the OTP to this number via WhatsApp.
               </AppText>
 
+              {/* Login with File Number */}
+              <Pressable
+                onPress={() => handleMethodChange("file")}
+                style={{ marginTop: theme.spacing.md }}
+              >
+                <AppText
+                  variant="bodyMedium"
+                  color={theme.colors.primaryDark}
+                  align="right"
+                >
+                  Login via File Number
+                </AppText>
+              </Pressable>
+              {/* Forgot or Reset Password */}
               <Pressable
                 onPress={() => navigation.navigate("ForgotPassword")}
                 style={{ marginTop: theme.spacing.md }}
@@ -229,19 +184,33 @@ export function LoginScreen({ navigation }: Props) {
                 value={civilId}
               />
 
-              <AppInput
+              <PhoneNumberField
                 label="Receive OTP on WhatsApp Number"
-                placeholder="🇰🇼  +965  500 12345"
-                keyboardType="phone-pad"
                 leftIcon="MessageCircle"
-                onChangeText={setWhatsappNumber}
+                callingCode={whatsappCallingCode}
+                onCallingCodeChange={setWhatsappCallingCode}
                 value={whatsappNumber}
+                onChangeText={setWhatsappNumber}
               />
 
               <AppText variant="small" color={theme.colors.textMuted}>
                 We'll send the OTP to this number via WhatsApp.
               </AppText>
 
+              {/* Login with Mobile Number */}
+              <Pressable
+                onPress={() => handleMethodChange("mobile")}
+                style={{ marginTop: theme.spacing.md }}
+              >
+                <AppText
+                  variant="bodyMedium"
+                  color={theme.colors.primaryDark}
+                  align="right"
+                >
+                  Login via Mobile Number
+                </AppText>
+              </Pressable>
+              {/* Forgot or Reset Password */}
               <Pressable
                 onPress={() => navigation.navigate("ForgotPassword")}
                 style={{ marginTop: theme.spacing.md }}
@@ -259,5 +228,83 @@ export function LoginScreen({ navigation }: Props) {
         </Animated.View>
       </AuthCard>
     </Screen>
+  );
+}
+
+// Combines the native country-code Picker (@expo/ui) with the existing
+// AppInput for the national number. AppInput's own `label` prop renders its
+// label directly above the input box, so once this is a two-part row we
+// render the label ourselves instead — check AppInput's real styling and
+// swap this AppText for whatever it uses internally if they differ.
+function PhoneNumberField({
+  label,
+  leftIcon,
+  callingCode,
+  onCallingCodeChange,
+  value,
+  onChangeText,
+}: {
+  label: string;
+  leftIcon: string;
+  callingCode: string;
+  onCallingCodeChange: (code: string) => void;
+  value: string;
+  onChangeText: (value: string) => void;
+}) {
+  const theme = useAppTheme();
+
+  return (
+    <View style={{ gap: 6 }}>
+      <AppText variant="small" color={theme.colors.textMuted}>
+        {label}
+      </AppText>
+
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 8,
+          borderWidth: 1,
+          backgroundColor: theme.colors.card,
+          borderColor: theme.colors.border,
+          borderRadius: theme.radius.lg,
+        }}
+      >
+        <Host matchContents>
+          <Picker
+            selectedValue={callingCode}
+            onValueChange={onCallingCodeChange}
+            appearance="menu"
+          >
+            {COUNTRY_CODES.map((country) => (
+              <Picker.Item
+                key={country.dialCode}
+                label={`${country.flag} ${country.dialCode}`}
+                value={country.dialCode}
+              />
+            ))}
+          </Picker>
+        </Host>
+
+        <View style={{ flex: 1 }}>
+          <TextInput
+            style={{
+              minHeight: 54,
+              paddingHorizontal: 14,
+              flexDirection: "row",
+              alignItems: "center",
+              fontSize: 16,
+              gap: 10,
+            }}
+            placeholder="5001 2345"
+            keyboardType="phone-pad"
+            // leftIcon={'Phone'}
+
+            onChangeText={onChangeText}
+            value={value}
+          />
+        </View>
+      </View>
+    </View>
   );
 }

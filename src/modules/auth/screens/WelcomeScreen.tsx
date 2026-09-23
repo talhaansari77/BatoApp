@@ -1,51 +1,55 @@
-import React from 'react';
-import { View } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React from "react";
+import { Image, useWindowDimensions, View } from "react-native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { AuthStackParamList } from '../../../core/navigation/navigation.types';
-import { Screen } from '../../../shared/ui/templates/Screen';
-import { AppText } from '../../../shared/ui/atoms/AppText';
-import { AppButton } from '../../../shared/ui/atoms/AppButton';
-import { useAppTheme } from '../../../app/providers/ThemeProvider';
+import { AuthStackParamList } from "../../../core/navigation/navigation.types";
+import { Screen } from "../../../shared/ui/templates/Screen";
+import { AppText } from "../../../shared/ui/atoms/AppText";
+import { AppButton } from "../../../shared/ui/atoms/AppButton";
+import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-type Props = NativeStackScreenProps<AuthStackParamList, 'Welcome'>;
+type Props = NativeStackScreenProps<AuthStackParamList, "Welcome">;
 
 export function WelcomeScreen({ navigation }: Props) {
+  const { height, width } = useWindowDimensions();
   const theme = useAppTheme();
 
   return (
-    <Screen title="Welcome" subtitle="BATO Clinic">
+    <SafeAreaView>
       <View
         style={{
-          backgroundColor: theme.colors.card,
-          borderRadius: theme.radius['2xl'],
-          padding: theme.spacing['2xl'],
-          borderWidth: 1,
-          borderColor: theme.colors.border,
+          position: "absolute",
+          top: 0,
+          height: height,
+          width: width,
         }}
       >
-        <AppText variant="h1">Your premium care journey starts here</AppText>
-
-        <AppText
-          color={theme.colors.textMuted}
-          style={{ marginTop: theme.spacing.md }}
-        >
-          Book treatments, follow personalized plans, track progress, and stay connected with BATO Clinic.
-        </AppText>
+        <Image
+          style={{ height: "100%", width: "100%" }}
+          resizeMode="contain"
+          source={require("../../../assets/images/welcomeLight.png")}
+        />
       </View>
 
-      <View style={{ marginTop: theme.spacing['2xl'], gap: theme.spacing.md }}>
-        <AppButton
-          title="Login"
-          onPress={() => navigation.navigate('Login')}
-        />
+      <View
+        style={{
+          position: "absolute",
+          bottom: -(height/1.2),
+          width:width,
+          paddingHorizontal:theme.spacing.md,
+          gap: theme.spacing.md,
+        }}
+      >
+        <AppButton title="Login" onPress={() => navigation.navigate("Login")} />
 
         <AppButton
           title="Create Account"
           variant="outline"
-          onPress={() => navigation.navigate('Register')}
+          
+          onPress={() => navigation.navigate("Register")}
         />
       </View>
-    </Screen>
+    </SafeAreaView>
   );
 }
