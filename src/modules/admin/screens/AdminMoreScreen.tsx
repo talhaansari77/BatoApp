@@ -11,7 +11,7 @@ import { AppText } from '../../../shared/ui/atoms/AppText';
 import { LanguageSelector } from '../../../shared/ui/molecules/LanguageSelector';
 import { ThemeModeSelector } from '../../../shared/ui/molecules/ThemeModeSelector';
 import { Screen } from '../../../shared/ui/templates/Screen';
-import { useAuthStore } from '../../../store/auth.store';
+import { useAuthStore } from '../../auth/store/auth.store';
 
 type AdminMoreNavigation = NativeStackNavigationProp<AdminStackParamList>;
 

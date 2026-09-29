@@ -6,5 +6,5 @@ export const env = {
   // iOS Simulator can use localhost.
   // Android Emulator usually needs 10.0.2.2.
   // Real device needs your Mac local IP address.
-  API_BASE_URL: `http://${MY_MAC_IP}:5243/api`,
+  API_BASE_URL: `https://api.batoclinic.com/api`,
 };

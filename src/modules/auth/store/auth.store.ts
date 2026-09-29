@@ -5,8 +5,8 @@ import {
   AuthUser,
   LoginPayload,
   RegisterPayload,
-} from '../modules/auth/services/authApi';
-import { tokenStorage } from '../core/storage/tokenStorage';
+} from '../services/authApi';
+import { tokenStorage } from '../../../core/storage/tokenStorage';
 
 type AuthStatus = 'checking' | 'authenticated' | 'unauthenticated';
 
@@ -60,16 +60,20 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       const me = await authApi.me();
 
-      set({
-        user: {
-          userId: me.userId,
-          fullName: me.fullName,
-          email: me.email,
-          role: me.role,
-        },
-        status: 'authenticated',
-        isLoading: false,
-      });
+      // set({
+      //   user: {
+      //     user_id?: me.userId,
+      //     civil_id: me.civil_id,
+      //     full_name: me.fullName,
+      //     mobile_number: me.phoneNumber,
+      //     dob: me.string,
+      //     gender: me.string,
+      //     address: me.string,
+      //     nationality: me.string,
+      //   },
+      //   status: 'authenticated',
+      //   isLoading: false,
+      // });
     } catch (error) {
       await tokenStorage.clearTokens();
 
@@ -93,10 +97,13 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       set({
         user: {
-          userId: data.userId,
-          fullName: data.fullName,
-          email: data.email,
-          role: data.role,
+          civil_id: data.civil_id,
+          full_name: data.full_name,
+          mobile_number: data.mobile_number,
+          dob: data.dob,
+          gender: data.gender,
+          address: data.address,
+          nationality: data.nationality,
         },
         status: 'authenticated',
         isLoading: false,
@@ -122,10 +129,13 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       set({
         user: {
-          userId: data.userId,
-          fullName: data.fullName,
-          email: data.email,
-          role: data.role,
+          civil_id: data.civil_id,
+          full_name: data.full_name,
+          mobile_number: data.mobile_number,
+          dob: data.dob,
+          gender: data.gender,
+          address: data.address,
+          nationality: data.nationality,
         },
         status: 'authenticated',
         isLoading: false,

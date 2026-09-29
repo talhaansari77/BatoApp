@@ -18,7 +18,7 @@ export function AuthNavigator() {
 
   return (
     <Stack.Navigator
-      initialRouteName="Login"
+      initialRouteName="Register"
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',

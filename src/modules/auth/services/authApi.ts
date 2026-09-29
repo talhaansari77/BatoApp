@@ -4,10 +4,15 @@ import { tokenStorage } from '../../../core/storage/tokenStorage';
 export type UserRole = 'Patient' | 'Doctor' | 'Admin';
 
 export type AuthUser = {
-  userId: string;
-  fullName: string;
-  email: string;
-  role: UserRole;
+  user_id?:string,
+  civil_id: number;
+  full_name: string;
+  mobile_number: number;
+  dob: string;
+  gender: string;
+  address: string;
+  nationality: string;
+
 };
 
 export type AuthResponse = AuthUser & {
@@ -21,11 +26,13 @@ export type LoginPayload = {
 };
 
 export type RegisterPayload = {
-  fullName: string;
-  email: string;
-  phoneNumber?: string;
-  password: string;
-  role: UserRole;
+  civil_id: string|undefined;
+  full_name: string;
+  mobile_number: string|undefined;
+  dob?: string;
+  gender?: string;
+  address?: string;
+  nationality?: string;
 };
 
 export type MeResponse = {
@@ -40,7 +47,7 @@ export type MeResponse = {
 
 export const authApi = {
   async login(payload: LoginPayload) {
-    const response = await apiClient.post<AuthResponse>('/auth/login', payload);
+    const response = await apiClient.post<AuthResponse>('/api/patient/send-otp', payload);
 
     await tokenStorage.saveTokens(
       response.data.token,
@@ -50,8 +57,9 @@ export const authApi = {
     return response.data;
   },
 
+  // /patient/register
   async register(payload: RegisterPayload) {
-    const response = await apiClient.post<AuthResponse>('/auth/register', payload);
+    const response = await apiClient.post<AuthResponse>('/patient/register', payload);
 
     await tokenStorage.saveTokens(
       response.data.token,

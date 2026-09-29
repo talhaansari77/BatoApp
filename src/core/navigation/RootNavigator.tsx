@@ -7,7 +7,7 @@ import { AuthNavigator } from "./AuthNavigator";
 import { DoctorNavigator } from "./DoctorNavigator";
 import { PatientNavigator } from "./PatientNavigator";
 import { RootStackParamList } from "./navigation.types";
-import { useAuthStore } from "../../store/auth.store";
+import { useAuthStore } from "../../modules/auth/store/auth.store";
 import { Animated, Image, View, StyleSheet } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { ReportsNavigator } from "./ReportsNavigator";

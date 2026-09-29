@@ -8,7 +8,7 @@ import { StatusBar } from "expo-status-bar";
 import { LanguageProvider } from "./src/app/providers/LanguageProvider";
 import { ThemeProvider, useAppTheme } from "./src/app/providers/ThemeProvider";
 import { RootNavigator } from "./src/core/navigation/RootNavigator";
-import { useAuthStore } from "./src/store/auth.store";
+import { useAuthStore } from "./src/modules/auth/store/auth.store";
 
 function AppContent() {
   const theme = useAppTheme();

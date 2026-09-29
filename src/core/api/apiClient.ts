@@ -3,6 +3,7 @@ import axios from 'axios';
 import { env } from '../config/env';
 import { tokenStorage } from '../storage/tokenStorage';
 
+// https://api.batoclinic.com/api/patient/register
 // apiClient is the shared Axios instance for all backend requests.
 // It automatically adds Authorization header if access token exists.
 export const apiClient = axios.create({
