@@ -38,7 +38,7 @@ export function PatientTabs() {
 
   return (
     <Tab.Navigator
-    initialRouteName='PatientAppointments'
+    initialRouteName='PatientProfile'
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: theme.colors.primaryDark,

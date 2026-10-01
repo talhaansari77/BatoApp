@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { LayoutChangeEvent, Pressable, TextInput, View } from "react-native";
+import {
+  Alert,
+  LayoutChangeEvent,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -18,6 +25,9 @@ import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppInput } from "../../../shared/ui/atoms/AppInput";
 import { AuthCard } from "../../../shared/ui/molecules/AuthCard";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { authApi } from "../services/authApi";
+import { useAuthStore } from "../store/auth.store";
+import CountryPickerField from "../../../shared/ui/atoms/CountryPickerField";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -42,11 +52,17 @@ const COUNTRY_CODES = [
 export function LoginScreen({ navigation }: Props) {
   const theme = useAppTheme();
 
+  const sendOtp = useAuthStore((state) => state.sendOtp);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const clearError = useAuthStore((state) => state.clearError);
+
   const [loginMethod, setLoginMethod] = useState<LoginMethod>("mobile");
-  const [mobileNumber, setMobileNumber] = useState("");
+  const [mobileNumber, setMobileNumber] = useState<number>();
   const [fileNumber, setFileNumber] = useState("");
   const [civilId, setCivilId] = useState("");
-  const [whatsappNumber, setWhatsappNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("66213403");
+  const [countryCode, setCountryCode] = useState<any>("KW");
+  const [callingCode, setCallingCode] = useState("965");
 
   // Each phone field gets its own calling code, in case the mobile login
   // number and the WhatsApp OTP number end up belonging to different
@@ -85,16 +101,50 @@ export function LoginScreen({ navigation }: Props) {
     setLoginMethod(method);
   };
 
-  const handleSendOtp = () => {
+  const handleSendOtp = async () => {
     // Keep the OTP navigation in one place so both login methods
     // follow the same verification flow.
-    navigation.navigate("OtpVerification");
+    const LoginPayload = {
+      login_method: loginMethod,
+      mobile_number: phoneNumber,
+    };
+
+    try {
+      clearError();
+
+      if (!phoneNumber.trim()) {
+        Alert.alert("Missing fields", "Please enter phoneNumber.");
+        return;
+      }
+
+      const response = await sendOtp({
+        login_method: loginMethod,
+        mobile_number: phoneNumber,
+      });
+      console.log("OTP response:", response);
+
+      navigation.navigate("OtpVerification");
+    } catch {
+      Alert.alert(
+        "Login failed",
+        "Please check your Phone Number and try again.",
+      );
+    }
+
+    // navigation.navigate("OtpVerification");
   };
 
   return (
     <Screen
       title="LOGIN"
-      footer={<AppButton title="Send OTP" onPress={handleSendOtp} />}
+      footer={
+        <AppButton
+          title={isLoading ? "Sending Otp" : "Send Otp"}
+          loading={isLoading}
+          disabled={isLoading}
+          onPress={handleSendOtp}
+        />
+      }
     >
       <AuthCard
         title="Welcome back"
@@ -104,6 +154,24 @@ export function LoginScreen({ navigation }: Props) {
             : "Enter your file details and registered WhatsApp number to access your medical reports."
         }
       >
+        <View style={{flex:1,flexDirection:'row'}}>
+          <View>
+            
+          <CountryPickerField
+            countryCode={countryCode}
+            callingCode={callingCode}
+            label="Country"
+            onSelect={(country) => {
+              setCountryCode(country.cca2);
+              setCallingCode(country.callingCode[0]);
+            }}
+          />
+
+          </View>
+          <View style={{flex:1}}>
+
+          </View>
+        </View>
         {/* Animates the card's height smoothly whenever its content changes size. */}
         <Animated.View
           layout={LinearTransition.springify().damping(18).stiffness(180)}
@@ -124,8 +192,8 @@ export function LoginScreen({ navigation }: Props) {
                 leftIcon="Phone"
                 callingCode={mobileCallingCode}
                 onCallingCodeChange={setMobileCallingCode}
-                value={mobileNumber}
-                onChangeText={setMobileNumber}
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
               />
 
               <AppText variant="small" color={theme.colors.textMuted}>
@@ -189,8 +257,8 @@ export function LoginScreen({ navigation }: Props) {
                 leftIcon="MessageCircle"
                 callingCode={whatsappCallingCode}
                 onCallingCodeChange={setWhatsappCallingCode}
-                value={whatsappNumber}
-                onChangeText={setWhatsappNumber}
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
               />
 
               <AppText variant="small" color={theme.colors.textMuted}>
@@ -308,3 +376,5 @@ function PhoneNumberField({
     </View>
   );
 }
+
+

@@ -52,16 +52,18 @@ export function RootNavigator() {
         // initialRouteName="PatientApp"
         screenOptions={{ headerShown: false }}
       >
-        {/* {status === "authenticated" && user?.role === "Patient" ? (
-      ) : status === "authenticated" && user?.role === "Doctor" ? (
-      ) : status === "authenticated" && user?.role === "Admin" ? (
-      ) : ( */}
-        <Stack.Screen name="Auth" component={AuthNavigator} />
-        <Stack.Screen name="PatientApp" component={PatientNavigator} />
-        <Stack.Screen name="DoctorApp" component={DoctorNavigator} />
-        <Stack.Screen name="AdminApp" component={AdminNavigator} />
-        <Stack.Screen name="ReportsApp" component={ReportsNavigator} />
-        {/* )} */}
+        {status === "authenticated" && user ? (
+          <Stack.Screen name="PatientApp" component={PatientNavigator} />
+        ) : (
+          <Stack.Screen name="Auth" component={AuthNavigator} />
+        )}
+
+         {/* <Stack.Screen name="Auth" component={AuthNavigator} />
+         <Stack.Screen name="PatientApp" component={PatientNavigator} />
+         <Stack.Screen name="DoctorApp" component={DoctorNavigator} />
+         <Stack.Screen name="AdminApp" component={AdminNavigator} />
+         <Stack.Screen name="ReportsApp" component={ReportsNavigator} /> */}
+        
       </Stack.Navigator>
 
       {/* splashVisible */}

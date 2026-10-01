@@ -1,14 +1,21 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 import {
   authApi,
   AuthUser,
   LoginPayload,
+  OtpPayload,
   RegisterPayload,
-} from '../services/authApi';
-import { tokenStorage } from '../../../core/storage/tokenStorage';
+} from "../services/authApi";
+import { tokenStorage } from "../../../core/storage/tokenStorage";
+import { User } from "lucide-react-native";
 
-type AuthStatus = 'checking' | 'authenticated' | 'unauthenticated';
+type AuthStatus = "checking" | "authenticated" | "unauthenticated";
+
+type SendOtpResponse = {
+  mobile_masked: string;
+  otp_key: string;
+};
 
 type AuthState = {
   user: AuthUser | null;
@@ -17,8 +24,9 @@ type AuthState = {
   error: string | null;
 
   bootstrapAuth: () => Promise<void>;
-  login: (payload: LoginPayload) => Promise<void>;
-  register: (payload: RegisterPayload) => Promise<void>;
+  sendOtp: (payload: OtpPayload) => Promise<SendOtpResponse>;
+  login: (payload: LoginPayload) => Promise<any>;
+  register: (payload: RegisterPayload) => Promise<any>;
   logout: () => Promise<void>;
   clearError: () => void;
 };
@@ -28,12 +36,12 @@ function getErrorMessage(error: unknown) {
     return error.message;
   }
 
-  return 'Something went wrong';
+  return "Something went wrong";
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  status: 'checking',
+  status: "checking",
   isLoading: false,
   error: null,
 
@@ -42,47 +50,65 @@ export const useAuthStore = create<AuthState>((set) => ({
   bootstrapAuth: async () => {
     try {
       set({
-        status: 'checking',
+        status: "checking",
         isLoading: true,
         error: null,
       });
 
       const accessToken = await tokenStorage.getAccessToken();
-
+      console.log(accessToken);
       if (!accessToken) {
         set({
           user: null,
-          status: 'unauthenticated',
+          status: "unauthenticated",
           isLoading: false,
         });
         return;
       }
 
-      const me = await authApi.me();
-
-      // set({
-      //   user: {
-      //     user_id?: me.userId,
-      //     civil_id: me.civil_id,
-      //     full_name: me.fullName,
-      //     mobile_number: me.phoneNumber,
-      //     dob: me.string,
-      //     gender: me.string,
-      //     address: me.string,
-      //     nationality: me.string,
-      //   },
-      //   status: 'authenticated',
-      //   isLoading: false,
-      // });
+      const me = await authApi.patientPrifile();
+      console.log(me);
+      set({
+        user: me.data,
+        status: "authenticated",
+        isLoading: false,
+      });
     } catch (error) {
       await tokenStorage.clearTokens();
 
       set({
         user: null,
-        status: 'unauthenticated',
+        status: "unauthenticated",
         isLoading: false,
         error: getErrorMessage(error),
       });
+    }
+  },
+
+  // sending and opt with secure opt_key
+  sendOtp: async (payload) => {
+    try {
+      set({
+        isLoading: true,
+        error: null,
+      });
+
+      const data = await authApi.senOtp(payload);
+
+      //need to review this
+      set({
+        status: "authenticated",
+        isLoading: false,
+      });
+
+      return data;
+    } catch (error) {
+      set({
+        isLoading: false,
+        error: getErrorMessage(error),
+      });
+
+      throw error;
     }
   },
 
@@ -96,18 +122,12 @@ export const useAuthStore = create<AuthState>((set) => ({
       const data = await authApi.login(payload);
 
       set({
-        user: {
-          civil_id: data.civil_id,
-          full_name: data.full_name,
-          mobile_number: data.mobile_number,
-          dob: data.dob,
-          gender: data.gender,
-          address: data.address,
-          nationality: data.nationality,
-        },
-        status: 'authenticated',
+        user: data?.patient,
+        status: "authenticated",
         isLoading: false,
       });
+
+      return data;
     } catch (error) {
       set({
         isLoading: false,
@@ -127,19 +147,14 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       const data = await authApi.register(payload);
 
+      console.log('data')
+      console.log(data)
+      
       set({
-        user: {
-          civil_id: data.civil_id,
-          full_name: data.full_name,
-          mobile_number: data.mobile_number,
-          dob: data.dob,
-          gender: data.gender,
-          address: data.address,
-          nationality: data.nationality,
-        },
-        status: 'authenticated',
+        status: "unauthenticated",
         isLoading: false,
       });
+      return data;
     } catch (error) {
       set({
         isLoading: false,
@@ -161,7 +176,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     } finally {
       set({
         user: null,
-        status: 'unauthenticated',
+        status: "unauthenticated",
         isLoading: false,
       });
     }

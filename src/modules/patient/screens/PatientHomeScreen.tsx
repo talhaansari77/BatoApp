@@ -1,18 +1,19 @@
-import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { useNavigation } from '@react-navigation/native';
+import React, { useMemo } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { useNavigation } from "@react-navigation/native";
 
-import { useAppTheme } from '../../../app/providers/ThemeProvider';
-import { PatientTabParamList } from '../../../core/navigation/navigation.types';
-import { AppButton } from '../../../shared/ui/atoms/AppButton';
-import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
-import { AppText } from '../../../shared/ui/atoms/AppText';
-import { Screen } from '../../../shared/ui/templates/Screen';
+import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { PatientTabParamList } from "../../../core/navigation/navigation.types";
+import { AppButton } from "../../../shared/ui/atoms/AppButton";
+import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
+import { AppText } from "../../../shared/ui/atoms/AppText";
+import { Screen } from "../../../shared/ui/templates/Screen";
+import { useAuthStore } from "../../auth/store/auth.store";
 
 type PatientHomeNavigation = BottomTabNavigationProp<
   PatientTabParamList,
-  'PatientHome'
+  "PatientHome"
 >;
 
 type QuickAction = {
@@ -40,76 +41,77 @@ type Specialist = {
 
 const quickActions: QuickAction[] = [
   {
-    id: 'book',
-    title: 'Book Visit',
-    subtitle: 'Start booking',
-    icon: 'CalendarPlus',
-    route: 'PatientServices',
+    id: "book",
+    title: "Book Visit",
+    subtitle: "Start booking",
+    icon: "CalendarPlus",
+    route: "PatientServices",
   },
   {
-    id: 'appointments',
-    title: 'Appointments',
-    subtitle: 'Upcoming visits',
-    icon: 'CalendarDays',
-    route: 'PatientAppointments',
+    id: "appointments",
+    title: "Appointments",
+    subtitle: "Upcoming visits",
+    icon: "CalendarDays",
+    route: "PatientAppointments",
   },
   {
-    id: 'progress',
-    title: 'Progress',
-    subtitle: 'Track care plan',
-    icon: 'ChartNoAxesColumnIncreasing',
-    route: 'PatientProgress',
+    id: "progress",
+    title: "Progress",
+    subtitle: "Track care plan",
+    icon: "ChartNoAxesColumnIncreasing",
+    route: "PatientProgress",
   },
   {
-    id: 'profile',
-    title: 'Profile',
-    subtitle: 'Your care info',
-    icon: 'UserRound',
-    route: 'PatientProfile',
+    id: "profile",
+    title: "Profile",
+    subtitle: "Your care info",
+    icon: "UserRound",
+    route: "PatientProfile",
   },
 ];
 
 const serviceCategories: ServiceCategory[] = [
   {
-    id: 'hair',
-    title: 'Hair Treatments',
-    subtitle: 'Growth, fall control, nourishment',
-    icon: 'Sparkles',
+    id: "hair",
+    title: "Hair Treatments",
+    subtitle: "Growth, fall control, nourishment",
+    icon: "Sparkles",
   },
   {
-    id: 'skin',
-    title: 'Skin Treatments',
-    subtitle: 'Acne, hydration, pigmentation',
-    icon: 'ScanFace',
+    id: "skin",
+    title: "Skin Treatments",
+    subtitle: "Acne, hydration, pigmentation",
+    icon: "ScanFace",
   },
   {
-    id: 'face',
-    title: 'Face Treatments',
-    subtitle: 'Fillers, botox, lifting',
-    icon: 'SmilePlus',
+    id: "face",
+    title: "Face Treatments",
+    subtitle: "Fillers, botox, lifting",
+    icon: "SmilePlus",
   },
 ];
 
 const specialists: Specialist[] = [
   {
-    id: '1',
-    name: 'Dr. Sarah Ahmed',
-    specialty: 'Dermatologist',
-    rating: '4.9',
-    experience: '8 yrs',
+    id: "1",
+    name: "Dr. Sarah Ahmed",
+    specialty: "Dermatologist",
+    rating: "4.9",
+    experience: "8 yrs",
   },
   {
-    id: '2',
-    name: 'Dr. Omar Khalid',
-    specialty: 'Hair Specialist',
-    rating: '4.8',
-    experience: '10 yrs',
+    id: "2",
+    name: "Dr. Omar Khalid",
+    specialty: "Hair Specialist",
+    rating: "4.8",
+    experience: "10 yrs",
   },
 ];
 
 export function PatientHomeScreen() {
   const theme = useAppTheme();
   const navigation = useNavigation<PatientHomeNavigation>();
+  const user = useAuthStore((state) => state.user);
 
   const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -120,10 +122,10 @@ export function PatientHomeScreen() {
   return (
     <Screen
       title="Home"
-      subtitle="Welcome to BATO Clinic"
+      // subtitle="Welcome to BATO Clinic"
       actions={[
         {
-          icon: 'Bell',
+          icon: "Bell",
           onPress: () => {},
         },
       ]}
@@ -144,7 +146,7 @@ export function PatientHomeScreen() {
                 Good morning
               </AppText>
 
-              <AppText variant="h3">Muhammad Talha</AppText>
+              <AppText variant="h3">{user?.full_name}</AppText>
             </View>
           </View>
 
@@ -174,7 +176,7 @@ export function PatientHomeScreen() {
                 title="Book Appointment"
                 fullWidth={false}
                 style={styles.heroButton}
-                onPress={() => navigateToTab('PatientServices')}
+                onPress={() => navigateToTab("PatientServices")}
               />
             </View>
 
@@ -192,7 +194,7 @@ export function PatientHomeScreen() {
           <SectionHeader
             title="Quick Actions"
             actionLabel="View all"
-            onActionPress={() => navigateToTab('PatientServices')}
+            onActionPress={() => navigateToTab("PatientServices")}
           />
 
           <View style={styles.quickGrid}>
@@ -231,14 +233,14 @@ export function PatientHomeScreen() {
           <SectionHeader
             title="Services"
             actionLabel="See all"
-            onActionPress={() => navigateToTab('PatientServices')}
+            onActionPress={() => navigateToTab("PatientServices")}
           />
 
           <View style={styles.list}>
             {serviceCategories.map((item) => (
               <Pressable
                 key={item.id}
-                onPress={() => navigateToTab('PatientServices')}
+                onPress={() => navigateToTab("PatientServices")}
                 style={({ pressed }) => [
                   styles.serviceCard,
                   pressed && styles.pressed,
@@ -273,11 +275,11 @@ export function PatientHomeScreen() {
           <SectionHeader
             title="Upcoming Appointment"
             actionLabel="Details"
-            onActionPress={() => navigateToTab('PatientAppointments')}
+            onActionPress={() => navigateToTab("PatientAppointments")}
           />
 
           <Pressable
-            onPress={() => navigateToTab('PatientAppointments')}
+            onPress={() => navigateToTab("PatientAppointments")}
             style={({ pressed }) => [
               styles.appointmentCard,
               pressed && styles.pressed,
@@ -319,11 +321,11 @@ export function PatientHomeScreen() {
           <SectionHeader
             title="Treatment Progress"
             actionLabel="View"
-            onActionPress={() => navigateToTab('PatientProgress')}
+            onActionPress={() => navigateToTab("PatientProgress")}
           />
 
           <Pressable
-            onPress={() => navigateToTab('PatientProgress')}
+            onPress={() => navigateToTab("PatientProgress")}
             style={({ pressed }) => [
               styles.progressCard,
               pressed && styles.pressed,
@@ -466,7 +468,7 @@ function SectionHeader({
 function createStyles(theme: ReturnType<typeof useAppTheme>) {
   return StyleSheet.create({
     root: {
-      gap: theme.spacing['2xl'],
+      gap: theme.spacing["2xl"],
     },
 
     welcomeCard: {
@@ -474,8 +476,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     welcomeTop: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.md,
     },
 
@@ -483,8 +485,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       width: 54,
       height: 54,
       borderRadius: theme.radius.full,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
       backgroundColor: theme.colors.cardMuted,
       borderWidth: 1,
       borderColor: theme.colors.border,
@@ -495,13 +497,13 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     heroBox: {
-      borderRadius: theme.radius['2xl'],
+      borderRadius: theme.radius["2xl"],
       backgroundColor: theme.colors.nude,
       borderWidth: 1,
       borderColor: theme.colors.border,
       padding: theme.spacing.xl,
-      flexDirection: 'row',
-      overflow: 'hidden',
+      flexDirection: "row",
+      overflow: "hidden",
       gap: theme.spacing.md,
       ...theme.shadows.card,
     },
@@ -512,9 +514,9 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     heroBadge: {
-      alignSelf: 'flex-start',
-      flexDirection: 'row',
-      alignItems: 'center',
+      alignSelf: "flex-start",
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.xs,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.xs,
@@ -538,11 +540,11 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     heroIcon: {
       width: 78,
       height: 78,
-      borderRadius: theme.radius['2xl'],
+      borderRadius: theme.radius["2xl"],
       backgroundColor: theme.colors.card,
-      alignItems: 'center',
-      justifyContent: 'center',
-      alignSelf: 'center',
+      alignItems: "center",
+      justifyContent: "center",
+      alignSelf: "center",
     },
 
     section: {
@@ -550,13 +552,13 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     quickGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
+      flexDirection: "row",
+      flexWrap: "wrap",
       gap: theme.spacing.md,
     },
 
     quickCard: {
-      width: '47.8%',
+      width: "47.8%",
       minHeight: 128,
       borderRadius: theme.radius.xl,
       backgroundColor: theme.colors.card,
@@ -572,8 +574,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       height: 44,
       borderRadius: theme.radius.lg,
       backgroundColor: theme.colors.cardMuted,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
       marginBottom: theme.spacing.sm,
     },
 
@@ -592,8 +594,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       padding: theme.spacing.lg,
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.md,
       ...theme.shadows.card,
     },
@@ -603,8 +605,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       height: 48,
       borderRadius: theme.radius.lg,
       backgroundColor: theme.colors.cardMuted,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
 
     cardText: {
@@ -618,8 +620,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       padding: theme.spacing.lg,
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.md,
       ...theme.shadows.card,
     },
@@ -629,12 +631,12 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       height: 50,
       borderRadius: theme.radius.lg,
       backgroundColor: theme.colors.cardMuted,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
 
     appointmentTime: {
-      fontWeight: '600',
+      fontWeight: "600",
     },
 
     statusBadge: {
@@ -655,9 +657,9 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     progressHeader: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
       gap: theme.spacing.md,
     },
 
@@ -665,26 +667,26 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       height: 9,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.cardMuted,
-      overflow: 'hidden',
+      overflow: "hidden",
     },
 
     progressFill: {
-      width: '50%',
-      height: '100%',
+      width: "50%",
+      height: "100%",
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.primaryDark,
     },
 
     progressFooter: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
       gap: theme.spacing.md,
     },
 
     inlineInfo: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.xs,
     },
 
@@ -698,8 +700,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       padding: theme.spacing.lg,
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.md,
       ...theme.shadows.card,
     },
@@ -709,12 +711,12 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       height: 48,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.cardMuted,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
 
     specialistMeta: {
-      alignItems: 'flex-end',
+      alignItems: "flex-end",
       gap: theme.spacing.xs,
     },
 
@@ -724,8 +726,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       borderWidth: 1,
       borderColor: theme.colors.border,
       padding: theme.spacing.lg,
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.md,
       marginBottom: theme.spacing.lg,
     },
@@ -735,8 +737,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       height: 48,
       borderRadius: theme.radius.lg,
       backgroundColor: theme.colors.card,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
 
     pressed: {
@@ -748,8 +750,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
 
 const sectionHeaderStyles = StyleSheet.create({
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 });

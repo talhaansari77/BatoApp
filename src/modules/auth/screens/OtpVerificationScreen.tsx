@@ -1,24 +1,30 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Keyboard,
   NativeSyntheticEvent,
   Pressable,
   TextInput,
   TextInputKeyPressEventData,
   View,
-} from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { CompositeScreenProps } from '@react-navigation/native';
+} from "react-native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { CompositeScreenProps } from "@react-navigation/native";
 
-import { AuthStackParamList, RootStackParamList } from '../../../core/navigation/navigation.types';
-import { Screen } from '../../../shared/ui/templates/Screen';
-import { AppText } from '../../../shared/ui/atoms/AppText';
-import { AppButton } from '../../../shared/ui/atoms/AppButton';
-import { AuthCard } from '../../../shared/ui/molecules/AuthCard';
-import { useAppTheme } from '../../../app/providers/ThemeProvider';
+import {
+  AuthStackParamList,
+  RootStackParamList,
+} from "../../../core/navigation/navigation.types";
+import { Screen } from "../../../shared/ui/templates/Screen";
+import { AppText } from "../../../shared/ui/atoms/AppText";
+import { AppButton } from "../../../shared/ui/atoms/AppButton";
+import { AuthCard } from "../../../shared/ui/molecules/AuthCard";
+import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { tokenStorage } from "../../../core/storage/tokenStorage";
+import { useAuthStore } from "../store/auth.store";
 
 type Props = CompositeScreenProps<
-  NativeStackScreenProps<AuthStackParamList, 'OtpVerification'>,
+  NativeStackScreenProps<AuthStackParamList, "OtpVerification">,
   NativeStackScreenProps<RootStackParamList>
 >;
 
@@ -31,13 +37,16 @@ export function OtpVerificationScreen({ navigation }: Props) {
   // The original TextInputs had no `value`/`onChangeText` at all — fully
   // uncontrolled and never wired to any state. This is the actual source
   // of truth now.
-  const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
+  const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
+  const clearError = useAuthStore((state) => state.clearError);
+  const login = useAuthStore((state) => state.login);
+  const status = useAuthStore((state) => state.status);
 
   const inputRefs = useRef<Array<TextInput | null>>([]);
 
-  const code = otp.join('');
+  const code = otp.join("");
   const isComplete = code.length === OTP_LENGTH;
 
   useEffect(() => {
@@ -47,13 +56,13 @@ export function OtpVerificationScreen({ navigation }: Props) {
   }, [secondsLeft]);
 
   const handleChangeText = (text: string, index: number) => {
-    const digits = text.replace(/[^0-9]/g, '');
+    const digits = text.replace(/[^0-9]/g, "");
 
     // Box cleared (e.g. backspace on a filled box) — just clear it.
     if (digits.length === 0) {
       setOtp((prev) => {
         const next = [...prev];
-        next[index] = '';
+        next[index] = "";
         return next;
       });
       return;
@@ -83,13 +92,18 @@ export function OtpVerificationScreen({ navigation }: Props) {
 
     setOtp((prev) => {
       const next = [...prev];
-      for (let i = 0; i < digits.length && startIndex + i < OTP_LENGTH; i += 1) {
+      for (
+        let i = 0;
+        i < digits.length && startIndex + i < OTP_LENGTH;
+        i += 1
+      ) {
         next[startIndex + i] = digits[i];
       }
       return next;
     });
 
-    const lastFilledIndex = Math.min(startIndex + digits.length, OTP_LENGTH) - 1;
+    const lastFilledIndex =
+      Math.min(startIndex + digits.length, OTP_LENGTH) - 1;
     if (lastFilledIndex >= OTP_LENGTH - 1) {
       Keyboard.dismiss();
     } else {
@@ -101,12 +115,12 @@ export function OtpVerificationScreen({ navigation }: Props) {
   // the previous digit too, matching how most OTP inputs feel to use.
   const handleKeyPress = (
     event: NativeSyntheticEvent<TextInputKeyPressEventData>,
-    index: number
+    index: number,
   ) => {
-    if (event.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
+    if (event.nativeEvent.key === "Backspace" && !otp[index] && index > 0) {
       setOtp((prev) => {
         const next = [...prev];
-        next[index - 1] = '';
+        next[index - 1] = "";
         return next;
       });
       inputRefs.current[index - 1]?.focus();
@@ -114,10 +128,35 @@ export function OtpVerificationScreen({ navigation }: Props) {
   };
 
   const handleResend = () => {
-    setOtp(Array(OTP_LENGTH).fill(''));
+    setOtp(Array(OTP_LENGTH).fill(""));
     setSecondsLeft(RESEND_SECONDS);
     inputRefs.current[0]?.focus();
     // TODO: trigger the actual resend-OTP request here.
+  };
+
+  const handleVerityOtp = async () => {
+    const OTP_KEY = await tokenStorage.getOtpKey();
+    if (!OTP_KEY) {
+      throw new Error("OTP key is missing");
+    }
+    const otpString = otp.join("");
+
+    const LoginPayload = {
+      otp_key: OTP_KEY,
+      otp: otpString,
+    };
+
+    try {
+      clearError();
+
+      const response = await login(LoginPayload);
+      if (status == "authenticated") navigation.navigate("PatientApp");
+    } catch {
+      Alert.alert(
+        "Login failed",
+        "Please check your Phone Number and try again.",
+      );
+    }
   };
 
   return (
@@ -129,7 +168,7 @@ export function OtpVerificationScreen({ navigation }: Props) {
       footer={
         <AppButton
           title="Verify OTP"
-          onPress={() => navigation.navigate('PatientApp')}
+          onPress={handleVerityOtp}
           disabled={!isComplete}
         />
       }
@@ -140,8 +179,8 @@ export function OtpVerificationScreen({ navigation }: Props) {
       >
         <View
           style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
+            flexDirection: "row",
+            justifyContent: "space-between",
             gap: theme.spacing.sm,
           }}
         >
@@ -156,7 +195,9 @@ export function OtpVerificationScreen({ navigation }: Props) {
               onKeyPress={(event) => handleKeyPress(event, index)}
               onFocus={() => setFocusedIndex(index)}
               onBlur={() =>
-                setFocusedIndex((current) => (current === index ? null : current))
+                setFocusedIndex((current) =>
+                  current === index ? null : current,
+                )
               }
               keyboardType="number-pad"
               // Lets iOS/Android surface the incoming SMS code as a
@@ -175,10 +216,10 @@ export function OtpVerificationScreen({ navigation }: Props) {
                 borderWidth: focusedIndex === index ? 2 : 1,
                 borderColor:
                   focusedIndex === index
-                    ? theme.colors.primaryDark ?? theme.colors.text
+                    ? (theme.colors.primaryDark ?? theme.colors.text)
                     : theme.colors.border,
                 backgroundColor: theme.colors.background,
-                textAlign: 'center',
+                textAlign: "center",
                 fontSize: 20,
                 color: theme.colors.text,
               }}
@@ -196,8 +237,15 @@ export function OtpVerificationScreen({ navigation }: Props) {
             Didn’t receive a code? Resend in {secondsLeft}s
           </AppText>
         ) : (
-          <Pressable onPress={handleResend} style={{ marginTop: theme.spacing.lg }}>
-            <AppText variant="caption" color={theme.colors.primaryDark} align="center">
+          <Pressable
+            onPress={handleResend}
+            style={{ marginTop: theme.spacing.lg }}
+          >
+            <AppText
+              variant="caption"
+              color={theme.colors.primaryDark}
+              align="center"
+            >
               Didn’t receive a code? Resend
             </AppText>
           </Pressable>

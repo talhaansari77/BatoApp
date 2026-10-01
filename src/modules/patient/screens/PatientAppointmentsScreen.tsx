@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
@@ -9,6 +9,7 @@ import { AppButton } from '../../../shared/ui/atoms/AppButton';
 import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
 import { AppText } from '../../../shared/ui/atoms/AppText';
 import { Screen } from '../../../shared/ui/templates/Screen';
+import { useAuthStore } from '../../auth/store/auth.store';
 
 type PatientAppointmentsNavigation = BottomTabNavigationProp<
   PatientTabParamList,
@@ -108,6 +109,7 @@ const appointments: Appointment[] = [
 
 export function PatientAppointmentsScreen() {
   const theme = useAppTheme();
+  const user = useAuthStore((state) => state.user);
   const navigation = useNavigation<PatientAppointmentsNavigation>();
 
   const [selectedFilter, setSelectedFilter] = useState<AppointmentFilter>('all');
@@ -132,6 +134,10 @@ export function PatientAppointmentsScreen() {
     (appointment) => appointment.status === 'pending',
   ).length;
 
+  useEffect(()=>{
+    console.log('user')
+    console.log(user)
+  },[])
   return (
     <Screen
       title="Appointments"

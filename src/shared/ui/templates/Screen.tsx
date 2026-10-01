@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -6,10 +6,10 @@ import {
   StyleSheet,
   View,
   ViewStyle,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAppTheme } from '../../../app/providers/ThemeProvider';
-import { AppHeader } from '../organisms/AppHeader';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { AppHeader } from "../organisms/AppHeader";
 
 type ScreenProps = {
   children: React.ReactNode;
@@ -18,7 +18,7 @@ type ScreenProps = {
   showBack?: boolean;
   onBackPress?: () => void;
   scroll?: boolean;
-  actions?: React.ComponentProps<typeof AppHeader>['actions'];
+  actions?: React.ComponentProps<typeof AppHeader>["actions"];
   footer?: React.ReactNode;
   contentStyle?: ViewStyle;
 };
@@ -43,7 +43,9 @@ export function Screen({
         styles.content,
         {
           paddingHorizontal: theme.spacing.xl,
-          paddingBottom: footer ? theme.spacing.xl : insets.bottom + theme.spacing.xl,
+          paddingBottom: footer
+            ? theme.spacing.xl
+            : insets.bottom + theme.spacing.xl,
         },
         contentStyle,
       ]}
@@ -54,6 +56,7 @@ export function Screen({
 
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
+      
       <AppHeader
         title={title}
         subtitle={subtitle}
@@ -64,7 +67,7 @@ export function Screen({
 
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         {scroll ? (
           <ScrollView

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -58,32 +58,7 @@ const profileStats: ProfileStat[] = [
   },
 ];
 
-const profileInfo: ProfileInfoItem[] = [
-  {
-    id: 'email',
-    label: 'Email',
-    value: 'muhammad.talha@email.com',
-    icon: 'Mail',
-  },
-  {
-    id: 'phone',
-    label: 'Phone',
-    value: '+965 0000 0000',
-    icon: 'Phone',
-  },
-  {
-    id: 'patientId',
-    label: 'Patient ID',
-    value: 'BATO-PT-1001',
-    icon: 'BadgeCheck',
-  },
-  {
-    id: 'branch',
-    label: 'Preferred Branch',
-    value: 'Main Branch',
-    icon: 'MapPin',
-  },
-];
+
 
 // type Props = BottomTabNavigationProp<ReportsStackParamList, "PatientProfile">;
 
@@ -95,8 +70,35 @@ export function PatientProfileScreen() {
 
   const logout = useAuthStore((state) => state.logout);
   const isLoading = useAuthStore((state) => state.isLoading);
+  const user = useAuthStore((state) => state.user);
 
   const styles = useMemo(() => createStyles(theme), [theme]);
+
+const profileInfo: ProfileInfoItem[] = user
+  ? [
+      {
+        id: 'phone',
+        label: 'Phone',
+        value: user.full_mobile_number,
+        icon: 'Phone',
+      },
+      {
+        id: 'patientId',
+        label: 'Patient ID',
+        value: user.patient_code,
+        icon: 'BadgeCheck',
+      },
+      {
+        id: 'civilId',
+        label: 'Civil ID',
+        value: user.civil_id,
+        icon: 'BadgeCheck',
+      },
+    ]
+  : [];
+  useEffect(()=>{
+    
+  },[])
 
   const accountActions: AccountAction[] = [
     {
@@ -134,7 +136,7 @@ export function PatientProfileScreen() {
   return (
     <Screen
       title={t('common.profile')}
-      subtitle={t('profile.account')}
+      // subtitle={t('profile.account')}
       actions={[
         {
           icon: 'Bell',
@@ -154,7 +156,7 @@ export function PatientProfileScreen() {
             <View style={styles.profileText}>
               <View style={styles.nameRow}>
                 <AppText variant="h2" style={styles.name}>
-                  Muhammad Talha
+                  {user?.full_name}
                 </AppText>
 
                 <View style={styles.verifiedBadge}>
