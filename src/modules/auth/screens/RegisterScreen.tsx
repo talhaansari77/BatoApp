@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Image, Pressable, Text, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AuthStackParamList } from "../../../core/navigation/navigation.types";
@@ -11,6 +11,8 @@ import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { useAuthStore } from "../store/auth.store";
 import { LoginScreen } from "./LoginScreen";
 import axios from "axios";
+import Assets from "../../../assets";
+import { PhoneNumberInput } from "../../../shared/ui/atoms/PhoneNumberInput";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Register">;
 
@@ -29,7 +31,6 @@ export type RegisterPayload = {
   gender: Gender;
   address: string;
   nationality: string;
-  password: string;
 };
 
 type FieldKey =
@@ -257,7 +258,8 @@ export function RegisterScreen({ navigation }: Props) {
   const [secure, setSecure] = useState(true);
   const [fullName, setFullName] = useState("");
   const [cid, setCid] = useState("");
-  const [countryCode, setCountryCode] = useState("+965");
+  const [countryCode, setCountryCode] = useState<any>("KW");
+    const [callingCode, setCallingCode] = useState("965");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
@@ -327,7 +329,8 @@ export function RegisterScreen({ navigation }: Props) {
   };
 
   const handleRegister = async () => {
-    // clearError();
+    console.log(countryCode, callingCode, phoneNumber);
+    clearError();
 
     const nextErrors = validate();
     setErrors(nextErrors);
@@ -342,7 +345,6 @@ export function RegisterScreen({ navigation }: Props) {
       gender: gender as Gender,
       address: address.trim(),
       nationality: nationality.trim(),
-      password,
     };
 
     // const Mockpayload = {
@@ -356,10 +358,11 @@ export function RegisterScreen({ navigation }: Props) {
     //   nationality: "Kuwaiti",
     // };
     try {
+      console.log("Register payload:", payload);
       await register(payload);
 
-      Alert.alert("Patient registered successfully")
-      navigation.navigate('Login');
+      Alert.alert("Patient registered successfully");
+      navigation.navigate("Login");
       // or let your auth gate switch stacks if register() also signs the user in.
     } catch (error: any) {
       let errorMessage = "Check your details and try again.";
@@ -398,17 +401,27 @@ export function RegisterScreen({ navigation }: Props) {
         />
       }
     >
+      <Image
+        source={Assets.Icons.appIcon}
+        style={{
+          width: 100,
+          height: 100,
+          alignSelf: "center",
+          marginBottom: 20,
+        }}
+        resizeMode="contain"
+      />
       <View
-        style={[
-          {
-            backgroundColor: theme.colors.card,
-            borderRadius: theme.radius["2xl"],
-            padding: theme.spacing["2xl"],
-            borderWidth: 1,
-            borderColor: theme.colors.border,
-          },
-          theme.shadows.card,
-        ]}
+        // style={[
+        //   {
+        //     backgroundColor: theme.colors.card,
+        //     borderRadius: theme.radius["2xl"],
+        //     padding: theme.spacing["2xl"],
+        //     borderWidth: 1,
+        //     borderColor: theme.colors.border,
+        //   },
+        //   theme.shadows.card,
+        // ]}
       >
         <View style={{ gap: theme.spacing.xl ?? 24 }}>
           {/* Personal details */}
@@ -416,8 +429,8 @@ export function RegisterScreen({ navigation }: Props) {
             <SectionHeading
               title="Personal details"
               hint="As they appear on your civil ID."
-              color={colors.text}
-              muted={colors.muted}
+              color={theme.colors.text}
+              muted={theme.colors.textMuted}
             />
 
             <AppInput
@@ -486,11 +499,28 @@ export function RegisterScreen({ navigation }: Props) {
             <SectionHeading
               title="Contact"
               hint="We use this to confirm appointments."
-              color={colors.text}
-              muted={colors.muted}
+              color={theme.colors.text}
+              muted={theme.colors.textMuted}
             />
 
-            <View style={{ flexDirection: "row", gap: theme.spacing.sm ?? 8 }}>
+            <PhoneNumberInput
+              label="Phone"
+              placeholder="0000 0000"
+              value={phoneNumber}
+              onChangeText={(v: string) => {
+                setPhoneNumber(v);
+                clearFieldError("phoneNumber");
+              }}
+              keyboardType="phone-pad"
+              // maxLength={5}
+              countryCode={countryCode}
+              callingCode={callingCode}
+              onSelect={(country) => {
+                setCountryCode(country.cca2);
+                setCallingCode(country.callingCode[0]);
+              }}
+            />
+            {/* <View style={{ flexDirection: "row", gap: theme.spacing.sm ?? 8 }}>
               <View style={{ width: 104 }}>
                 <AppInput
                   label="Code"
@@ -521,7 +551,7 @@ export function RegisterScreen({ navigation }: Props) {
                   error={errors.phoneNumber}
                 />
               </View>
-            </View>
+            </View> */}
 
             <AppInput
               label="Address"

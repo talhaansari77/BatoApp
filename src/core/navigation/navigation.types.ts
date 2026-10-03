@@ -5,6 +5,7 @@ export type RootStackParamList = {
   DoctorApp: undefined;
   AdminApp: undefined;
   ReportsApp: undefined;
+  Onboarding: undefined;
 };
 // src/core/navigation/navigation.types.ts
 
@@ -12,13 +13,14 @@ export type AuthStackParamList = {
   Splash: undefined;
   Welcome: undefined;
   Login: undefined;
+  LoginViaFile: undefined;
   Register: undefined;
   OtpVerification: {
     phone?: string;
     email?: string;
   } | undefined;
   ForgotPassword: undefined;
-  RoleSelection: undefined;
+  
 };
 
 export type PatientTabParamList = {

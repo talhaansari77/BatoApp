@@ -11,6 +11,7 @@ import { useAuthStore } from "../../modules/auth/store/auth.store";
 import { Animated, Image, View, StyleSheet } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { ReportsNavigator } from "./ReportsNavigator";
+import OnboardingScreen from "@/modules/auth/screens/OnboardingScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -49,14 +50,18 @@ export function RootNavigator() {
   return (
     <>
       <Stack.Navigator
-        // initialRouteName="PatientApp"
+        initialRouteName="PatientApp"
         screenOptions={{ headerShown: false }}
       >
-        {status === "authenticated" && user ? (
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+        <Stack.Screen name="Auth" component={AuthNavigator} />
+        <Stack.Screen name="PatientApp" component={PatientNavigator} />
+
+        {/* {status === "authenticated" && user ? (
           <Stack.Screen name="PatientApp" component={PatientNavigator} />
         ) : (
           <Stack.Screen name="Auth" component={AuthNavigator} />
-        )}
+        )} */}
 
          {/* <Stack.Screen name="Auth" component={AuthNavigator} />
          <Stack.Screen name="PatientApp" component={PatientNavigator} />

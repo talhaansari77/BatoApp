@@ -46,6 +46,7 @@ export function Screen({
           paddingBottom: footer
             ? theme.spacing.xl
             : insets.bottom + theme.spacing.xl,
+          paddingTop: insets.top ,
         },
         contentStyle,
       ]}
@@ -57,13 +58,13 @@ export function Screen({
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
       
-      <AppHeader
+      {/* <AppHeader
         title={title}
         subtitle={subtitle}
         showBack={showBack}
         onBackPress={onBackPress}
         actions={actions}
-      />
+      /> */}
 
       <KeyboardAvoidingView
         style={styles.flex}

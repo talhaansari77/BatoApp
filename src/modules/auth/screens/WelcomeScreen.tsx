@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, useWindowDimensions, View } from "react-native";
+import { Image, Platform, useWindowDimensions, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AuthStackParamList } from "../../../core/navigation/navigation.types";
@@ -7,34 +7,36 @@ import { Screen } from "../../../shared/ui/templates/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Welcome">;
 
 export function WelcomeScreen({ navigation }: Props) {
   const { height, width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const theme = useAppTheme();
 
   return (
-    <SafeAreaView>
+    <View>
       <View
         style={{
           position: "absolute",
+          backgroundColor: theme.colors.primary,
           top: 0,
-          height: height,
+          height: Platform.OS === "ios" ? height  : height+insets.top,
           width: width,
         }}
       >
         <Image
-          style={{ height: "100%", width: "100%" }}
-          resizeMode="contain"
+          style={{ height: "100%", width: "100%",}}
+          resizeMode="stretch"
           source={require("../../../assets/images/welcomeLight.png")}
         />
       </View>
 
       <View
         style={{
-          position: "absolute",
+          position: "relative",
           bottom: -(height/1.2),
           width:width,
           paddingHorizontal:theme.spacing.md,
@@ -50,6 +52,6 @@ export function WelcomeScreen({ navigation }: Props) {
           onPress={() => navigation.navigate("Register")}
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

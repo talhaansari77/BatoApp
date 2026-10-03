@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
   Alert,
+  Image,
   LayoutChangeEvent,
   Pressable,
+  ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   View,
 } from "react-native";
@@ -28,6 +31,12 @@ import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { authApi } from "../services/authApi";
 import { useAuthStore } from "../store/auth.store";
 import CountryPickerField from "../../../shared/ui/atoms/CountryPickerField";
+import { PhoneNumberInput } from "../../../shared/ui/atoms/PhoneNumberInput";
+import Assets from "../../../assets";
+import Icons from "../../../assets/icons";
+import LanguageToggle, {
+  Language,
+} from "../../../shared/ui/molecules/LanguageToggle";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -61,6 +70,7 @@ export function LoginScreen({ navigation }: Props) {
   const [fileNumber, setFileNumber] = useState("");
   const [civilId, setCivilId] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("66213403");
+
   const [countryCode, setCountryCode] = useState<any>("KW");
   const [callingCode, setCallingCode] = useState("965");
 
@@ -134,6 +144,12 @@ export function LoginScreen({ navigation }: Props) {
     // navigation.navigate("OtpVerification");
   };
 
+  const [lang, setLang] = useState<Language>("en");
+
+  const handleLanguageChange = (selectedLang: Language) => {
+    setLang(selectedLang);
+    // Add logic here to change i18n locale or react-native-localize
+  };
   return (
     <Screen
       title="LOGIN"
@@ -146,32 +162,24 @@ export function LoginScreen({ navigation }: Props) {
         />
       }
     >
-      <AuthCard
-        title="Welcome back"
-        subtitle={
-          isMobileLogin
-            ? "Enter your registered number to securely access your medical reports."
-            : "Enter your file details and registered WhatsApp number to access your medical reports."
-        }
-      >
-        <View style={{flex:1,flexDirection:'row'}}>
-          <View>
-            
-          <CountryPickerField
-            countryCode={countryCode}
-            callingCode={callingCode}
-            label="Country"
-            onSelect={(country) => {
-              setCountryCode(country.cca2);
-              setCallingCode(country.callingCode[0]);
-            }}
+      <View style={{ alignItems: "flex-end" }}>
+        <LanguageToggle value={lang} onChange={handleLanguageChange} />
+      </View>
+      <ScrollView nestedScrollEnabled={true}>
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            padding: theme.spacing["4xl"],
+          }}
+        >
+          <Image
+            source={Assets.Icons.appIcon}
+            style={{ width: "100%", height: 150 }}
+            resizeMode="contain"
           />
-
-          </View>
-          <View style={{flex:1}}>
-
-          </View>
         </View>
+
         {/* Animates the card's height smoothly whenever its content changes size. */}
         <Animated.View
           layout={LinearTransition.springify().damping(18).stiffness(180)}
@@ -187,13 +195,19 @@ export function LoginScreen({ navigation }: Props) {
               exiting={FadeOut.duration(120)}
               style={{ gap: theme.spacing.md }}
             >
-              <PhoneNumberField
-                label="Registered Number"
-                leftIcon="Phone"
-                callingCode={mobileCallingCode}
-                onCallingCodeChange={setMobileCallingCode}
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
+              <PhoneNumberInput
+                label="Phone"
+                placeholder="0000 0000"
+                // value={countryCode}
+                onChangeText={(v: string) => {}}
+                keyboardType="phone-pad"
+                // maxLength={5}
+                countryCode={countryCode}
+                callingCode={callingCode}
+                onSelect={(country) => {
+                  setCountryCode(country.cca2);
+                  setCallingCode(country.callingCode[0]);
+                }}
               />
 
               <AppText variant="small" color={theme.colors.textMuted}>
@@ -202,7 +216,7 @@ export function LoginScreen({ navigation }: Props) {
 
               {/* Login with File Number */}
               <Pressable
-                onPress={() => handleMethodChange("file")}
+                onPress={() => navigation.navigate("LoginViaFile")}
                 style={{ marginTop: theme.spacing.md }}
               >
                 <AppText
@@ -252,13 +266,19 @@ export function LoginScreen({ navigation }: Props) {
                 value={civilId}
               />
 
-              <PhoneNumberField
-                label="Receive OTP on WhatsApp Number"
-                leftIcon="MessageCircle"
-                callingCode={whatsappCallingCode}
-                onCallingCodeChange={setWhatsappCallingCode}
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
+              <PhoneNumberInput
+                label="Phone"
+                placeholder="0000 0000"
+                // value={countryCode}
+                onChangeText={(v: string) => {}}
+                keyboardType="phone-pad"
+                // maxLength={5}
+                countryCode={countryCode}
+                callingCode={callingCode}
+                onSelect={(country) => {
+                  setCountryCode(country.cca2);
+                  setCallingCode(country.callingCode[0]);
+                }}
               />
 
               <AppText variant="small" color={theme.colors.textMuted}>
@@ -294,87 +314,7 @@ export function LoginScreen({ navigation }: Props) {
             </Animated.View>
           )}
         </Animated.View>
-      </AuthCard>
+      </ScrollView>
     </Screen>
   );
 }
-
-// Combines the native country-code Picker (@expo/ui) with the existing
-// AppInput for the national number. AppInput's own `label` prop renders its
-// label directly above the input box, so once this is a two-part row we
-// render the label ourselves instead — check AppInput's real styling and
-// swap this AppText for whatever it uses internally if they differ.
-function PhoneNumberField({
-  label,
-  leftIcon,
-  callingCode,
-  onCallingCodeChange,
-  value,
-  onChangeText,
-}: {
-  label: string;
-  leftIcon: string;
-  callingCode: string;
-  onCallingCodeChange: (code: string) => void;
-  value: string;
-  onChangeText: (value: string) => void;
-}) {
-  const theme = useAppTheme();
-
-  return (
-    <View style={{ gap: 6 }}>
-      <AppText variant="small" color={theme.colors.textMuted}>
-        {label}
-      </AppText>
-
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 8,
-          borderWidth: 1,
-          backgroundColor: theme.colors.card,
-          borderColor: theme.colors.border,
-          borderRadius: theme.radius.lg,
-        }}
-      >
-        <Host matchContents>
-          <Picker
-            selectedValue={callingCode}
-            onValueChange={onCallingCodeChange}
-            appearance="menu"
-          >
-            {COUNTRY_CODES.map((country) => (
-              <Picker.Item
-                key={country.dialCode}
-                label={`${country.flag} ${country.dialCode}`}
-                value={country.dialCode}
-              />
-            ))}
-          </Picker>
-        </Host>
-
-        <View style={{ flex: 1 }}>
-          <TextInput
-            style={{
-              minHeight: 54,
-              paddingHorizontal: 14,
-              flexDirection: "row",
-              alignItems: "center",
-              fontSize: 16,
-              gap: 10,
-            }}
-            placeholder="5001 2345"
-            keyboardType="phone-pad"
-            // leftIcon={'Phone'}
-
-            onChangeText={onChangeText}
-            value={value}
-          />
-        </View>
-      </View>
-    </View>
-  );
-}
-
-

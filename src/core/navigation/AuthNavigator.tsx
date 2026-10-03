@@ -11,6 +11,7 @@ import { RegisterScreen } from '../../modules/auth/screens/RegisterScreen';
 import { OtpVerificationScreen } from '../../modules/auth/screens/OtpVerificationScreen';
 import { ForgotPasswordScreen } from '../../modules/auth/screens/ForgotPasswordScreen';
 import { RoleSelectionScreen } from '../../modules/auth/screens/RoleSelectionScreen';
+import LoginViaFile from '../../modules/auth/screens/LoginViaFile';
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
@@ -26,6 +27,7 @@ export function AuthNavigator() {
     >
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="LoginViaFile" component={LoginViaFile} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="OtpVerification" component={OtpVerificationScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
