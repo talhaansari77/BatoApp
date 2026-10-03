@@ -13,6 +13,7 @@ import { AppHeader } from "../organisms/AppHeader";
 
 type ScreenProps = {
   children: React.ReactNode;
+  ShowAppHeader?: boolean;
   title?: string;
   subtitle?: string;
   showBack?: boolean;
@@ -25,6 +26,7 @@ type ScreenProps = {
 
 export function Screen({
   children,
+  ShowAppHeader=false,
   title,
   subtitle,
   showBack,
@@ -46,7 +48,7 @@ export function Screen({
           paddingBottom: footer
             ? theme.spacing.xl
             : insets.bottom + theme.spacing.xl,
-          paddingTop: insets.top ,
+          paddingTop: ShowAppHeader?0:insets.top,
         },
         contentStyle,
       ]}
@@ -57,14 +59,15 @@ export function Screen({
 
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
-      
-      {/* <AppHeader
-        title={title}
-        subtitle={subtitle}
-        showBack={showBack}
-        onBackPress={onBackPress}
-        actions={actions}
-      /> */}
+      {ShowAppHeader ? (
+        <AppHeader
+          title={title}
+          subtitle={subtitle}
+          showBack={showBack}
+          onBackPress={onBackPress}
+          actions={actions}
+        />
+      ):null}
 
       <KeyboardAvoidingView
         style={styles.flex}

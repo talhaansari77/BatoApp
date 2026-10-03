@@ -26,11 +26,11 @@ const TOGGLE_HEIGHT = 44;
 const PADDING = 4;
 const TAB_WIDTH = (TOGGLE_WIDTH - PADDING * 2) / 2;
 
-export const LanguageToggle: React.FC<LanguageToggleProps> = ({
+export const LanguageToggle = ({
   value,
   onChange,
   style,
-}) => {
+}:LanguageToggleProps) => {
   // 0 = English (Left), 1 = Arabic (Right)
   const animatedValue = useRef(new Animated.Value(value === 'ar' ? 1 : 0)).current;
 

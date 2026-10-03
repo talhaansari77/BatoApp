@@ -37,6 +37,7 @@ import Icons from "../../../assets/icons";
 import LanguageToggle, {
   Language,
 } from "../../../shared/ui/molecules/LanguageToggle";
+import { LanguageSelector } from "@/shared/ui/molecules/LanguageSelector";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -163,7 +164,8 @@ export function LoginScreen({ navigation }: Props) {
       }
     >
       <View style={{ alignItems: "flex-end" }}>
-        <LanguageToggle value={lang} onChange={handleLanguageChange} />
+        {/* <LanguageToggle value={lang} onChange={handleLanguageChange} /> */}
+        <LanguageSelector/>
       </View>
       <ScrollView nestedScrollEnabled={true}>
         <View

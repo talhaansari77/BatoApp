@@ -146,7 +146,40 @@ export function PatientHomeScreen() {
                 Good morning
               </AppText>
 
-              <AppText variant="h3">{user?.full_name}</AppText>
+              <AppText variant="h3">
+                {user?.full_name ? user?.full_name : "patient"}
+              </AppText>
+            </View>
+            <View style={{flexDirection:'row',gap:10}}>
+              <Pressable
+                onPress={() => {}}
+                hitSlop={12}
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius:25,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor:theme.colors.cardMuted
+
+                }}
+              >
+                <AppIcon name="Search" color={theme.colors.primaryDark} />
+              </Pressable>
+              <Pressable
+                onPress={() => {}}
+                hitSlop={12}
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius:25,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor:theme.colors.cardMuted
+                }}
+              >
+                <AppIcon name="Bell" color={theme.colors.primaryDark} />
+              </Pressable>
             </View>
           </View>
 

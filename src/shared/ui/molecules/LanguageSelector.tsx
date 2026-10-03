@@ -6,6 +6,7 @@ import { useAppTheme } from '../../../app/providers/ThemeProvider';
 import { AppLanguage } from '../../../core/i18n/i18n';
 import { AppIcon } from '../atoms/AppIcon';
 import { AppText } from '../atoms/AppText';
+import { LanguageToggle } from './LanguageToggle';
 
 const options: Array<{
   label: string;
@@ -29,8 +30,9 @@ export function LanguageSelector() {
   const { language, setLanguage } = useAppLanguage();
 
   return (
-    <View style={{ gap: theme.spacing.sm }}>
-      {options.map((option) => {
+    <View style={{ gap: theme.spacing.sm, alignItems:"flex-end" }}>
+      <LanguageToggle value={language} onChange={setLanguage} />
+      {/* {options.map((option) => {
         const isSelected = language === option.value;
 
         return (
@@ -80,7 +82,7 @@ export function LanguageSelector() {
             ) : null}
           </Pressable>
         );
-      })}
+      })} */}
     </View>
   );
 }
