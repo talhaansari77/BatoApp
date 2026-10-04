@@ -45,12 +45,13 @@ export function DoctorNavigator() {
           fontSize: 11,
           fontWeight: '600',
         },
-        tabBarIcon: ({ color, size }) => (
-          <AppIcon name={icons[route.name]} color={color} size={size} />
-        ),
+        // tabBarIcon: ({ color, size }) => (
+        //   <AppIcon name={icons[route.name]} color={color} size={size} />
+        // ),
       })}
     >
       <Tab.Screen
+      
         name="DoctorDashboard"
         component={DoctorDashboardScreen}
         options={{ title: 'Dashboard' }}
