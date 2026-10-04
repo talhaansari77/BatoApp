@@ -66,7 +66,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         return;
       }
 
-      const me = await authApi.patientPrifile();
+      const me = await authApi.patientProfile();
       console.log(me);
       set({
         user: me.data,
@@ -149,7 +149,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       console.log('data')
       console.log(data)
-      
+
       set({
         status: "unauthenticated",
         isLoading: false,

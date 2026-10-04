@@ -1,155 +1,79 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useMemo } from "react";
+import {
+  FlatList,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
 
-import { useAppTheme } from '../../../app/providers/ThemeProvider';
-import { PatientTabParamList } from '../../../core/navigation/navigation.types';
-import { AppButton } from '../../../shared/ui/atoms/AppButton';
-import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
-import { AppText } from '../../../shared/ui/atoms/AppText';
-import { Screen } from '../../../shared/ui/templates/Screen';
-import { useAuthStore } from '../../auth/store/auth.store';
+import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
+import { AppText } from "../../../shared/ui/atoms/AppText";
+import { Screen } from "../../../shared/ui/templates/Screen";
+import { usePatientAppointmentStore } from "../store/patientAppointment.store";
+import AppointmentCard from "../components/AppointmentCard";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { PatientStackParamList, PatientTabParamList } from "@/core/navigation/navigation.types";
+import { CompositeScreenProps } from "@react-navigation/native";
+import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 
-type PatientAppointmentsNavigation = BottomTabNavigationProp<
-  PatientTabParamList,
-  'PatientAppointments'
+const filters = [
+  { label: "All", value: "all" },
+  { label: "Today", value: "today" },
+  { label: "Upcoming", value: "upcoming" },
+  { label: "Completed", value: "completed" },
+];
+
+type AppointmentApiResponse = {
+  id: number;
+  appointment_number: string;
+  full_name: string;
+  patient_id: number;
+  service_name: string;
+  full_amount: string | number;
+  date: string;
+  appointment_start_time: string;
+  appointment_end_time: string;
+  room_id: number | null;
+  doctor_id: number | null;
+  sessions_count: number;
+  urgency_level: string;
+  current_status: string;
+};
+
+export type PatientAppointmentsScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<PatientTabParamList, 'PatientAppointments'>,
+  NativeStackScreenProps<PatientStackParamList>
 >;
 
-type AppointmentStatus = 'upcoming' | 'pending' | 'completed' | 'cancelled';
-
-type AppointmentFilter = 'all' | AppointmentStatus;
-
-type Appointment = {
-  id: string;
-  title: string;
-  doctor: string;
-  branch: string;
-  date: string;
-  time: string;
-  status: AppointmentStatus;
-  paymentType: 'Online Paid' | 'Pay at Clinic';
-  icon: AppIconName;
-};
-
-type FilterOption = {
-  label: string;
-  value: AppointmentFilter;
-};
-
-const filters: FilterOption[] = [
-  {
-    label: 'All',
-    value: 'all',
-  },
-  {
-    label: 'Upcoming',
-    value: 'upcoming',
-  },
-  {
-    label: 'Pending',
-    value: 'pending',
-  },
-  {
-    label: 'Completed',
-    value: 'completed',
-  },
-  {
-    label: 'Cancelled',
-    value: 'cancelled',
-  },
-];
-
-const appointments: Appointment[] = [
-  {
-    id: 'apt-1',
-    title: 'Skin Consultation',
-    doctor: 'Dr. Sarah Ahmed',
-    branch: 'Main Branch',
-    date: 'Today',
-    time: '05:30 PM',
-    status: 'upcoming',
-    paymentType: 'Online Paid',
-    icon: 'ScanFace',
-  },
-  {
-    id: 'apt-2',
-    title: 'Hair Growth Treatment',
-    doctor: 'Dr. Omar Khalid',
-    branch: 'Salmiya Branch',
-    date: 'Jun 22',
-    time: '07:00 PM',
-    status: 'pending',
-    paymentType: 'Pay at Clinic',
-    icon: 'Sparkles',
-  },
-  {
-    id: 'apt-3',
-    title: 'Hydration Facial Therapy',
-    doctor: 'Dr. Lina Hassan',
-    branch: 'Main Branch',
-    date: 'Jun 10',
-    time: '04:15 PM',
-    status: 'completed',
-    paymentType: 'Online Paid',
-    icon: 'Droplets',
-  },
-  {
-    id: 'apt-4',
-    title: 'Botox Consultation',
-    doctor: 'Dr. Mariam Ali',
-    branch: 'Avenues Branch',
-    date: 'Jun 03',
-    time: '06:45 PM',
-    status: 'cancelled',
-    paymentType: 'Pay at Clinic',
-    icon: 'SmilePlus',
-  },
-];
-
-export function PatientAppointmentsScreen() {
+export function PatientAppointmentsScreen({navigation}: PatientAppointmentsScreenProps) {
   const theme = useAppTheme();
-  const user = useAuthStore((state) => state.user);
-  const navigation = useNavigation<PatientAppointmentsNavigation>();
-
-  const [selectedFilter, setSelectedFilter] = useState<AppointmentFilter>('all');
-
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const getPatientAppointments = usePatientAppointmentStore(
+    (state) => state.getPatientAppointments,
+  );
+  const appointments = usePatientAppointmentStore(
+    (state) => state.appointments,
+  );
 
-  const filteredAppointments = useMemo(() => {
-    if (selectedFilter === 'all') {
-      return appointments;
-    }
+  useEffect(() => {
+    getPatientAppointments();
+  }, []);
 
-    return appointments.filter(
-      (appointment) => appointment.status === selectedFilter,
-    );
-  }, [selectedFilter]);
-
-  const upcomingCount = appointments.filter(
-    (appointment) => appointment.status === 'upcoming',
-  ).length;
-
-  const pendingCount = appointments.filter(
-    (appointment) => appointment.status === 'pending',
-  ).length;
-
-  useEffect(()=>{
-    console.log('user')
-    console.log(user)
-  },[])
   return (
     <Screen
       title="Appointments"
-      subtitle="Manage your visits"
       actions={[
         {
-          icon: 'Bell',
+          icon: "Bell",
           onPress: () => {},
         },
       ]}
     >
       <View style={styles.root}>
+        {/* Hero Section */}
         <View style={styles.heroCard}>
           <View style={styles.heroTop}>
             <View style={styles.heroIcon}>
@@ -162,20 +86,14 @@ export function PatientAppointmentsScreen() {
 
             <View style={styles.heroText}>
               <AppText variant="h2">Your appointments</AppText>
-
-              {/* <AppText color={theme.colors.textMuted}>
-                Track confirmed visits, pending approvals, completed sessions,
-                and cancelled bookings.
-              </AppText> */}
             </View>
           </View>
 
           <View style={styles.statsRow}>
             <View style={styles.statBox}>
               <AppText variant="h3" color={theme.colors.primaryDark}>
-                {upcomingCount}
+                1
               </AppText>
-
               <AppText variant="caption" color={theme.colors.textMuted}>
                 Upcoming
               </AppText>
@@ -185,41 +103,49 @@ export function PatientAppointmentsScreen() {
 
             <View style={styles.statBox}>
               <AppText variant="h3" color={theme.colors.warningText}>
-                {pendingCount}
+                1
               </AppText>
-
               <AppText variant="caption" color={theme.colors.textMuted}>
                 Pending
               </AppText>
             </View>
           </View>
+        </View>
 
-          <AppButton
-            title="Book New Appointment"
-            onPress={() => navigation.navigate('PatientServices')}
+        {/* Search Bar UI */}
+        <View style={styles.searchBar}>
+          <AppIcon name="Search" size={20} color={theme.colors.textMuted} />
+
+          <TextInput
+            placeholder="Search by name, ID or appointment no."
+            placeholderTextColor={theme.colors.textMuted}
+            style={styles.searchInput}
+            editable={false}
+            pointerEvents="none"
           />
         </View>
 
-        <View style={styles.filterRow}>
-          {filters.map((filter) => {
-            const isSelected = selectedFilter === filter.value;
+        {/* Filters UI */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterRow}
+        >
+          {filters.map((filter, index) => {
+            const isSelected = index === 0;
 
             return (
               <Pressable
                 key={filter.value}
-                onPress={() => setSelectedFilter(filter.value)}
-                style={({ pressed }) => [
+                style={[
                   styles.filterChip,
                   isSelected && styles.filterChipActive,
-                  pressed && styles.pressed,
                 ]}
               >
                 <AppText
                   variant="caption"
                   color={
-                    isSelected
-                      ? theme.colors.primaryDark
-                      : theme.colors.textMuted
+                    isSelected ? theme.colors.card : theme.colors.textMuted
                   }
                   style={isSelected ? styles.selectedFilterText : undefined}
                 >
@@ -228,282 +154,69 @@ export function PatientAppointmentsScreen() {
               </Pressable>
             );
           })}
-        </View>
+        </ScrollView>
 
-        <View style={styles.sectionHeader}>
-          <View>
-            <AppText variant="h3">Appointment List</AppText>
+        {/* Divider */}
+        <View style={styles.divider} />
 
-            <AppText variant="caption" color={theme.colors.textMuted}>
-              {filteredAppointments.length} bookings found
-            </AppText>
-          </View>
-        </View>
+        {appointments?.map((item: AppointmentApiResponse) => (
+          <AppointmentCard
+            key={item.id}
+            appointmentNo={item.appointment_number}
+            patientName={item.full_name}
+            patientId={item.patient_id.toString()}
+            service={item.service_name}
+            priceKd={Number(item.full_amount)}
+            timeRange={`${item.appointment_start_time} – ${item.appointment_end_time}`}
+            room={`Room ${item.room_id ?? "N/A"}`}
+            doctor={`Dr. #${item.doctor_id ?? "N/A"}`}
+            sessions={item.sessions_count}
+            priority={item.urgency_level}
+            statusLabel={item.current_status}
+            statusTextColor={theme.colors.successText}
+            isActive={false}
+            onPress={() => {
+              navigation.navigate('AppointmentDetails', { appointmentId: item.id });
+            }}
+          />
+        ))}
 
-        <View style={styles.appointmentList}>
-          {filteredAppointments.map((appointment) => (
-            <AppointmentCard key={appointment.id} appointment={appointment} />
-          ))}
-        </View>
-
-        {filteredAppointments.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <View style={styles.emptyIcon}>
-              <AppIcon
-                name="CalendarX"
-                size={30}
-                color={theme.colors.primaryDark}
-              />
-            </View>
-
-            <AppText variant="bodyMedium" align="center">
-              No appointments found
-            </AppText>
-
-            <AppText
-              variant="caption"
-              color={theme.colors.textMuted}
-              align="center"
-            >
-              Try another filter or book a new treatment.
-            </AppText>
-
-            <AppButton
-              title="Book Appointment"
-              style={styles.emptyButton}
-              onPress={() => navigation.navigate('PatientServices')}
+        {/* <FlatList
+          data={appointments}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <AppointmentCard
+              appointmentNo={item.appointment_number}
+              patientName={item.full_name}
+              patientId={item.patient_id.toString()}
+              service={item.service_name}
+              priceKd={item.full_amount}
+              timeRange={`${item.appointment_start_time} – ${item.appointment_end_time}`}
+              room={`Room ${item.room_id ?? "N/A"}`}
+              doctor={`Dr. #${item.doctor_id ?? "N/A"}`}
+              sessions={item.sessions_count}
+              priority={item.urgency_level}
+              statusLabel={item.current_status}
+              statusTextColor={theme.colors.successText}
+              isActive={item.current_status.toLowerCase() === "active"}
             />
-          </View>
-        ) : null}
+          )}
+          contentContainerStyle={{ gap: theme.spacing.md }}
+          nestedScrollEnabled
+        /> */}
       </View>
     </Screen>
   );
 }
 
-type AppointmentCardProps = {
-  appointment: Appointment;
-};
-
-function AppointmentCard({ appointment }: AppointmentCardProps) {
-  const theme = useAppTheme();
-  const styles = useMemo(() => createStyles(theme), [theme]);
-
-  const statusConfig = getStatusConfig(appointment.status, theme);
-
-  return (
-    <Pressable style={({ pressed }) => [styles.appointmentCard, pressed && styles.pressed]}>
-      <View style={styles.appointmentTop}>
-        <View style={styles.appointmentIcon}>
-          <AppIcon
-            name={appointment.icon}
-            size={24}
-            color={theme.colors.primaryDark}
-          />
-        </View>
-
-        <View style={styles.appointmentContent}>
-          <View style={styles.appointmentTitleRow}>
-            <AppText variant="bodyMedium" style={styles.appointmentTitle}>
-              {appointment.title}
-            </AppText>
-
-            <View
-              style={[
-                styles.statusBadge,
-                {
-                  backgroundColor: statusConfig.backgroundColor,
-                },
-              ]}
-            >
-              <AppText variant="small" color={statusConfig.textColor}>
-                {statusConfig.label}
-              </AppText>
-            </View>
-          </View>
-
-          <View style={styles.metaRow}>
-            <AppIcon
-              name="Stethoscope"
-              size={16}
-              color={theme.colors.textMuted}
-            />
-
-            <AppText variant="caption" color={theme.colors.textMuted}>
-              {appointment.doctor}
-            </AppText>
-          </View>
-
-          <View style={styles.metaRow}>
-            <AppIcon name="MapPin" size={16} color={theme.colors.textMuted} />
-
-            <AppText variant="caption" color={theme.colors.textMuted}>
-              {appointment.branch}
-            </AppText>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.detailsBox}>
-        <View style={styles.detailItem}>
-          <AppIcon name="Calendar" size={17} color={theme.colors.primaryDark} />
-
-          <View>
-            <AppText variant="small" color={theme.colors.textMuted}>
-              Date
-            </AppText>
-
-            <AppText variant="caption">{appointment.date}</AppText>
-          </View>
-        </View>
-
-        <View style={styles.detailItem}>
-          <AppIcon name="Clock" size={17} color={theme.colors.primaryDark} />
-
-          <View>
-            <AppText variant="small" color={theme.colors.textMuted}>
-              Time
-            </AppText>
-
-            <AppText variant="caption">{appointment.time}</AppText>
-          </View>
-        </View>
-
-        <View style={styles.detailItem}>
-          <AppIcon
-            name="CreditCard"
-            size={17}
-            color={theme.colors.primaryDark}
-          />
-
-          <View>
-            <AppText variant="small" color={theme.colors.textMuted}>
-              Payment
-            </AppText>
-
-            <AppText variant="caption">{appointment.paymentType}</AppText>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.actionRow}>
-        {appointment.status === 'upcoming' ? (
-          <>
-            <AppButton
-              title="View Details"
-              fullWidth={false}
-              style={styles.actionButton}
-            />
-
-            <AppButton
-              title="Reschedule"
-              variant="outline"
-              fullWidth={false}
-              style={styles.actionButton}
-            />
-          </>
-        ) : null}
-
-        {appointment.status === 'pending' ? (
-          <>
-            <View style={styles.pendingInfo}>
-              <AppIcon
-                name="Info"
-                size={17}
-                color={theme.colors.warningText}
-              />
-
-              <AppText variant="caption" color={theme.colors.textMuted}>
-                Waiting for admin approval
-              </AppText>
-            </View>
-
-            <AppButton
-              title="Cancel"
-              variant="outline"
-              fullWidth={false}
-              style={styles.cancelButton}
-            />
-          </>
-        ) : null}
-
-        {appointment.status === 'completed' ? (
-          <>
-            <AppButton
-              title="View Summary"
-              fullWidth={false}
-              style={styles.actionButton}
-            />
-
-            <AppButton
-              title="Book Again"
-              variant="outline"
-              fullWidth={false}
-              style={styles.actionButton}
-            />
-          </>
-        ) : null}
-
-        {appointment.status === 'cancelled' ? (
-          <>
-            <View style={styles.pendingInfo}>
-              <AppIcon name="CircleX" size={17} color={theme.colors.errorText} />
-
-              <AppText variant="caption" color={theme.colors.textMuted}>
-                This appointment was cancelled
-              </AppText>
-            </View>
-
-            <AppButton
-              title="Book Again"
-              variant="outline"
-              fullWidth={false}
-              style={styles.cancelButton}
-            />
-          </>
-        ) : null}
-      </View>
-    </Pressable>
-  );
-}
-
-function getStatusConfig(
-  status: AppointmentStatus,
-  theme: ReturnType<typeof useAppTheme>,
-) {
-  const config = {
-    upcoming: {
-      label: 'Confirmed',
-      backgroundColor: theme.colors.success,
-      textColor: theme.colors.successText,
-    },
-    pending: {
-      label: 'Pending',
-      backgroundColor: theme.colors.warning,
-      textColor: theme.colors.warningText,
-    },
-    completed: {
-      label: 'Completed',
-      backgroundColor: theme.colors.info,
-      textColor: theme.colors.infoText,
-    },
-    cancelled: {
-      label: 'Cancelled',
-      backgroundColor: theme.colors.error,
-      textColor: theme.colors.errorText,
-    },
-  };
-
-  return config[status];
-}
-
 function createStyles(theme: ReturnType<typeof useAppTheme>) {
   return StyleSheet.create({
     root: {
-      gap: theme.spacing.xl,
+      gap: theme.spacing.lg,
     },
 
     heroCard: {
-      borderRadius: theme.radius['2xl'],
+      borderRadius: theme.radius["2xl"],
       backgroundColor: theme.colors.card,
       borderWidth: 1,
       borderColor: theme.colors.border,
@@ -513,17 +226,17 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     heroTop: {
-      flexDirection: 'row',
+      flexDirection: "row",
       gap: theme.spacing.md,
     },
 
     heroIcon: {
       width: 70,
       height: 70,
-      borderRadius: theme.radius['2xl'],
+      borderRadius: theme.radius["2xl"],
       backgroundColor: theme.colors.cardMuted,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
 
     heroText: {
@@ -537,179 +250,70 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       backgroundColor: theme.colors.background,
       borderWidth: 1,
       borderColor: theme.colors.border,
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       padding: theme.spacing.md,
     },
 
     statBox: {
       flex: 1,
-      alignItems: 'center',
+      alignItems: "center",
       gap: theme.spacing.xs,
     },
 
     statDivider: {
       width: 1,
-      height: '70%',
+      height: "70%",
       backgroundColor: theme.colors.border,
     },
 
-    filterRow: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
+    searchBar: {
+      minHeight: 52,
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.lg,
+      borderRadius: theme.radius.xl,
+      backgroundColor: theme.colors.card,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+
+    searchInput: {
+      flex: 1,
+      minHeight: 48,
+      fontSize: 15,
+      color: theme.colors.primaryDark,
+    },
+
+    filterRow: {
+      gap: theme.spacing.sm,
+      paddingRight: theme.spacing.lg,
     },
 
     filterChip: {
       minHeight: 40,
-      paddingHorizontal: theme.spacing.md,
+      paddingHorizontal: theme.spacing.xl,
       borderRadius: theme.radius.full,
       borderWidth: 1,
       borderColor: theme.colors.border,
       backgroundColor: theme.colors.card,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
 
     filterChipActive: {
       borderColor: theme.colors.primaryDark,
-      backgroundColor: theme.colors.cardMuted,
+      backgroundColor: theme.colors.primaryDark,
     },
 
     selectedFilterText: {
-      fontWeight: '700',
+      fontWeight: "700",
     },
 
-    sectionHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-
-    appointmentList: {
-      gap: theme.spacing.md,
-    },
-
-    appointmentCard: {
-      borderRadius: theme.radius.xl,
-      backgroundColor: theme.colors.card,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      padding: theme.spacing.lg,
-      gap: theme.spacing.md,
-      ...(theme.shadows.card ?? {}),
-    },
-
-    appointmentTop: {
-      flexDirection: 'row',
-      gap: theme.spacing.md,
-    },
-
-    appointmentIcon: {
-      width: 52,
-      height: 52,
-      borderRadius: theme.radius.lg,
-      backgroundColor: theme.colors.cardMuted,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-
-    appointmentContent: {
-      flex: 1,
-      gap: theme.spacing.xs,
-    },
-
-    appointmentTitleRow: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      gap: theme.spacing.sm,
-    },
-
-    appointmentTitle: {
-      flex: 1,
-    },
-
-    statusBadge: {
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.xs,
-      borderRadius: theme.radius.full,
-    },
-
-    metaRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.xs,
-    },
-
-    detailsBox: {
-      borderRadius: theme.radius.lg,
-      backgroundColor: theme.colors.background,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      padding: theme.spacing.md,
-      gap: theme.spacing.md,
-    },
-
-    detailItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.sm,
-    },
-
-    actionRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: theme.spacing.sm,
-      flexWrap: 'wrap',
-    },
-
-    actionButton: {
-      minHeight: 42,
-      flex: 1,
-    },
-
-    cancelButton: {
-      minHeight: 42,
-      paddingHorizontal: theme.spacing.xl,
-    },
-
-    pendingInfo: {
-      flex: 1,
-      minHeight: 42,
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.xs,
-    },
-
-    emptyCard: {
-      borderRadius: theme.radius.xl,
-      backgroundColor: theme.colors.card,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      padding: theme.spacing['2xl'],
-      alignItems: 'center',
-      gap: theme.spacing.sm,
-      ...(theme.shadows.card ?? {}),
-    },
-
-    emptyIcon: {
-      width: 58,
-      height: 58,
-      borderRadius: theme.radius.full,
-      backgroundColor: theme.colors.cardMuted,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: theme.spacing.sm,
-    },
-
-    emptyButton: {
-      marginTop: theme.spacing.md,
-    },
-
-    pressed: {
-      opacity: 0.82,
-      transform: [{ scale: 0.99 }],
+    divider: {
+      height: 1,
+      backgroundColor: theme.colors.border,
     },
   });
 }

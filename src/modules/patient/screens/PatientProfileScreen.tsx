@@ -50,7 +50,7 @@ type QuickAction = {
 type ProfileTab = {
   id:
     | "overview"
-    | "medical"
+    | "medicalInfo"
     | "appointments"
     | "treatments"
     | "invoices"
@@ -81,7 +81,7 @@ const MOCK_PATIENT = {
 
 const PROFILE_TABS: ProfileTab[] = [
   { id: "overview", label: "Overview", icon: "User" },
-  { id: "medical", label: "Medical Info", icon: "HeartPulse" },
+  { id: "medicalInfo", label: "Medical Info", icon: "HeartPulse" },
   { id: "appointments", label: "Appointments", icon: "CalendarDays" },
   { id: "treatments", label: "Treatments", icon: "Stethoscope" },
   { id: "invoices", label: "Invoices", icon: "CreditCard" },
@@ -286,7 +286,7 @@ export function PatientProfileScreen() {
                     color={theme.colors.primaryDark}
                   />
                   <AppText variant="small" color={theme.colors.primaryDark}>
-                    VIP Patient
+                    {t("profile.vipPatient")}
                   </AppText>
                 </View>
               ) : null}
@@ -386,7 +386,8 @@ export function PatientProfileScreen() {
                         : theme.colors.textMuted
                     }
                   >
-                    {tab.label}
+                    {/* {tab.label} */}
+                    {t(`profile.${tab.id}`)}
                   </AppText>
                   {isActive ? <View style={styles.tabUnderline} /> : null}
                 </Pressable>
@@ -400,7 +401,8 @@ export function PatientProfileScreen() {
           <>
             <View style={styles.section}>
               <View style={styles.sectionHeaderRow}>
-                <SectionHeader title="Patient Summary" />
+                <SectionHeader title={t("profile.patientSummary")} />
+                
                 <EditButton onPress={() => {}} />
               </View>
 

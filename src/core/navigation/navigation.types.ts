@@ -1,4 +1,3 @@
-
 export type RootStackParamList = {
   Auth: undefined;
   PatientApp: undefined;
@@ -15,12 +14,13 @@ export type AuthStackParamList = {
   Login: undefined;
   LoginViaFile: undefined;
   Register: undefined;
-  OtpVerification: {
-    phone?: string;
-    email?: string;
-  } | undefined;
+  OtpVerification:
+    | {
+        phone?: string;
+        email?: string;
+      }
+    | undefined;
   ForgotPassword: undefined;
-  
 };
 
 export type PatientTabParamList = {
@@ -28,7 +28,7 @@ export type PatientTabParamList = {
   PatientServices: undefined;
   PatientAppointments: undefined;
   PatientProgress: undefined;
-  PatientProfile: undefined;
+PatientProfile: undefined;
 };
 
 export type DoctorTabParamList = {
@@ -67,11 +67,12 @@ export type PatientStackParamList = {
   BookingBranch: undefined;
   BookingDateTime: undefined;
   BookingPayment: undefined;
+  AppointmentDetails: { appointmentId: number };
+  AppointmentMoreDetails: { appointmentId: number };
   AppointmentConfirmation: undefined;
 };
 
 export type ReportsStackParamList = {
   MedicalReports: undefined;
-  ReportDetails: {reportId:string};
+  ReportDetails: { reportId: string };
 };
-

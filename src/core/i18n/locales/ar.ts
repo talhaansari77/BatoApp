@@ -12,6 +12,7 @@ export const ar = {
     language: 'اللغة',
     english: 'الإنجليزية',
     arabic: 'العربية',
+    
   },
   auth: {
     welcomeTitle: 'رحلة العناية الفاخرة تبدأ هنا',
@@ -44,5 +45,13 @@ export const ar = {
       'سيكون هنا الملف الشخصي، الإعدادات، اللغة، المظهر، السجلات، وتفضيلات الدفع.',
     appearanceDescription: 'اختر طريقة ظهور تطبيق باتو على جهازك.',
     languageDescription: 'اختر لغة التطبيق المفضلة لديك.',
+    vipPatient: 'مريض من كبار الشخصيات',
+    overview: 'ملخص',
+    medicalInfo: 'معلومات طبية',
+    appointments: 'مواعيد',
+    treatments: 'العلاجات',
+    invoices: 'الفواتير',
+    history: 'التاريخ',
+    patientSummary: 'ملخص المريض',
   },
 };

@@ -89,7 +89,7 @@ export const authApi = {
 
   // /patient/register
   async register(payload: RegisterPayload) {
-    
+
     const response = await apiClient.post<any>(
       "/patient/register",
       payload,
@@ -100,7 +100,7 @@ export const authApi = {
     return response.data;
   },
 
-  async patientPrifile() {
+  async patientProfile() {
     const response = await apiClient.get<MeResponse>("/patient/profile");
     return response.data;
   },

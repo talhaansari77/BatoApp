@@ -12,6 +12,7 @@ export const en = {
     language: 'Language',
     english: 'English',
     arabic: 'Arabic',
+    
   },
   auth: {
     welcomeTitle: 'Your premium care journey starts here',
@@ -44,5 +45,14 @@ export const en = {
       'Patient profile, settings, language, theme, records, and payment preferences will live here.',
     appearanceDescription: 'Choose how BATO Clinic looks on your device.',
     languageDescription: 'Choose your preferred app language.',
+    vipPatient: 'VIP Patient',
+    overview: 'Overview',
+    medicalInfo: 'Medical Info',
+    appointments: 'Appointments',
+    treatments: 'Treatments',
+    invoices: 'Invoices',
+    history: 'History',
+    patientSummary: 'Patient Summary',
+
   },
 };
