@@ -21,20 +21,31 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "LoginViaFile">;
 
-
-const LoginViaFile = ({navigation}: Props) => {
+const LoginViaFile = ({ navigation }: Props) => {
   const [fileNumber, setFileNumber] = useState("");
   const [civilId, setCivilId] = useState("");
+  const [mobileNumber, setMobileNumber] = useState<string>("");
   const [countryCode, setCountryCode] = useState<any>("KW");
   const [callingCode, setCallingCode] = useState("965");
+  const loginViaFile = useAuthStore((state) => state.loginViaFile);
   const isLoading = useAuthStore((state) => state.isLoading);
 
   const handleSendOtp = async () => {
     // Keep the OTP navigation in one place so both login methods
     // follow the same verification flow.
+    const payload = {
+      login_method: "file",
+      file_number: fileNumber,
+      civil_id: civilId,
+      any_mobile: `+${callingCode + mobileNumber}`,
+    };
+    console.log("payload", payload);
 
     try {
-      navigation.navigate("OtpVerification");
+      const response = await loginViaFile(payload);
+      console.log("OTP response:", response);
+
+      navigation.navigate("OtpVerification",{handleSendOtp:handleSendOtp});
     } catch {
       Alert.alert(
         "Login failed",
@@ -93,8 +104,10 @@ const LoginViaFile = ({navigation}: Props) => {
           <PhoneNumberInput
             label="Phone"
             placeholder="0000 0000"
-            // value={countryCode}
-            onChangeText={(v: string) => {}}
+            value={mobileNumber}
+            onChangeText={(v: string) => {
+              setMobileNumber(v);
+            }}
             keyboardType="phone-pad"
             // maxLength={5}
             countryCode={countryCode}
@@ -111,13 +124,14 @@ const LoginViaFile = ({navigation}: Props) => {
 
           {/* Login with Mobile Number */}
           <Pressable
-          onPress={() =>{
-            navigation.reset({
+            onPress={() => {
+              navigation.reset({
                 index: 0,
                 routes: [{ name: "Login" }],
               });
-          }}
-          style={{ marginTop: theme.spacing.md }}>
+            }}
+            style={{ marginTop: theme.spacing.md }}
+          >
             <AppText
               variant="bodyMedium"
               color={theme.colors.primaryDark}

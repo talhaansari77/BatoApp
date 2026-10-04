@@ -31,9 +31,10 @@ type Props = CompositeScreenProps<
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 30;
 
-export function OtpVerificationScreen({ navigation }: Props) {
+export function OtpVerificationScreen({ navigation,route }: Props) {
   const theme = useAppTheme();
-
+// Safe destructuring with fallback
+  const { handleSendOtp } = route.params ?? {};
   // The original TextInputs had no `value`/`onChangeText` at all — fully
   // uncontrolled and never wired to any state. This is the actual source
   // of truth now.
@@ -132,6 +133,8 @@ export function OtpVerificationScreen({ navigation }: Props) {
     setSecondsLeft(RESEND_SECONDS);
     inputRefs.current[0]?.focus();
     // TODO: trigger the actual resend-OTP request here.
+    console.log('OTP Resend')
+    handleSendOtp?.()
   };
 
   const handleVerityOtp = async () => {

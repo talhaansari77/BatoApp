@@ -38,6 +38,7 @@ import LanguageToggle, {
   Language,
 } from "../../../shared/ui/molecules/LanguageToggle";
 import { LanguageSelector } from "@/shared/ui/molecules/LanguageSelector";
+import { useTranslation } from "react-i18next";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -61,7 +62,7 @@ const COUNTRY_CODES = [
 
 export function LoginScreen({ navigation }: Props) {
   const theme = useAppTheme();
-
+  const { t } = useTranslation();
   const sendOtp = useAuthStore((state) => state.sendOtp);
   const isLoading = useAuthStore((state) => state.isLoading);
   const clearError = useAuthStore((state) => state.clearError);
@@ -115,7 +116,7 @@ export function LoginScreen({ navigation }: Props) {
   const handleSendOtp = async () => {
     // Keep the OTP navigation in one place so both login methods
     // follow the same verification flow.
-    const LoginPayload = {
+    const payload = {
       login_method: loginMethod,
       mobile_number: phoneNumber,
     };
@@ -128,10 +129,7 @@ export function LoginScreen({ navigation }: Props) {
         return;
       }
 
-      const response = await sendOtp({
-        login_method: loginMethod,
-        mobile_number: phoneNumber,
-      });
+      const response = await sendOtp(payload);
       console.log("OTP response:", response);
 
       navigation.navigate("OtpVerification");
@@ -145,18 +143,18 @@ export function LoginScreen({ navigation }: Props) {
     // navigation.navigate("OtpVerification");
   };
 
-  const [lang, setLang] = useState<Language>("en");
+  // const [lang, setLang] = useState<Language>("en");
 
-  const handleLanguageChange = (selectedLang: Language) => {
-    setLang(selectedLang);
-    // Add logic here to change i18n locale or react-native-localize
-  };
+  // const handleLanguageChange = (selectedLang: Language) => {
+  //   setLang(selectedLang);
+  //   // Add logic here to change i18n locale or react-native-localize
+  // };
   return (
     <Screen
       title="LOGIN"
       footer={
         <AppButton
-          title={isLoading ? "Sending Otp" : "Send Otp"}
+          title={isLoading ? t("auth.sendingOtp") : t("auth.sendOtp")}
           loading={isLoading}
           disabled={isLoading}
           onPress={handleSendOtp}
@@ -165,7 +163,7 @@ export function LoginScreen({ navigation }: Props) {
     >
       <View style={{ alignItems: "flex-end" }}>
         {/* <LanguageToggle value={lang} onChange={handleLanguageChange} /> */}
-        <LanguageSelector/>
+        <LanguageSelector />
       </View>
       <ScrollView nestedScrollEnabled={true}>
         <View
@@ -198,7 +196,7 @@ export function LoginScreen({ navigation }: Props) {
               style={{ gap: theme.spacing.md }}
             >
               <PhoneNumberInput
-                label="Phone"
+                label={t("auth.phone")}
                 placeholder="0000 0000"
                 // value={countryCode}
                 onChangeText={(v: string) => {}}
@@ -213,7 +211,7 @@ export function LoginScreen({ navigation }: Props) {
               />
 
               <AppText variant="small" color={theme.colors.textMuted}>
-                We'll send the OTP to this number via WhatsApp.
+                {t("auth.phoneDescription")}
               </AppText>
 
               {/* Login with File Number */}
@@ -226,7 +224,7 @@ export function LoginScreen({ navigation }: Props) {
                   color={theme.colors.primaryDark}
                   align="right"
                 >
-                  Login via File Number
+                  {t("auth.loginViaFile")}
                 </AppText>
               </Pressable>
               {/* Forgot or Reset Password */}
@@ -239,7 +237,7 @@ export function LoginScreen({ navigation }: Props) {
                   color={theme.colors.primaryDark}
                   align="right"
                 >
-                  Forgot or Reset Password
+                  {t("auth.forgotOrResetPassword")}
                 </AppText>
               </Pressable>
             </Animated.View>

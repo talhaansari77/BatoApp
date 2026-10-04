@@ -4,6 +4,7 @@ import {
   authApi,
   AuthUser,
   LoginPayload,
+  LoginViaFilePayload,
   OtpPayload,
   RegisterPayload,
 } from "../services/authApi";
@@ -26,6 +27,7 @@ type AuthState = {
   bootstrapAuth: () => Promise<void>;
   sendOtp: (payload: OtpPayload) => Promise<SendOtpResponse>;
   login: (payload: LoginPayload) => Promise<any>;
+  loginViaFile: (payload: LoginViaFilePayload) => Promise<any>;
   register: (payload: RegisterPayload) => Promise<any>;
   logout: () => Promise<void>;
   clearError: () => void;
@@ -120,6 +122,32 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
 
       const data = await authApi.login(payload);
+
+      set({
+        user: data?.patient,
+        status: "authenticated",
+        isLoading: false,
+      });
+
+      return data;
+    } catch (error) {
+      set({
+        isLoading: false,
+        error: getErrorMessage(error),
+      });
+
+      throw error;
+    }
+  },
+
+  loginViaFile: async (payload) => {
+    try {
+      set({
+        isLoading: true,
+        error: null,
+      });
+
+      const data = await authApi.loginViaFile(payload);
 
       set({
         user: data?.patient,

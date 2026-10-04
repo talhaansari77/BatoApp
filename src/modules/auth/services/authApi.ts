@@ -31,6 +31,12 @@ export type LoginPayload = {
   otp_key: string;
   otp: string;
 };
+export type LoginViaFilePayload = {
+  login_method: string
+  file_number: string
+  civil_id: string
+  any_mobile: string
+};
 export type OtpPayload = {
   login_method: string;
   mobile_number: string;
@@ -76,6 +82,7 @@ export const authApi = {
     return response.data.data;
   },
 
+
   async login(payload: LoginPayload) {
     const response = await apiClient.post<AuthResponse>(
       "/patient/verify-otp",
@@ -87,6 +94,16 @@ export const authApi = {
     return response.data.data;
   },
 
+  async loginViaFile(payload: LoginViaFilePayload) {
+    const response = await apiClient.post<AuthResponse>(
+      "/patient/send-otp",
+      payload,
+    );
+
+    // await tokenStorage.saveTokens(response?.data?.data?.token);
+
+    return response.data.data;
+  },
   // /patient/register
   async register(payload: RegisterPayload) {
 

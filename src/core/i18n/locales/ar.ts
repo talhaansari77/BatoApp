@@ -13,6 +13,7 @@ export const ar = {
     english: 'الإنجليزية',
     arabic: 'العربية',
     
+    
   },
   auth: {
     welcomeTitle: 'رحلة العناية الفاخرة تبدأ هنا',
@@ -38,6 +39,12 @@ export const ar = {
     otpDescription: 'أرسلنا رمزاً مكوناً من 6 أرقام إلى رقم هاتفك.',
     selectRole: 'اختر الدور',
     chooseAccess: 'اختر نوع الوصول إلى باتو',
+    phone: 'الهاتف',
+    phoneDescription: "سنرسل الرمز إلى هذا الرقم عبر واتساب.",
+    loginViaFile:"تسجيل الدخول باستخدام رقم الملف",
+    forgotOrResetPassword:"نسيت كلمة المرور أو إعادة تعيينها",
+    sendOtp: "إرسال رمز التحقق (OTP)",
+    sendingOtp: "إرسال رمز التحقق (OTP)",
   },
   profile: {
     account: 'الحساب',

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { useAppLanguage } from '../../../app/providers/LanguageProvider';
@@ -7,31 +7,19 @@ import { AppLanguage } from '../../../core/i18n/i18n';
 import { AppIcon } from '../atoms/AppIcon';
 import { AppText } from '../atoms/AppText';
 import { LanguageToggle } from './LanguageToggle';
-
-const options: Array<{
-  label: string;
-  value: AppLanguage;
-  description: string;
-}> = [
-  {
-    label: 'English',
-    value: 'en',
-    description: 'Use BATO Clinic in English',
-  },
-  {
-    label: 'العربية',
-    value: 'ar',
-    description: 'استخدم عيادة باتو باللغة العربية',
-  },
-];
+import LanguageToggleOne from './LanguageToggleOne';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function LanguageSelector() {
   const theme = useAppTheme();
   const { language, setLanguage } = useAppLanguage();
 
+
+
   return (
     <View style={{ gap: theme.spacing.sm, alignItems:"flex-end" }}>
-      <LanguageToggle value={language} onChange={setLanguage} />
+      {/* <LanguageToggle value={language} onChange={setLanguage} /> */}
+      <LanguageToggleOne value={language} onChange={setLanguage} />
       {/* {options.map((option) => {
         const isSelected = language === option.value;
 

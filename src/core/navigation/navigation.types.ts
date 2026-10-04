@@ -14,12 +14,11 @@ export type AuthStackParamList = {
   Login: undefined;
   LoginViaFile: undefined;
   Register: undefined;
-  OtpVerification:
-    | {
-        phone?: string;
-        email?: string;
-      }
-    | undefined;
+  OtpVerification:{
+    phone?: string;
+    email?: string;
+    handleSendOtp?: () => void;
+  }|undefined;
   ForgotPassword: undefined;
 };
 

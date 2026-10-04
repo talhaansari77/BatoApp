@@ -13,6 +13,7 @@ export const en = {
     english: 'English',
     arabic: 'Arabic',
     
+    
   },
   auth: {
     welcomeTitle: 'Your premium care journey starts here',
@@ -38,6 +39,12 @@ export const en = {
     otpDescription: 'We sent a 6-digit code to your phone number.',
     selectRole: 'Select Role',
     chooseAccess: 'Choose your BATO access',
+    phone: 'Phone',
+    phoneDescription: "We'll send the OTP to this number via WhatsApp.",
+    loginViaFile: "Login via File Number",
+    forgotOrResetPassword: "Forgot or Reset Password",
+    sendOtp: "Send Otp",
+    sendingOtp: "Sending Otp",
   },
   profile: {
     account: 'Account',
