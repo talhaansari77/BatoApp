@@ -63,6 +63,7 @@ export type PatientStackParamList = {
   PatientTabs: undefined;
   ServiceDetails: undefined;
   DoctorProfile: undefined;
+  DoctorDetails: undefined;
   BookingBranch: undefined;
   BookingDateTime: undefined;
   BookingPayment: undefined;

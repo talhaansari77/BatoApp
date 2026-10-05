@@ -14,13 +14,18 @@ import { Screen } from "../../../shared/ui/templates/Screen";
 import { usePatientAppointmentStore } from "../store/patientAppointment.store";
 import AppointmentCard from "../components/AppointmentCard";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { PatientStackParamList, PatientTabParamList } from "@/core/navigation/navigation.types";
+import {
+  PatientStackParamList,
+  PatientTabParamList,
+} from "@/core/navigation/navigation.types";
 import { CompositeScreenProps } from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
+import { getAppointmentCounts } from "@/utils";
 
 const filters = [
   { label: "All", value: "all" },
   { label: "Today", value: "today" },
+  { label: "Pending", value: "pending" },
   { label: "Upcoming", value: "upcoming" },
   { label: "Completed", value: "completed" },
 ];
@@ -41,14 +46,17 @@ type AppointmentApiResponse = {
   sessions_count: number;
   urgency_level: string;
   current_status: string;
+  payment_status?: string;
 };
 
 export type PatientAppointmentsScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<PatientTabParamList, 'PatientAppointments'>,
+  BottomTabScreenProps<PatientTabParamList, "PatientAppointments">,
   NativeStackScreenProps<PatientStackParamList>
 >;
 
-export function PatientAppointmentsScreen({ navigation }: PatientAppointmentsScreenProps) {
+export function PatientAppointmentsScreen({
+  navigation,
+}: PatientAppointmentsScreenProps) {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const getPatientAppointments = usePatientAppointmentStore(
@@ -57,6 +65,7 @@ export function PatientAppointmentsScreen({ navigation }: PatientAppointmentsScr
   const appointments = usePatientAppointmentStore(
     (state) => state.appointments,
   );
+  const { upcomingCount, pendingCount } = getAppointmentCounts(appointments);
 
   // Search and Filter States
   const [searchQuery, setSearchQuery] = useState("");
@@ -67,7 +76,7 @@ export function PatientAppointmentsScreen({ navigation }: PatientAppointmentsScr
   }, []);
 
   // Filter Logic
-  const filteredAppointments = useMemo(() => {
+ const filteredAppointments = useMemo(() => {
     if (!Array.isArray(appointments)) return [];
 
     const query = searchQuery.trim().toLowerCase();
@@ -82,13 +91,19 @@ export function PatientAppointmentsScreen({ navigation }: PatientAppointmentsScr
 
       // 2. Filter Category Match
       const status = item.current_status?.toLowerCase();
+      const payment_status = item.payment_status?.toLowerCase();
       let matchesFilter = true;
 
       if (selectedFilter === "today") {
         const todayStr = new Date().toISOString().split("T")[0];
         matchesFilter = item.date === todayStr;
       } else if (selectedFilter === "upcoming") {
-        matchesFilter = status === "upcoming" || status === "scheduled" || status === "confirmed";
+        matchesFilter =
+          status === "upcoming" ||
+          status === "scheduled" ||
+          status === "confirmed";
+      } else if (selectedFilter === "pending") {
+        matchesFilter = payment_status === "pending" || status === "waiting";
       } else if (selectedFilter === "completed") {
         matchesFilter = status === "completed" || status === "done";
       }
@@ -127,7 +142,7 @@ export function PatientAppointmentsScreen({ navigation }: PatientAppointmentsScr
           <View style={styles.statsRow}>
             <View style={styles.statBox}>
               <AppText variant="h3" color={theme.colors.primaryDark}>
-                1
+                {upcomingCount}
               </AppText>
               <AppText variant="caption" color={theme.colors.textMuted}>
                 Upcoming
@@ -138,7 +153,7 @@ export function PatientAppointmentsScreen({ navigation }: PatientAppointmentsScr
 
             <View style={styles.statBox}>
               <AppText variant="h3" color={theme.colors.warningText}>
-                1
+                {pendingCount}
               </AppText>
               <AppText variant="caption" color={theme.colors.textMuted}>
                 Pending
@@ -251,6 +266,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
 
     heroTop: {
       flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.md,
     },
 

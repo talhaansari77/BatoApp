@@ -19,9 +19,11 @@ export const lightColors = {
   surface: '#FAFAFA',
   danger: '#A84B4B',
   yellow: '#FFD700',
+  overlayDark: 'rgba(0, 0, 0, 0.70)',
   overlay: 'rgba(0, 0, 0, 0.35)',
   overlay_1: "rgba(255, 255, 255, 0.22)",
   overlay_2: "rgba(255, 255, 255, 0.35)",
+  overlay_3: 'rgba(255, 255, 255, 0.7)',
 };
 
 export const darkColors = {

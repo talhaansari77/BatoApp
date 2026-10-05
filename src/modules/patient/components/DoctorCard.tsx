@@ -19,6 +19,7 @@ import Assets from "@/assets";
 import { HeartPlus } from "lucide-react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faHeart, faStar } from "@fortawesome/free-solid-svg-icons";
+import { useNavigation } from "@react-navigation/native";
 
 /**
  * DoctorCard – reusable doctor summary card with a rating badge, favourite
@@ -286,7 +287,7 @@ export function DoctorCardExample() {
   const [isFav, setIsFav] = useState(false);
   const [selectedDate, setSelectedDate] = useState("2026-10-12");
   const [selected, setSelected] = useState<number | undefined>(undefined);
-
+const navigation = useNavigation<any>();
   return (
     <DoctorCard
       specialty="Heart Expert"
@@ -294,7 +295,8 @@ export function DoctorCardExample() {
       price="30 KWD"
       priceLabel="Per Session"
       rating={4.9}
-      imageSource={{ uri: Assets.Images.DoctorPicOnline }}
+      onPress={()=>{navigation.navigate("DoctorDetails")}}
+      imageSource={{ uri: Assets.Images.DoctorPicOnline1 }}
       isFavorite={isFav}
       onFavoritePress={() => setIsFav((v) => !v)}
       month="December"

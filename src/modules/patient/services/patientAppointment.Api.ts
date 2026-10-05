@@ -9,6 +9,7 @@ type Gender = "male" | "female";
 export type Appointment = {
   id: number;
   patient_id: number;
+  [key: string]: any;
 };
 
 
@@ -16,7 +17,7 @@ export type Appointment = {
 
 export const patientApi = {
   async getPatientAppointments() {
-    const response = await apiClient.get<any>(
+    const response = await apiClient.get<Appointment>(
       "/appointment/patient/12290?status=&limit=50&offset=0"
     );
     // console.log(response.data?.data)

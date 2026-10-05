@@ -151,7 +151,7 @@ export function AppointmentMoreDetails({ route }: props) {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
 
   useEffect(() => {
-    setAppointment(()=>appointments.find((a: any) => a.id == appointmentId));
+    setAppointment(() => appointments.find((a: any) => a.id == appointmentId));
   }, []);
 
   return (
@@ -207,7 +207,10 @@ function OverviewTab({ info }: any) {
     { label: "Appointment Time (Start)", value: info?.appointment_start_time },
     { label: "Appointment Date (End)", value: info?.appointment_end_date },
     { label: "Appointment Time (End)", value: info?.appointment_end_time },
-    { label: "Start & End Between", value: info?.appointment_start_between_end },
+    {
+      label: "Start & End Between",
+      value: info?.appointment_start_between_end,
+    },
   ];
   const statusRows: IconRowData[] = [
     {
@@ -408,48 +411,98 @@ function ServiceTab({ info }: any) {
 function MoreTab({ info }: any) {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
-const paymentRows: Row[] = [
-  { label: "Payment Type", value: info?.payment_type },
-  { label: "Payment Status", value: info?.payment_status, badge: "warning" },
-  { label: "Paid Amount", value: info?.paid_amount ? `${info?.paid_amount} KD` : "—" },
-  { label: "Due Amount", value: `${info?.due_amount} KD`, tone: "accent" },
-  { label: "Total Amount", value: `${info?.full_amount} KD`, tone: "accent" },
-];
+  const paymentRows: Row[] = [
+    { label: "Payment Type", value: info?.payment_type },
+    { label: "Payment Status", value: info?.payment_status, badge: "warning" },
+    {
+      label: "Paid Amount",
+      value: info?.paid_amount ? `${info?.paid_amount} KD` : "—",
+    },
+    { label: "Due Amount", value: `${info?.due_amount} KD`, tone: "accent" },
+    { label: "Total Amount", value: `${info?.full_amount} KD`, tone: "accent" },
+  ];
 
-const paymentDetailRows: IconRowData[] = [
-  { icon: "CalendarCheck", label: "Payment Type Session", value: info?.payment_type_session ?? "—" },
-  { icon: "CircleDot", label: "Payment Course Status", value: String(info?.appointment_course_status) },
-];
+  const paymentDetailRows: IconRowData[] = [
+    {
+      icon: "CalendarCheck",
+      label: "Payment Type Session",
+      value: info?.payment_type_session ?? "—",
+    },
+    {
+      icon: "CircleDot",
+      label: "Payment Course Status",
+      value: String(info?.appointment_course_status),
+    },
+  ];
 
-const sessionRows: IconRowData[] = [
-  { icon: "CalendarCheck", label: "Appointment Course Status", value: String(info?.appointment_course_status) },
-  { icon: "CalendarCheck", label: "Stock Assigned", value: String(info?.stock_assigned) },
-  { icon: "CalendarCheck", label: "Extra Sessions", value: String(info?.extra_sessions) },
-  { icon: "CalendarCheck", label: "Extra Sessions Notes", value: info?.extra_sessions_notes || "—" },
-  { icon: "CalendarCheck", label: "Free Session", value: String(info?.is_free_session) },
-  { icon: "Hash", label: "Free Session Number", value: info?.free_session_number ? String(info?.free_session_number) : "—" },
-];
+  const sessionRows: IconRowData[] = [
+    {
+      icon: "CalendarCheck",
+      label: "Appointment Course Status",
+      value: String(info?.appointment_course_status),
+    },
+    {
+      icon: "CalendarCheck",
+      label: "Stock Assigned",
+      value: String(info?.stock_assigned),
+    },
+    {
+      icon: "CalendarCheck",
+      label: "Extra Sessions",
+      value: String(info?.extra_sessions),
+    },
+    {
+      icon: "CalendarCheck",
+      label: "Extra Sessions Notes",
+      value: info?.extra_sessions_notes || "—",
+    },
+    {
+      icon: "CalendarCheck",
+      label: "Free Session",
+      value: String(info?.is_free_session),
+    },
+    {
+      icon: "Hash",
+      label: "Free Session Number",
+      value: info?.free_session_number
+        ? String(info?.free_session_number)
+        : "—",
+    },
+  ];
 
-const notesRows: Row[] = [
-  { label: "Note", value: info?.note },
-  { label: "Note Allergy", value: info?.note_allergy },
-  { label: "Note History", value: info?.note_history },
-  { label: "Cancellation Reason", value: info?.cancellation_reason },
-  { label: "Description", value: info?.description },
-];
+  const notesRows: Row[] = [
+    { label: "Note", value: info?.note },
+    { label: "Note Allergy", value: info?.note_allergy },
+    { label: "Note History", value: info?.note_history },
+    { label: "Cancellation Reason", value: info?.cancellation_reason },
+    { label: "Description", value: info?.description },
+  ];
 
-const departmentRows: Row[] = [
-  { label: "Consult Department", value: info?.consult_department || "—" },
-  { label: "Arboon Department", value: info?.arboon_department ?? "—" },
-  { label: "Service Offer", value: info?.offer_id ? `${info?.offer_id} (${info?.offer_amount} KD)` : "—" },
-];
+  const departmentRows: Row[] = [
+    { label: "Consult Department", value: info?.consult_department || "—" },
+    { label: "Arboon Department", value: info?.arboon_department ?? "—" },
+    {
+      label: "Service Offer",
+      value: info?.offer_id
+        ? `${info?.offer_id} (${info?.offer_amount} KD)`
+        : "—",
+    },
+  ];
 
-const miscRows: Row[] = [
-  { label: "Is Closed Slot", value: String(info?.is_closed_slot) },
-  { label: "Transfer ID", value: info?.transfer_id ? String(info?.transfer_id) : "—" },
-  { label: "Clinic ID", value: String(info?.clinic_id) },
-  { label: "Call Center Staff ID", value: info?.call_center_staff_id ? String(info?.call_center_staff_id) : "—" },
-];
+  const miscRows: Row[] = [
+    { label: "Is Closed Slot", value: String(info?.is_closed_slot) },
+    {
+      label: "Transfer ID",
+      value: info?.transfer_id ? String(info?.transfer_id) : "—",
+    },
+    { label: "Clinic ID", value: String(info?.clinic_id) },
+    {
+      label: "Call Center Staff ID",
+      value: info?.call_center_staff_id
+        ? String(info?.call_center_staff_id)
+        : "—",
+    },
+  ];
   return (
     <>
       <SectionCard icon="CreditCard" title="Payment Information">
@@ -612,7 +665,7 @@ function toneColor(
     default:
       return undefined;
   }
-} 
+}
 
 /* ------------------------------------------------------------------ */
 /* Styles                                                              */

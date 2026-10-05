@@ -21,6 +21,7 @@ import { AppointmentConfirmationScreen } from '../../modules/patient/screens/App
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AppointmentDetailsScreen } from '@/modules/patient/screens/AppointmentDetailsScreen';
 import { AppointmentMoreDetails } from '@/modules/patient/screens/AppointmentMoreDetails';
+import { DoctorDetailsScreen } from '@/modules/patient/screens/DoctorDetailsScreen';
 
 const Tab = createBottomTabNavigator<PatientTabParamList>();
 const Stack = createNativeStackNavigator<PatientStackParamList>();
@@ -40,7 +41,7 @@ export function PatientTabs() {
 
   return (
     <Tab.Navigator
-    initialRouteName='PatientAppointments'
+    initialRouteName='PatientHome'
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: theme.colors.primaryDark,
@@ -99,6 +100,7 @@ export const PatientNavigator =()=>{
       <Stack.Screen name="AppointmentMoreDetails" component={AppointmentMoreDetails} />
       <Stack.Screen name="ServiceDetails" component={ServiceDetailsScreen} />
       <Stack.Screen name="DoctorProfile" component={DoctorProfileScreen} />
+      <Stack.Screen name="DoctorDetails" component={DoctorDetailsScreen} />
       <Stack.Screen name="BookingBranch" component={BookingBranchScreen} />
       <Stack.Screen name="BookingDateTime" component={BookingDateTimeScreen} />
       <Stack.Screen name="BookingPayment" component={BookingPaymentScreen} />
