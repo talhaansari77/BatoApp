@@ -1,22 +1,25 @@
-import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 
-import { useAppTheme } from '../../../app/providers/ThemeProvider';
-import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
-import { AppText } from '../../../shared/ui/atoms/AppText';
-import { Screen } from '../../../shared/ui/templates/Screen';
+import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
+import { AppText } from "../../../shared/ui/atoms/AppText";
+import { Screen } from "../../../shared/ui/templates/Screen";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { PatientStackParamList } from "@/core/navigation/navigation.types";
+import { usePatientAppointmentStore } from "../store/patientAppointment.store";
 
 /* ------------------------------------------------------------------ */
 /* Static mock data from the design (UI only)                          */
 /* ------------------------------------------------------------------ */
 
-type Tone = 'default' | 'strong' | 'accent' | 'success';
+type Tone = "default" | "strong" | "accent" | "success";
 
 type Row = {
   label: string;
   value: string;
   tone?: Tone;
-  badge?: 'warning';
+  badge?: "warning";
 };
 
 type IconRowData = {
@@ -26,114 +29,130 @@ type IconRowData = {
   tone?: Tone;
 };
 
-type TabKey = 'overview' | 'patient' | 'service' | 'more';
+type TabKey = "overview" | "patient" | "service" | "more";
 
 const tabs: { key: TabKey; label: string }[] = [
-  { key: 'overview', label: 'Overview' },
-  { key: 'patient', label: 'Patient' },
-  { key: 'service', label: 'Service' },
-  { key: 'more', label: 'More' },
+  { key: "overview", label: "Overview" },
+  { key: "patient", label: "Patient" },
+  { key: "service", label: "Service" },
+  { key: "more", label: "More" },
 ];
 
-const scheduleRows: Row[] = [
-  { label: 'Appointment Date (Start)', value: '24 Sep 2026' },
-  { label: 'Appointment Time (Start)', value: '01:30 AM' },
-  { label: 'Appointment Date (End)', value: '24 Sep 2026' },
-  { label: 'Appointment Time (End)', value: '02:00 AM' },
-  { label: 'Start & End Between', value: '02:00 AM ,' },
-];
+// const scheduleRows: Row[] = [
+//   { label: "Appointment Date (Start)", value: "24 Sep 2026" },
+//   { label: "Appointment Time (Start)", value: "01:30 AM" },
+//   { label: "Appointment Date (End)", value: "24 Sep 2026" },
+//   { label: "Appointment Time (End)", value: "02:00 AM" },
+//   { label: "Start & End Between", value: "02:00 AM ," },
+// ];
 
-const statusRows: IconRowData[] = [
-  { icon: 'ClipboardList', label: 'Appointment Number', value: 'BATO-21931' },
-  { icon: 'CircleCheck', label: 'Appointment Status', value: '1 (Active)', tone: 'success' },
-  { icon: 'Hourglass', label: 'Progress Status', value: '1' },
-  { icon: 'Gauge', label: 'Urgency Level', value: 'Normal' },
-  { icon: 'CircleDot', label: 'Current Status', value: 'Active' },
-  { icon: 'Clock', label: 'Status', value: '1' },
-  { icon: 'Headset', label: 'Call Center Status', value: '1' },
-];
+// const statusRows: IconRowData[] = [
+//   { icon: "ClipboardList", label: "Appointment Number", value: "BATO-21931" },
+//   {
+//     icon: "CircleCheck",
+//     label: "Appointment Status",
+//     value: "1 (Active)",
+//     tone: "success",
+//   },
+//   { icon: "Hourglass", label: "Progress Status", value: "1" },
+//   { icon: "Gauge", label: "Urgency Level", value: "Normal" },
+//   { icon: "CircleDot", label: "Current Status", value: "Active" },
+//   { icon: "Clock", label: "Status", value: "1" },
+//   { icon: "Headset", label: "Call Center Status", value: "1" },
+// ];
 
-const patientRows: Row[] = [
-  { label: 'Full Name', value: 'طلحه سيف الدين اسري 12337' },
-  { label: 'Patient ID', value: '12290' },
-  { label: 'Civil ID', value: '001399042303' },
-  { label: 'Date of Birth', value: '14 Jan 2026' },
-  { label: 'Mobile Number', value: '65910095' },
-  { label: 'Gender', value: 'Male' },
-  { label: 'Nationality', value: '—' },
-];
+// const patientRows: Row[] = [
+//   { label: "Full Name", value: "طلحه سيف الدين اسري 12337" },
+//   { label: "Patient ID", value: "12290" },
+//   { label: "Civil ID", value: "001399042303" },
+//   { label: "Date of Birth", value: "14 Jan 2026" },
+//   { label: "Mobile Number", value: "65910095" },
+//   { label: "Gender", value: "Male" },
+//   { label: "Nationality", value: "—" },
+// ];
 
-const medicalRows: IconRowData[] = [
-  { icon: 'Ban', label: 'Allergies', value: 'N/A', tone: 'accent' },
-  { icon: 'FileText', label: 'Medical History', value: 'N/A', tone: 'accent' },
-  { icon: 'NotebookPen', label: 'Notes', value: 'N/A', tone: 'accent' },
-];
+// const medicalRows: IconRowData[] = [
+//   { icon: "Ban", label: "Allergies", value: "N/A", tone: "accent" },
+//   { icon: "FileText", label: "Medical History", value: "N/A", tone: "accent" },
+//   { icon: "NotebookPen", label: "Notes", value: "N/A", tone: "accent" },
+// ];
 
-const serviceRows: IconRowData[] = [
-  { icon: 'CalendarCheck', label: 'Sessions Count', value: '5' },
-  { icon: 'Hash', label: 'Service ID', value: '5' },
-  { icon: 'Stethoscope', label: 'Doctor ID', value: '13' },
-  { icon: 'Cpu', label: 'Machine ID', value: '—' },
-];
+// const serviceRows: IconRowData[] = [
+//   { icon: "CalendarCheck", label: "Sessions Count", value: "5" },
+//   { icon: "Hash", label: "Service ID", value: "5" },
+//   { icon: "Stethoscope", label: "Doctor ID", value: "13" },
+//   { icon: "Cpu", label: "Machine ID", value: "—" },
+// ];
 
-const feeRows: Row[] = [
-  { label: 'Appointment Fees', value: '0.000 KD' },
-  { label: 'Extra Fees', value: '0.000 KD' },
-];
+// const feeRows: Row[] = [
+//   { label: "Appointment Fees", value: "0.000 KD" },
+//   { label: "Extra Fees", value: "0.000 KD" },
+// ];
 
 const paymentRows: Row[] = [
-  { label: 'Payment Type', value: 'N/A' },
-  { label: 'Payment Status', value: 'Pending', badge: 'warning' },
-  { label: 'Paid Amount', value: '—' },
-  { label: 'Due Amount', value: '250.000 KD', tone: 'accent' },
-  { label: 'Total Amount', value: '650.000 KD', tone: 'accent' },
+  { label: "Payment Type", value: "N/A" },
+  { label: "Payment Status", value: "Pending", badge: "warning" },
+  { label: "Paid Amount", value: "—" },
+  { label: "Due Amount", value: "250.000 KD", tone: "accent" },
+  { label: "Total Amount", value: "650.000 KD", tone: "accent" },
 ];
 
 const paymentDetailRows: IconRowData[] = [
-  { icon: 'CalendarCheck', label: 'Payment Type Session', value: '—' },
-  { icon: 'CircleDot', label: 'Payment Course Status', value: '0' },
+  { icon: "CalendarCheck", label: "Payment Type Session", value: "—" },
+  { icon: "CircleDot", label: "Payment Course Status", value: "0" },
 ];
 
 const sessionRows: IconRowData[] = [
-  { icon: 'CalendarCheck', label: 'Appointment Course Status', value: '0' },
-  { icon: 'CalendarCheck', label: 'Stock Assigned', value: '0' },
-  { icon: 'CalendarCheck', label: 'Extra Sessions', value: '0' },
-  { icon: 'CalendarCheck', label: 'Extra Sessions Notes', value: '—' },
-  { icon: 'CalendarCheck', label: 'Free Session', value: '0' },
-  { icon: 'Hash', label: 'Free Session Number', value: '—' },
+  { icon: "CalendarCheck", label: "Appointment Course Status", value: "0" },
+  { icon: "CalendarCheck", label: "Stock Assigned", value: "0" },
+  { icon: "CalendarCheck", label: "Extra Sessions", value: "0" },
+  { icon: "CalendarCheck", label: "Extra Sessions Notes", value: "—" },
+  { icon: "CalendarCheck", label: "Free Session", value: "0" },
+  { icon: "Hash", label: "Free Session Number", value: "—" },
 ];
 
 const notesRows: Row[] = [
-  { label: 'Note', value: 'N/A' },
-  { label: 'Note Allergy', value: 'N/A' },
-  { label: 'Note History', value: 'N/A' },
-  { label: 'Cancellation Reason', value: 'N/A' },
-  { label: 'Description', value: 'N/A' },
+  { label: "Note", value: "N/A" },
+  { label: "Note Allergy", value: "N/A" },
+  { label: "Note History", value: "N/A" },
+  { label: "Cancellation Reason", value: "N/A" },
+  { label: "Description", value: "N/A" },
 ];
 
 const departmentRows: Row[] = [
-  { label: 'Consult Department', value: '—' },
-  { label: 'Arboon Department', value: '—' },
-  { label: 'Service Offer', value: '—' },
+  { label: "Consult Department", value: "—" },
+  { label: "Arboon Department", value: "—" },
+  { label: "Service Offer", value: "—" },
 ];
 
 const miscRows: Row[] = [
-  { label: 'Is Closed Slot', value: '0' },
-  { label: 'Transfer ID', value: '—' },
-  { label: 'Clinic ID', value: '1' },
-  { label: 'Call Center Staff ID', value: '—' },
+  { label: "Is Closed Slot", value: "0" },
+  { label: "Transfer ID", value: "—" },
+  { label: "Clinic ID", value: "1" },
+  { label: "Call Center Staff ID", value: "—" },
 ];
 
 /* ------------------------------------------------------------------ */
 /* Screen                                                              */
 /* ------------------------------------------------------------------ */
-
-export function AppointmentMoreDetails() {
+type props = NativeStackScreenProps<
+  PatientStackParamList,
+  "AppointmentMoreDetails"
+>;
+export function AppointmentMoreDetails({ route }: props) {
+  const appointmentId = route?.params?.appointmentId;
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
-
+  const [appointment, setAppointment] = useState<any>();
+  const appointments = usePatientAppointmentStore(
+    (state) => state.appointments,
+  );
   // Only state in this file: which tab is showing.
-  const [activeTab, setActiveTab] = useState<TabKey>('overview');
+  const [activeTab, setActiveTab] = useState<TabKey>("overview");
+
+  useEffect(() => {
+    setAppointment(()=>appointments.find((a: any) => a.id == appointmentId));
+  }, []);
 
   return (
     <Screen title="Appointment Details" showBack onBackPress={() => {}}>
@@ -166,10 +185,10 @@ export function AppointmentMoreDetails() {
           })}
         </View>
 
-        {activeTab === 'overview' ? <OverviewTab /> : null}
-        {activeTab === 'patient' ? <PatientTab /> : null}
-        {activeTab === 'service' ? <ServiceTab /> : null}
-        {activeTab === 'more' ? <MoreTab /> : null}
+        {activeTab === "overview" ? <OverviewTab info={appointment} /> : null}
+        {activeTab === "patient" ? <PatientTab info={appointment} /> : null}
+        {activeTab === "service" ? <ServiceTab info={appointment} /> : null}
+        {activeTab === "more" ? <MoreTab info={appointment} /> : null}
       </View>
     </Screen>
   );
@@ -179,9 +198,43 @@ export function AppointmentMoreDetails() {
 /* Tabs                                                                */
 /* ------------------------------------------------------------------ */
 
-function OverviewTab() {
+function OverviewTab({ info }: any) {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+
+  const scheduleRows: Row[] = [
+    { label: "Appointment Date (Start)", value: info?.appointment_start_date },
+    { label: "Appointment Time (Start)", value: info?.appointment_start_time },
+    { label: "Appointment Date (End)", value: info?.appointment_end_date },
+    { label: "Appointment Time (End)", value: info?.appointment_end_time },
+    { label: "Start & End Between", value: info?.appointment_start_between_end },
+  ];
+  const statusRows: IconRowData[] = [
+    {
+      icon: "ClipboardList",
+      label: "Appointment Number",
+      value: info?.appointment_number,
+    },
+    {
+      icon: "CircleCheck",
+      label: "Appointment Status",
+      value: `${info?.appointment_status} `,
+      tone: "success",
+    },
+    {
+      icon: "Hourglass",
+      label: "Progress Status",
+      value: String(info?.appointment_progress_status),
+    },
+    { icon: "Gauge", label: "Urgency Level", value: info?.urgency_level },
+    { icon: "CircleDot", label: "Current Status", value: info?.current_status },
+    { icon: "Clock", label: "Status", value: String(info?.status) },
+    {
+      icon: "Headset",
+      label: "Call Center Status",
+      value: info?.call_center_status,
+    },
+  ];
 
   return (
     <SectionCard icon="CalendarDays" title="Schedule Information">
@@ -194,10 +247,34 @@ function OverviewTab() {
   );
 }
 
-function PatientTab() {
+function PatientTab({ info }: any) {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const patientRows: Row[] = [
+    { label: "Full Name", value: info?.full_name },
+    { label: "Patient ID", value: String(info?.patient_id) },
+    { label: "Civil ID", value: info?.civil_id },
+    { label: "Date of Birth", value: info?.dob },
+    { label: "Mobile Number", value: info?.mobile_number },
+    { label: "Gender", value: "Male" }, // Not in API payload, keep default
+    { label: "Nationality", value: "—" }, // Not in API payload, keep default
+  ];
 
+  const medicalRows: IconRowData[] = [
+    {
+      icon: "Ban",
+      label: "Allergies",
+      value: info?.note_allergy,
+      tone: "accent",
+    },
+    {
+      icon: "FileText",
+      label: "Medical History",
+      value: info?.note_history,
+      tone: "accent",
+    },
+    { icon: "NotebookPen", label: "Notes", value: info?.note, tone: "accent" },
+  ];
   return (
     <SectionCard icon="UserRound" title="Patient Information">
       <RowList rows={patientRows} />
@@ -211,7 +288,7 @@ function PatientTab() {
                   name={row.icon}
                   size={20}
                   color={
-                    row.label === 'Allergies'
+                    row.label === "Allergies"
                       ? theme.colors.errorText
                       : theme.colors.primaryDark
                   }
@@ -234,10 +311,28 @@ function PatientTab() {
   );
 }
 
-function ServiceTab() {
+function ServiceTab({ info }: any) {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const serviceRows: IconRowData[] = [
+    {
+      icon: "CalendarCheck",
+      label: "Sessions Count",
+      value: String(info?.sessions_count),
+    },
+    { icon: "Hash", label: "Service ID", value: String(info?.service_id) },
+    { icon: "Stethoscope", label: "Doctor ID", value: String(info?.doctor_id) },
+    {
+      icon: "Cpu",
+      label: "Machine ID",
+      value: info?.machine_id ? String(info?.machine_id) : "—",
+    },
+  ];
 
+  const feeRows: Row[] = [
+    { label: "Appointment Fees", value: `${info?.appointment_fees} KD` },
+    { label: "Extra Fees", value: `${info?.appointment_extra_fees} KD` },
+  ];
   return (
     <SectionCard icon="Sparkles" title="Service Information">
       <View style={styles.serviceName}>
@@ -310,10 +405,51 @@ function ServiceTab() {
   );
 }
 
-function MoreTab() {
+function MoreTab({ info }: any) {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+const paymentRows: Row[] = [
+  { label: "Payment Type", value: info?.payment_type },
+  { label: "Payment Status", value: info?.payment_status, badge: "warning" },
+  { label: "Paid Amount", value: info?.paid_amount ? `${info?.paid_amount} KD` : "—" },
+  { label: "Due Amount", value: `${info?.due_amount} KD`, tone: "accent" },
+  { label: "Total Amount", value: `${info?.full_amount} KD`, tone: "accent" },
+];
 
+const paymentDetailRows: IconRowData[] = [
+  { icon: "CalendarCheck", label: "Payment Type Session", value: info?.payment_type_session ?? "—" },
+  { icon: "CircleDot", label: "Payment Course Status", value: String(info?.appointment_course_status) },
+];
+
+const sessionRows: IconRowData[] = [
+  { icon: "CalendarCheck", label: "Appointment Course Status", value: String(info?.appointment_course_status) },
+  { icon: "CalendarCheck", label: "Stock Assigned", value: String(info?.stock_assigned) },
+  { icon: "CalendarCheck", label: "Extra Sessions", value: String(info?.extra_sessions) },
+  { icon: "CalendarCheck", label: "Extra Sessions Notes", value: info?.extra_sessions_notes || "—" },
+  { icon: "CalendarCheck", label: "Free Session", value: String(info?.is_free_session) },
+  { icon: "Hash", label: "Free Session Number", value: info?.free_session_number ? String(info?.free_session_number) : "—" },
+];
+
+const notesRows: Row[] = [
+  { label: "Note", value: info?.note },
+  { label: "Note Allergy", value: info?.note_allergy },
+  { label: "Note History", value: info?.note_history },
+  { label: "Cancellation Reason", value: info?.cancellation_reason },
+  { label: "Description", value: info?.description },
+];
+
+const departmentRows: Row[] = [
+  { label: "Consult Department", value: info?.consult_department || "—" },
+  { label: "Arboon Department", value: info?.arboon_department ?? "—" },
+  { label: "Service Offer", value: info?.offer_id ? `${info?.offer_id} (${info?.offer_amount} KD)` : "—" },
+];
+
+const miscRows: Row[] = [
+  { label: "Is Closed Slot", value: String(info?.is_closed_slot) },
+  { label: "Transfer ID", value: info?.transfer_id ? String(info?.transfer_id) : "—" },
+  { label: "Clinic ID", value: String(info?.clinic_id) },
+  { label: "Call Center Staff ID", value: info?.call_center_staff_id ? String(info?.call_center_staff_id) : "—" },
+];
   return (
     <>
       <SectionCard icon="CreditCard" title="Payment Information">
@@ -403,7 +539,7 @@ function RowList({ rows, compact }: { rows: Row[]; compact?: boolean }) {
             {row.label}
           </AppText>
 
-          {row.badge === 'warning' ? (
+          {row.badge === "warning" ? (
             <View style={styles.warningBadge}>
               <AppText variant="small" color={theme.colors.warningText}>
                 • {row.value}
@@ -415,7 +551,7 @@ function RowList({ rows, compact }: { rows: Row[]; compact?: boolean }) {
               color={toneColor(row.tone, theme)}
               style={[
                 styles.value,
-                row.tone && row.tone !== 'default' ? styles.bold : undefined,
+                row.tone && row.tone !== "default" ? styles.bold : undefined,
               ]}
             >
               {row.value}
@@ -436,7 +572,11 @@ function IconRowList({ rows }: { rows: IconRowData[] }) {
       {rows.map((row) => (
         <View key={row.label} style={styles.iconRow}>
           <View style={styles.iconTileSmall}>
-            <AppIcon name={row.icon} size={16} color={theme.colors.primaryDark} />
+            <AppIcon
+              name={row.icon}
+              size={16}
+              color={theme.colors.primaryDark}
+            />
           </View>
 
           <AppText
@@ -460,16 +600,19 @@ function IconRowList({ rows }: { rows: IconRowData[] }) {
   );
 }
 
-function toneColor(tone: Tone | undefined, theme: ReturnType<typeof useAppTheme>) {
+function toneColor(
+  tone: Tone | undefined,
+  theme: ReturnType<typeof useAppTheme>,
+) {
   switch (tone) {
-    case 'accent':
+    case "accent":
       return theme.colors.primaryDark;
-    case 'success':
+    case "success":
       return theme.colors.successText;
     default:
       return undefined;
   }
-}
+} 
 
 /* ------------------------------------------------------------------ */
 /* Styles                                                              */
@@ -482,7 +625,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     bold: {
-      fontWeight: '700',
+      fontWeight: "700",
     },
 
     pressed: {
@@ -490,7 +633,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     tabBar: {
-      flexDirection: 'row',
+      flexDirection: "row",
       padding: theme.spacing.xs,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.card,
@@ -502,8 +645,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       flex: 1,
       minHeight: 44,
       borderRadius: theme.radius.full,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
 
     tabActive: {
@@ -511,7 +654,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     card: {
-      borderRadius: theme.radius['2xl'],
+      borderRadius: theme.radius["2xl"],
       backgroundColor: theme.colors.card,
       borderWidth: 1,
       borderColor: theme.colors.border,
@@ -521,8 +664,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     cardHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.md,
     },
 
@@ -531,8 +674,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       height: 48,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.cardMuted,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
 
     iconTileSmall: {
@@ -540,8 +683,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       height: 32,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.cardMuted,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
 
     divider: {
@@ -565,16 +708,16 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
       gap: theme.spacing.md,
     },
 
     value: {
       flexShrink: 1,
-      textAlign: 'right',
-      writingDirection: 'auto',
+      textAlign: "right",
+      writingDirection: "auto",
     },
 
     warningBadge: {
@@ -589,8 +732,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     iconRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.md,
     },
 
@@ -599,8 +742,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     subHeading: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.md,
     },
 
@@ -609,8 +752,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     stackItem: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
+      flexDirection: "row",
+      alignItems: "flex-start",
       gap: theme.spacing.md,
     },
 

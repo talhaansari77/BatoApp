@@ -154,7 +154,7 @@ export function LoginScreen({ navigation }: Props) {
       title="LOGIN"
       footer={
         <AppButton
-          title={isLoading ? t("auth.sendingOtp") : t("auth.sendOtp")}
+          title={isLoading ? t("auth.submitting") : t("auth.submit")}
           loading={isLoading}
           disabled={isLoading}
           onPress={handleSendOtp}
@@ -198,8 +198,10 @@ export function LoginScreen({ navigation }: Props) {
               <PhoneNumberInput
                 label={t("auth.phone")}
                 placeholder="0000 0000"
-                // value={countryCode}
-                onChangeText={(v: string) => {}}
+                value={phoneNumber}
+                onChangeText={(v: string) => {
+                  setPhoneNumber(v)
+                }}
                 keyboardType="phone-pad"
                 // maxLength={5}
                 countryCode={countryCode}

@@ -43,8 +43,8 @@ export const ar = {
     phoneDescription: "سنرسل الرمز إلى هذا الرقم عبر واتساب.",
     loginViaFile:"تسجيل الدخول باستخدام رقم الملف",
     forgotOrResetPassword:"نسيت كلمة المرور أو إعادة تعيينها",
-    sendOtp: "إرسال رمز التحقق (OTP)",
-    sendingOtp: "إرسال رمز التحقق (OTP)",
+    submit: "يُقدِّم",
+    submitting: "تقديم",
   },
   profile: {
     account: 'الحساب',

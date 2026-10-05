@@ -43,8 +43,8 @@ export const en = {
     phoneDescription: "We'll send the OTP to this number via WhatsApp.",
     loginViaFile: "Login via File Number",
     forgotOrResetPassword: "Forgot or Reset Password",
-    sendOtp: "Send Otp",
-    sendingOtp: "Sending Otp",
+    submit: "Submit",
+    submitting: "Submitting",
   },
   profile: {
     account: 'Account',

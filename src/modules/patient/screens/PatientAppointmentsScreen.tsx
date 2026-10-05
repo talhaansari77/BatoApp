@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  FlatList,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -9,7 +8,7 @@ import {
 } from "react-native";
 
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
-import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
+import { AppIcon } from "../../../shared/ui/atoms/AppIcon";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { usePatientAppointmentStore } from "../store/patientAppointment.store";
@@ -28,6 +27,7 @@ const filters = [
 
 type AppointmentApiResponse = {
   id: number;
+  file_number: string;
   appointment_number: string;
   full_name: string;
   patient_id: number;
@@ -48,7 +48,7 @@ export type PatientAppointmentsScreenProps = CompositeScreenProps<
   NativeStackScreenProps<PatientStackParamList>
 >;
 
-export function PatientAppointmentsScreen({navigation}: PatientAppointmentsScreenProps) {
+export function PatientAppointmentsScreen({ navigation }: PatientAppointmentsScreenProps) {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const getPatientAppointments = usePatientAppointmentStore(
@@ -58,9 +58,44 @@ export function PatientAppointmentsScreen({navigation}: PatientAppointmentsScree
     (state) => state.appointments,
   );
 
+  // Search and Filter States
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("all");
+
   useEffect(() => {
     getPatientAppointments();
   }, []);
+
+  // Filter Logic
+  const filteredAppointments = useMemo(() => {
+    if (!Array.isArray(appointments)) return [];
+
+    const query = searchQuery.trim().toLowerCase();
+
+    return appointments.filter((item: AppointmentApiResponse) => {
+      // 1. Search Query Match
+      const matchesSearch =
+        !query ||
+        item.full_name?.toLowerCase().includes(query) ||
+        item.appointment_number?.toLowerCase().includes(query) ||
+        item.patient_id?.toString().includes(query);
+
+      // 2. Filter Category Match
+      const status = item.current_status?.toLowerCase();
+      let matchesFilter = true;
+
+      if (selectedFilter === "today") {
+        const todayStr = new Date().toISOString().split("T")[0];
+        matchesFilter = item.date === todayStr;
+      } else if (selectedFilter === "upcoming") {
+        matchesFilter = status === "upcoming" || status === "scheduled" || status === "confirmed";
+      } else if (selectedFilter === "completed") {
+        matchesFilter = status === "completed" || status === "done";
+      }
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [appointments, searchQuery, selectedFilter]);
 
   return (
     <Screen
@@ -85,7 +120,7 @@ export function PatientAppointmentsScreen({navigation}: PatientAppointmentsScree
             </View>
 
             <View style={styles.heroText}>
-              <AppText variant="h2">Your appointments</AppText>
+              <AppText variant="h2">Appointments</AppText>
             </View>
           </View>
 
@@ -120,8 +155,8 @@ export function PatientAppointmentsScreen({navigation}: PatientAppointmentsScree
             placeholder="Search by name, ID or appointment no."
             placeholderTextColor={theme.colors.textMuted}
             style={styles.searchInput}
-            editable={false}
-            pointerEvents="none"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
           />
         </View>
 
@@ -131,8 +166,8 @@ export function PatientAppointmentsScreen({navigation}: PatientAppointmentsScree
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filterRow}
         >
-          {filters.map((filter, index) => {
-            const isSelected = index === 0;
+          {filters.map((filter) => {
+            const isSelected = selectedFilter === filter.value;
 
             return (
               <Pressable
@@ -141,6 +176,7 @@ export function PatientAppointmentsScreen({navigation}: PatientAppointmentsScree
                   styles.filterChip,
                   isSelected && styles.filterChipActive,
                 ]}
+                onPress={() => setSelectedFilter(filter.value)}
               >
                 <AppText
                   variant="caption"
@@ -159,38 +195,17 @@ export function PatientAppointmentsScreen({navigation}: PatientAppointmentsScree
         {/* Divider */}
         <View style={styles.divider} />
 
-        {appointments?.map((item: AppointmentApiResponse) => (
-          <AppointmentCard
-            key={item.id}
-            appointmentNo={item.appointment_number}
-            patientName={item.full_name}
-            patientId={item.patient_id.toString()}
-            service={item.service_name}
-            priceKd={Number(item.full_amount)}
-            timeRange={`${item.appointment_start_time} – ${item.appointment_end_time}`}
-            room={`Room ${item.room_id ?? "N/A"}`}
-            doctor={`Dr. #${item.doctor_id ?? "N/A"}`}
-            sessions={item.sessions_count}
-            priority={item.urgency_level}
-            statusLabel={item.current_status}
-            statusTextColor={theme.colors.successText}
-            isActive={false}
-            onPress={() => {
-              navigation.navigate('AppointmentDetails', { appointmentId: item.id });
-            }}
-          />
-        ))}
-
-        {/* <FlatList
-          data={appointments}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
+        {/* Filtered Appointments List */}
+        {filteredAppointments.length > 0 ? (
+          filteredAppointments.map((item: AppointmentApiResponse) => (
             <AppointmentCard
+              key={item.id}
+              fileNumber={item.file_number}
               appointmentNo={item.appointment_number}
               patientName={item.full_name}
               patientId={item.patient_id.toString()}
               service={item.service_name}
-              priceKd={item.full_amount}
+              priceKd={Number(item.full_amount)}
               timeRange={`${item.appointment_start_time} – ${item.appointment_end_time}`}
               room={`Room ${item.room_id ?? "N/A"}`}
               doctor={`Dr. #${item.doctor_id ?? "N/A"}`}
@@ -198,12 +213,21 @@ export function PatientAppointmentsScreen({navigation}: PatientAppointmentsScree
               priority={item.urgency_level}
               statusLabel={item.current_status}
               statusTextColor={theme.colors.successText}
-              isActive={item.current_status.toLowerCase() === "active"}
+              isActive={false}
+              onPress={() => {
+                navigation.navigate("AppointmentDetails", {
+                  appointmentId: item.id,
+                });
+              }}
             />
-          )}
-          contentContainerStyle={{ gap: theme.spacing.md }}
-          nestedScrollEnabled
-        /> */}
+          ))
+        ) : (
+          <View style={styles.emptyContainer}>
+            <AppText variant="bodyMedium" color={theme.colors.textMuted}>
+              No appointments found.
+            </AppText>
+          </View>
+        )}
       </View>
     </Screen>
   );
@@ -314,6 +338,12 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     divider: {
       height: 1,
       backgroundColor: theme.colors.border,
+    },
+
+    emptyContainer: {
+      paddingVertical: theme.spacing.xl,
+      alignItems: "center",
+      justifyContent: "center",
     },
   });
 }

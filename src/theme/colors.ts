@@ -18,7 +18,10 @@ export const lightColors = {
   infoText: '#3F6178',
   surface: '#FAFAFA',
   danger: '#A84B4B',
+  yellow: '#FFD700',
   overlay: 'rgba(0, 0, 0, 0.35)',
+  overlay_1: "rgba(255, 255, 255, 0.22)",
+  overlay_2: "rgba(255, 255, 255, 0.35)",
 };
 
 export const darkColors = {

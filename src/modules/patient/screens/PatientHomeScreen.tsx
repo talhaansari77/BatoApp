@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, View } from "react-native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 
@@ -10,6 +10,9 @@ import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { useAuthStore } from "../../auth/store/auth.store";
+import { DoctorCard, DoctorCardExample } from "../components/DoctorCard";
+import { FontAwesomeIcon, } from '@fortawesome/react-native-fontawesome'
+import { faStar } from "@fortawesome/free-solid-svg-icons";
 
 type PatientHomeNavigation = BottomTabNavigationProp<
   PatientTabParamList,
@@ -150,18 +153,17 @@ export function PatientHomeScreen() {
                 {user?.full_name ? user?.full_name : "patient"}
               </AppText>
             </View>
-            <View style={{flexDirection:'row',gap:10}}>
+            <View style={{ flexDirection: "row", gap: 10 }}>
               <Pressable
                 onPress={() => {}}
                 hitSlop={12}
                 style={{
                   width: 50,
                   height: 50,
-                  borderRadius:25,
+                  borderRadius: 25,
                   alignItems: "center",
                   justifyContent: "center",
-                  backgroundColor:theme.colors.cardMuted
-
+                  backgroundColor: theme.colors.cardMuted,
                 }}
               >
                 <AppIcon name="Search" color={theme.colors.primaryDark} />
@@ -172,55 +174,25 @@ export function PatientHomeScreen() {
                 style={{
                   width: 50,
                   height: 50,
-                  borderRadius:25,
+                  borderRadius: 25,
                   alignItems: "center",
                   justifyContent: "center",
-                  backgroundColor:theme.colors.cardMuted
+                  backgroundColor: theme.colors.cardMuted,
                 }}
               >
                 <AppIcon name="Bell" color={theme.colors.primaryDark} />
               </Pressable>
             </View>
           </View>
-
-          <View style={styles.heroBox}>
-            <View style={styles.heroContent}>
-              <View style={styles.heroBadge}>
-                <AppIcon
-                  name="Sparkles"
-                  size={15}
-                  color={theme.colors.primaryDark}
-                />
-                <AppText variant="small" color={theme.colors.primaryDark}>
-                  Premium Care
-                </AppText>
-              </View>
-
-              <AppText variant="h2" style={styles.heroTitle}>
-                Your beauty and wellness journey starts here
-              </AppText>
-
-              <AppText color={theme.colors.textMuted} style={styles.heroText}>
-                Book treatments, follow care plans, and track your progress with
-                BATO Clinic.
-              </AppText>
-
-              <AppButton
-                title="Book Appointment"
-                fullWidth={false}
-                style={styles.heroButton}
-                onPress={() => navigateToTab("PatientServices")}
-              />
-            </View>
-
-            <View style={styles.heroIcon}>
-              <AppIcon
-                name="HeartPulse"
-                size={42}
-                color={theme.colors.primaryDark}
-              />
-            </View>
-          </View>
+          <FlatList
+            horizontal
+            data={[1, 2]}
+            keyExtractor={(item) => item.toString()}
+            renderItem={() => <DoctorCardExample />}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.listContainer}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+          />
         </View>
 
         <View style={styles.section}>
@@ -430,11 +402,12 @@ export function PatientHomeScreen() {
 
                 <View style={styles.specialistMeta}>
                   <View style={styles.inlineInfo}>
-                    <AppIcon
+                    <FontAwesomeIcon icon={faStar} color={theme.colors.yellow} size={20} />
+                    {/* <AppIcon
                       name="Star"
                       size={14}
                       color={theme.colors.warningText}
-                    />
+                    /> */}
                     <AppText variant="small">{item.rating}</AppText>
                   </View>
 
@@ -512,6 +485,13 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       flexDirection: "row",
       alignItems: "center",
       gap: theme.spacing.md,
+    },
+    listContainer: {
+      // paddingRight: 16, // Prevents cards from clipping at screen edges
+      // paddingVertical: 8,
+    },
+    separator: {
+      width: 20, // Spacing between doctor cards
     },
 
     avatar: {

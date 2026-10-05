@@ -8,6 +8,7 @@ import MetaItem from "../Molecules/MetaItem";
 
 type AppointmentCardProps = {
   onPress?: () => void;
+  fileNumber: string;
   appointmentNo: string;
   patientName: string;
   patientId?: string;
@@ -25,6 +26,7 @@ type AppointmentCardProps = {
 
 export default function AppointmentCard({
   onPress,
+  fileNumber,
   appointmentNo,
   patientName,
   patientId,
@@ -85,7 +87,7 @@ export default function AppointmentCard({
           </View>
 
           <AppText variant="bodyMedium" style={styles.patientName}>
-            {patientId ? `${patientName} ${patientId}` : patientName}
+            {patientId ? `${patientName} ${fileNumber}` : patientName}
           </AppText>
 
           <AppText variant="caption" color={theme.colors.textMuted}>

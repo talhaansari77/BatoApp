@@ -1,51 +1,75 @@
-import React, { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from "react";
+import { StyleSheet, View } from "react-native";
 
-import { useAppTheme } from '../../../app/providers/ThemeProvider';
-import { AppButton } from '../../../shared/ui/atoms/AppButton';
-import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
-import { AppText } from '../../../shared/ui/atoms/AppText';
-import { Screen } from '../../../shared/ui/templates/Screen';
-import { PatientStackParamList } from '@/core/navigation/navigation.types';
+import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { AppButton } from "../../../shared/ui/atoms/AppButton";
+import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
+import { AppText } from "../../../shared/ui/atoms/AppText";
+import { Screen } from "../../../shared/ui/templates/Screen";
+import { PatientStackParamList } from "@/core/navigation/navigation.types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { usePatientAppointmentStore } from "../store/patientAppointment.store";
 
-// Static mock data from the design (UI only).
-const appointment = {
-  appointmentNo: 'BATO-21931',
-  statusLabel: 'Active',
-  initials: 'ط س',
-  patientName: 'طلحه سيف اسري 12337',
-  patientId: '12290',
-  fileNo: '12314',
-  date: '24 Sep 2026',
-  time: '01:30 AM – 02:00 AM',
-  room: 'Room 1',
-  priority: 'Normal',
-  treatment: 'Hair Treatment - 650 KD',
-  sessions: '5 Sessions',
-  subTotal: '650.000 KD',
-  discount: '0.000 KD',
-  extraAmount: '0.000 KD',
-  fullAmount: '650.000 KD',
-  paidAmount: '–',
-  dueAmount: '250.000 KD',
+const findAppointment = (a: any, aId: any, setAppointment: any) => {
+  let result = a.find((a: any) => a.id == aId);
+  let newResult = {
+    appointmentNo: result?.appointment_number,
+    statusLabel: result?.current_status,
+    initials: "ط س",
+    patientName: result?.full_name,
+    patientId: result?.patient_id,
+    fileNo: result?.file_number,
+    date: result?.date,
+    time: result?.time12,
+    room: result?.room_id,
+    priority: "null",
+    treatment: result?.service_name,
+    sessions: result?.sessions_count,
+    subTotal: result?.sub_total,
+    discount: result?.discount_amount,
+    extraAmount: result?.extra_amount,
+    fullAmount: result?.full_amount,
+    paidAmount: result?.paid_amount,
+    dueAmount: result?.due_amount,
+  };
+  setAppointment(newResult);
 };
 
-type props = NativeStackScreenProps<PatientStackParamList, 'AppointmentDetails'>;
+type props = NativeStackScreenProps<
+  PatientStackParamList,
+  "AppointmentDetails"
+>;
 
-export function AppointmentDetailsScreen({ navigation }: props) {
+export function AppointmentDetailsScreen({ navigation, route }: props) {
+  const appointmentId = route?.params?.appointmentId;
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const [appointment, setAppointment] = useState<any>();
+
+  const appointments = usePatientAppointmentStore(
+    (state) => state.appointments,
+  );
+
+  useEffect(() => {
+    findAppointment(appointments, appointmentId, setAppointment);
+  }, []);
 
   return (
     <Screen
       title="Appointment Details"
       showBack
       onBackPress={() => {}}
-      actions={[{ icon: 'Ellipsis', onPress: () => {} }]}
-      footer={<AppButton title="View Details" onPress={() => {
-        navigation.navigate('AppointmentMoreDetails', { appointmentId: 123 });
-      }} />}
+      actions={[{ icon: "Ellipsis", onPress: () => {} }]}
+      footer={
+        <AppButton
+          title="View Details"
+          onPress={() => {
+            navigation.navigate("AppointmentMoreDetails", {
+              appointmentId: appointmentId,
+            });
+          }}
+        />
+      }
     >
       <View style={styles.card}>
         {/* Status + appointment no. */}
@@ -53,12 +77,12 @@ export function AppointmentDetailsScreen({ navigation }: props) {
           <View style={styles.statusBadge}>
             <View style={styles.statusDot} />
             <AppText variant="small" color={theme.colors.successText}>
-              {appointment.statusLabel}
+              {appointment?.statusLabel}
             </AppText>
           </View>
 
           <AppText variant="bodyMedium" style={styles.bold}>
-            {appointment.appointmentNo}
+            {appointment?.appointmentNo}
           </AppText>
         </View>
 
@@ -66,22 +90,22 @@ export function AppointmentDetailsScreen({ navigation }: props) {
         <View style={styles.patientRow}>
           <View style={styles.avatar}>
             <AppText variant="h3" color={theme.colors.primaryDark}>
-              {appointment.initials}
+              {appointment?.initials}
             </AppText>
           </View>
 
           <View style={styles.patientInfo}>
             <AppText variant="h3" style={styles.patientName}>
-              {appointment.patientName}
+              {appointment?.patientName}
             </AppText>
 
             <View style={styles.idRow}>
               <AppText variant="caption" color={theme.colors.textMuted}>
-                Patient ID: {appointment.patientId}
+                Patient ID: {appointment?.patientId}
               </AppText>
               <View style={styles.inlineDivider} />
               <AppText variant="caption" color={theme.colors.textMuted}>
-                File No: {appointment.fileNo}
+                File No: {appointment?.fileNo}
               </AppText>
             </View>
           </View>
@@ -99,10 +123,10 @@ export function AppointmentDetailsScreen({ navigation }: props) {
             />
             <View style={styles.scheduleText}>
               <AppText variant="bodyMedium" style={styles.bold}>
-                {appointment.date}
+                {appointment?.date}
               </AppText>
               <AppText variant="caption" color={theme.colors.textMuted}>
-                {appointment.time}
+                {appointment?.time}
               </AppText>
             </View>
           </View>
@@ -110,8 +134,8 @@ export function AppointmentDetailsScreen({ navigation }: props) {
           <View style={styles.verticalDivider} />
 
           <View style={styles.scheduleRight}>
-            <InfoLine icon="DoorOpen" label={appointment.room} />
-            <InfoLine icon="Flag" label={appointment.priority} />
+            <InfoLine icon="DoorOpen" label={appointment?.room} />
+            <InfoLine icon="Flag" label={appointment?.priority} />
           </View>
         </View>
 
@@ -129,10 +153,10 @@ export function AppointmentDetailsScreen({ navigation }: props) {
 
           <View style={styles.treatmentText}>
             <AppText variant="bodyMedium" style={styles.bold}>
-              {appointment.treatment}
+              {appointment?.treatment}
             </AppText>
             <AppText variant="caption" color={theme.colors.textMuted}>
-              {appointment.sessions}
+              {appointment?.sessions}
             </AppText>
           </View>
         </View>
@@ -141,18 +165,22 @@ export function AppointmentDetailsScreen({ navigation }: props) {
 
         {/* Payment summary */}
         <View style={styles.summaryBox}>
-          <SummaryRow label="Sub Total" value={appointment.subTotal} />
-          <SummaryRow label="Discount" value={appointment.discount} />
-          <SummaryRow label="Extra Amount" value={appointment.extraAmount} />
+          <SummaryRow label="Sub Total" value={appointment?.subTotal} />
+          <SummaryRow label="Discount" value={appointment?.discount} />
+          <SummaryRow label="Extra Amount" value={appointment?.extraAmount} />
 
           <View style={styles.divider} />
 
-          <SummaryRow label="Full Amount" value={appointment.fullAmount} strong />
+          <SummaryRow
+            label="Full Amount"
+            value={appointment?.fullAmount}
+            strong
+          />
 
           <View style={styles.divider} />
 
-          <SummaryRow label="Paid Amount" value={appointment.paidAmount} />
-          <SummaryRow label="Due Amount" value={appointment.dueAmount} accent />
+          <SummaryRow label="Paid Amount" value={appointment?.paidAmount} />
+          <SummaryRow label="Due Amount" value={appointment?.dueAmount} accent />
         </View>
       </View>
     </Screen>
@@ -193,7 +221,7 @@ function SummaryRow({ label, value, strong, accent }: SummaryRowProps) {
   return (
     <View style={styles.summaryRow}>
       <AppText
-        variant={strong ? 'bodyMedium' : 'caption'}
+        variant={strong ? "bodyMedium" : "caption"}
         color={color}
         style={strong || accent ? styles.bold : undefined}
       >
@@ -201,7 +229,7 @@ function SummaryRow({ label, value, strong, accent }: SummaryRowProps) {
       </AppText>
 
       <AppText
-        variant={strong ? 'bodyMedium' : 'caption'}
+        variant={strong ? "bodyMedium" : "caption"}
         color={color}
         style={strong || accent ? styles.bold : undefined}
       >
@@ -214,7 +242,7 @@ function SummaryRow({ label, value, strong, accent }: SummaryRowProps) {
 function createStyles(theme: ReturnType<typeof useAppTheme>) {
   return StyleSheet.create({
     card: {
-      borderRadius: theme.radius['2xl'],
+      borderRadius: theme.radius["2xl"],
       backgroundColor: theme.colors.card,
       borderWidth: 1,
       borderColor: theme.colors.border,
@@ -224,7 +252,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     bold: {
-      fontWeight: '700',
+      fontWeight: "700",
     },
 
     divider: {
@@ -233,14 +261,14 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     topRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
     },
 
     statusBadge: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.xs,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.xs,
@@ -256,8 +284,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     patientRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.lg,
     },
 
@@ -266,8 +294,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       height: 80,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.cardMuted,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
 
     patientInfo: {
@@ -276,13 +304,13 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     patientName: {
-      fontWeight: '700',
-      writingDirection: 'auto',
+      fontWeight: "700",
+      writingDirection: "auto",
     },
 
     idRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.sm,
     },
 
@@ -293,14 +321,14 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     scheduleRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
     },
 
     scheduleLeft: {
       flex: 1,
-      flexDirection: 'row',
-      alignItems: 'flex-start',
+      flexDirection: "row",
+      alignItems: "flex-start",
       gap: theme.spacing.md,
     },
 
@@ -310,7 +338,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
 
     verticalDivider: {
       width: 1,
-      alignSelf: 'stretch',
+      alignSelf: "stretch",
       backgroundColor: theme.colors.border,
       marginHorizontal: theme.spacing.lg,
     },
@@ -321,14 +349,14 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     infoLine: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.sm,
     },
 
     treatmentRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.md,
     },
 
@@ -337,8 +365,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       height: 56,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.cardMuted,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
 
     treatmentText: {
@@ -356,9 +384,9 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     summaryRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
     },
   });
 }

@@ -7,7 +7,7 @@ import { Screen } from "../../../shared/ui/templates/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Welcome">;
 
