@@ -24,6 +24,7 @@ export const lightColors = {
   overlay_1: "rgba(255, 255, 255, 0.22)",
   overlay_2: "rgba(255, 255, 255, 0.35)",
   overlay_3: 'rgba(255, 255, 255, 0.7)',
+  greyGlass: "rgba(110, 110, 120, 0.35)",
 };
 
 export const darkColors = {

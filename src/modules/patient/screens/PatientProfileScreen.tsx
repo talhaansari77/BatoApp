@@ -1,24 +1,53 @@
 import React, { useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { I18nManager, Pressable, StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { useNavigation } from "@react-navigation/native";
 
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
-import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { LanguageSelector } from "../../../shared/ui/molecules/LanguageSelector";
 import { ThemeModeSelector } from "../../../shared/ui/molecules/ThemeModeSelector";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { useAuthStore } from "../../auth/store/auth.store";
-import { useNavigation } from "@react-navigation/native";
+import { SectionLabel } from "../Molecules/SectionLabel";
+import { InfoRow } from "../Molecules/InfoRow";
+import { Chevron } from "../Molecules/Chevron";
+import { PreferenceRow } from "../Molecules/PreferenceRow";
 
-// --- Types -----------------------------------------------------------
+// --- Types & Placeholder Data ------------------------------------------
 
-type ContactDetail = {
-  id: string;
+const MOCK_PATIENT = {
+  dob: "15/10/1998",
+  gender: "Male",
+  nationality: "Kuwait",
+  firstVisit: "12 Jan 2023",
+  lastVisit: "15 May 2024",
+  totalVisits: "14",
+  totalSpent: "KWD 420.00",
+  bloodType: "O+",
+  allergies: "Penicillin, Peanuts",
+};
+
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  ar: "العربية",
+};
+
+type PreferenceId = "language" | "appearance";
+
+type CareItemId =
+  | "personalSummary"
+  | "treatments"
+  | "medicalInfo"
+  | "documents";
+
+type CareItem = {
+  id: CareItemId;
   label: string;
-  value: string;
   icon: AppIconName;
+  isExpandable: boolean;
+  onPress?: () => void;
 };
 
 type SummaryStat = {
@@ -28,8 +57,6 @@ type SummaryStat = {
   icon: AppIconName;
 };
 
-type AppointmentStatus = "completed" | "upcoming" | "cancelled";
-
 type RecentAppointment = {
   id: string;
   day: string;
@@ -37,56 +64,15 @@ type RecentAppointment = {
   year: string;
   title: string;
   doctorName: string;
-  status: AppointmentStatus;
+  status: string;
 };
 
-type QuickAction = {
+type ContactDetail = {
   id: string;
   label: string;
-  icon: AppIconName;
-  onPress: () => void;
-};
-
-type ProfileTab = {
-  id:
-    | "overview"
-    | "medicalInfo"
-    | "appointments"
-    | "treatments"
-    | "invoices"
-    | "history";
-  label: string;
+  value: string;
   icon: AppIconName;
 };
-
-// --- Static config / placeholder data --------------------------------
-// Fields below aren't on the current auth-store User type (only
-// full_name, full_mobile_number, patient_code, civil_id are confirmed).
-// Everything else here is a placeholder until the backend/store exposes
-// it — swap MOCK_PATIENT and the mock lists for real data as it lands.
-
-const MOCK_PATIENT = {
-  email: "patient@example.com",
-  dob: "15/10/1998",
-  gender: "Male",
-  address: "Block 4, Street 12, Building 8, Jabriya, Kuwait",
-  bloodType: "O+",
-  allergies: "No Known Allergies",
-  isVip: true,
-  firstVisit: "12 Jan 2024",
-  lastVisit: "15 May 2024",
-  totalVisits: "8 Visits",
-  totalSpent: "KWD 785",
-};
-
-const PROFILE_TABS: ProfileTab[] = [
-  { id: "overview", label: "Overview", icon: "User" },
-  { id: "medicalInfo", label: "Medical Info", icon: "HeartPulse" },
-  { id: "appointments", label: "Appointments", icon: "CalendarDays" },
-  { id: "treatments", label: "Treatments", icon: "Stethoscope" },
-  { id: "invoices", label: "Invoices", icon: "CreditCard" },
-  { id: "history", label: "History", icon: "Calendar" },
-];
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -95,108 +81,79 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-// Expects dd/mm/yyyy, matching the format already used for DOB elsewhere
-// in this app. Falls back gracefully on anything else.
-function calculateAge(dob: string): string {
-  const [day, month, year] = dob.split("/").map(Number);
-  if (!day || !month || !year) return "—";
-
-  const birthDate = new Date(year, month - 1, day);
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const hadBirthdayThisYear =
-    today.getMonth() > birthDate.getMonth() ||
-    (today.getMonth() === birthDate.getMonth() &&
-      today.getDate() >= birthDate.getDate());
-  if (!hadBirthdayThisYear) age -= 1;
-
-  return `${age} Years`;
+function capitalize(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 export function PatientProfileScreen() {
   const navigation = useNavigation<any>();
   const theme = useAppTheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const logout = useAuthStore((state) => state.logout);
   const isLoading = useAuthStore((state) => state.isLoading);
   const user = useAuthStore((state) => state.user);
 
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const [activeTab, setActiveTab] = useState<ProfileTab["id"]>("overview");
 
-  // Single source of truth for the screen, merging real user fields with
-  // placeholders for anything not yet on the User type.
+  const [expandedPreference, setExpandedPreference] =
+    useState<PreferenceId | null>(null);
+  const [expandedCareId, setExpandedCareId] = useState<CareItemId | null>(null);
+
   const patient = useMemo(
     () => ({
       fullName: user?.full_name ?? "Guest Patient",
-      phone: user?.full_mobile_number ?? "+965 9876 5432",
       patientCode: user?.patient_code ?? "PT-849201",
-      civilId: user?.civil_id ?? "298101501234",
-      email: (user as any)?.email ?? MOCK_PATIENT.email,
       dob: (user as any)?.dob ?? MOCK_PATIENT.dob,
       gender: (user as any)?.gender ?? MOCK_PATIENT.gender,
-      address: (user as any)?.address ?? MOCK_PATIENT.address,
+      nationality: (user as any)?.nationality ?? MOCK_PATIENT.nationality,
+      firstVisit: MOCK_PATIENT.firstVisit,
+      lastVisit: MOCK_PATIENT.lastVisit,
+      totalVisits: MOCK_PATIENT.totalVisits,
+      totalSpent: MOCK_PATIENT.totalSpent,
       bloodType: (user as any)?.bloodType ?? MOCK_PATIENT.bloodType,
       allergies: (user as any)?.allergies ?? MOCK_PATIENT.allergies,
-      isVip: (user as any)?.isVip ?? MOCK_PATIENT.isVip,
     }),
     [user],
   );
 
-  const initials = getInitials(patient.fullName);
-  const ageLabel = calculateAge(patient.dob);
+  const languageLabel =
+    LANGUAGE_NAMES[i18n.language?.split("-")[0]] ??
+    (i18n.language ?? "").toUpperCase();
+
+  const appearanceLabel = capitalize(
+    String((theme as any).mode ?? (theme as any).themeMode ?? "system"),
+  );
+
+  // --- Dynamic Data Arrays ---
 
   const summaryStats: SummaryStat[] = [
     {
       id: "firstVisit",
       label: "First Visit",
-      value: MOCK_PATIENT.firstVisit,
+      value: patient.firstVisit,
       icon: "Calendar",
     },
     {
       id: "lastVisit",
       label: "Last Visit",
-      value: MOCK_PATIENT.lastVisit,
+      value: patient.lastVisit,
       icon: "Calendar",
     },
     {
       id: "totalVisits",
       label: "Total Visits",
-      value: MOCK_PATIENT.totalVisits,
+      value: patient.totalVisits,
       icon: "Users",
     },
     {
       id: "totalSpent",
       label: "Total Spent",
-      value: MOCK_PATIENT.totalSpent,
+      value: patient.totalSpent,
       icon: "CreditCard",
     },
   ];
 
-  const contactLeft: ContactDetail[] = [
-    { id: "phone", label: "Phone", value: patient.phone, icon: "Phone" },
-    { id: "email", label: "Email", value: patient.email, icon: "Mail" },
-    { id: "address", label: "Address", value: patient.address, icon: "MapPin" },
-  ];
-
-  const contactRight: ContactDetail[] = [
-    { id: "dob", label: "Date of Birth", value: patient.dob, icon: "Calendar" },
-    {
-      id: "bloodType",
-      label: "Blood Type",
-      value: patient.bloodType,
-      icon: "Droplet",
-    },
-    {
-      id: "allergies",
-      label: "Allergies",
-      value: patient.allergies,
-      icon: "ShieldCheck",
-    },
-  ];
-
-  // Placeholder — swap for the real appointments feed once available here.
   const recentAppointments: RecentAppointment[] = [
     {
       id: "1",
@@ -227,425 +184,329 @@ export function PatientProfileScreen() {
     },
   ];
 
-  const quickActions: QuickAction[] = [
+  const contactRight: ContactDetail[] = [
+    { id: "dob", label: "Date of Birth", value: patient.dob, icon: "Calendar" },
     {
-      id: "book",
-      label: "Book Appointment",
-      icon: "CalendarDays",
-      onPress: () => {},
+      id: "bloodType",
+      label: "Blood Type",
+      value: patient.bloodType,
+      icon: "Droplet",
     },
     {
-      id: "records",
-      label: "Medical Records",
-      icon: "FileText",
-      onPress: () =>
-        navigation.navigate("ReportsApp", { screen: "MedicalReports" }),
-    },
-    {
-      id: "payments",
-      label: "Payment Methods",
-      icon: "CreditCard",
-      onPress: () => {},
-    },
-    {
-      id: "notifications",
-      label: "Notifications",
-      icon: "Bell",
-      onPress: () => {},
-    },
-    {
-      id: "support",
-      label: "Help & Support",
-      icon: "Headphones",
-      onPress: () => {},
+      id: "allergies",
+      label: "Allergies",
+      value: patient.allergies,
+      icon: "ShieldCheck",
     },
   ];
 
+  const careItems: CareItem[] = [
+    {
+      id: "personalSummary",
+      label: t("profile.personalSummary", { defaultValue: "Personal Summary" }),
+      icon: "User",
+      isExpandable: true,
+    },
+    {
+      id: "treatments",
+      label: t("profile.treatmentHistory", {
+        defaultValue: "Treatment History",
+      }),
+      icon: "Stethoscope",
+      isExpandable: true,
+    },
+    {
+      id: "medicalInfo",
+      label: t("profile.medicalInformation", {
+        defaultValue: "Medical Information",
+      }),
+      icon: "HeartPulse",
+      isExpandable: true,
+    },
+    {
+      id: "documents",
+      label: t("profile.documents", { defaultValue: "Documents" }),
+      icon: "FileText",
+      isExpandable: false,
+      onPress: () =>
+        navigation.navigate("ReportsApp", { screen: "MedicalReports" }),
+    },
+  ];
+
+  const toggleCare = (id: CareItemId) => {
+    setExpandedCareId((current) => (current === id ? null : id));
+  };
+
+  const togglePreference = (id: PreferenceId) => {
+    setExpandedPreference((current) => (current === id ? null : id));
+  };
+
   return (
-    <Screen
-      title={t("common.profile")}
-      actions={[
-        { icon: "Bell", onPress: () => {} },
-        { icon: "MoreVertical", onPress: () => {} },
-      ]}
-      ShowAppHeader
-      showBack
-    >
+    <Screen>
       <View style={styles.root}>
-        {/* Hero / identity card */}
-        <View style={styles.heroCard}>
-          <View style={styles.heroTopRow}>
-            <View style={styles.heroText}>
-              <AppText variant="h2">{patient.fullName}</AppText>
+        {/* Identity Hero */}
+        <View style={styles.hero}>
+          <View style={styles.avatarContainer}>
+            <View style={styles.avatar}>
+              <AppText variant="h1" color={theme.colors.primaryDark}>
+                {getInitials(patient.fullName)}
+              </AppText>
+            </View>
+            <Pressable
+              onPress={() => {}}
+              style={({ pressed }) => [
+                styles.editBadge,
+                pressed && styles.pressed,
+              ]}
+            >
+              <AppIcon
+                name="Pencil"
+                size={12}
+                color={theme.colors.primaryDark}
+              />
+            </Pressable>
+          </View>
 
-              {patient.isVip ? (
-                <View style={styles.vipBadge}>
-                  <AppIcon
-                    name="Crown"
-                    size={14}
-                    color={theme.colors.primaryDark}
-                  />
-                  <AppText variant="small" color={theme.colors.primaryDark}>
-                    {t("profile.vipPatient")}
-                  </AppText>
-                </View>
-              ) : null}
+          <View style={styles.heroText}>
+            <AppText variant="h2" align="center">
+              {patient.fullName}
+            </AppText>
 
-              <View style={styles.metaRow}>
-                <AppText variant="caption" color={theme.colors.textMuted}>
+            <View style={styles.idBadge}>
+              <AppText
+                variant="caption"
+                color={theme.colors.textMuted}
+                align="center"
+              >
+                {t("profile.patientId", { defaultValue: "Patient ID" })} •{" "}
+                <AppText variant="caption" color={theme.colors.primaryDark}>
                   {patient.patientCode}
                 </AppText>
-                <AppText variant="caption" color={theme.colors.textMuted}>
-                  •
-                </AppText>
-                <AppText variant="caption" color={theme.colors.textMuted}>
-                  {ageLabel}
-                </AppText>
-                <AppText variant="caption" color={theme.colors.textMuted}>
-                  •
-                </AppText>
-                <AppText variant="caption" color={theme.colors.textMuted}>
-                  {patient.gender}
-                </AppText>
-              </View>
-            </View>
-            <View style={styles.avatar}>
-              <AppText variant="h2" color={theme.colors.primaryDark}>
-                {initials}
               </AppText>
             </View>
-            {/* statusBadge */}
-            {/* <View style={styles.statusBadge}>
-              <AppText variant="small" color={theme.colors.successText}>
-                Active
-              </AppText>
-            </View> */}
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.heroDetailRow}>
-            <AppIcon name="Phone" size={16} color={theme.colors.textMuted} />
-            <AppText variant="small" color={theme.colors.text}>
-              {patient.phone}
-            </AppText>
-            <AppText variant="small" color={theme.colors.textMuted}>
-              |
-            </AppText>
-            <AppIcon name="Mail" size={16} color={theme.colors.textMuted} />
-            <AppText
-              variant="small"
-              color={theme.colors.text}
-              style={styles.flexShrink}
-            >
-              {patient.email}
-            </AppText>
-          </View>
-
-          <View style={styles.heroDetailRow}>
-            <AppIcon name="MapPin" size={16} color={theme.colors.textMuted} />
-            <AppText
-              variant="small"
-              color={theme.colors.text}
-              style={styles.flexShrink}
-            >
-              {patient.address}
-            </AppText>
           </View>
         </View>
 
-        {/* Section tabs */}
-        <View style={styles.heroCard}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.tabsRow}
-          >
-            {PROFILE_TABS.map((tab) => {
-              const isActive = tab.id === activeTab;
+        {/* Personal Information */}
+        <View style={styles.section}>
+          <SectionLabel
+            title={t("profile.personalInformation", {
+              defaultValue: "Personal Information",
+            })}
+          />
+          <View style={styles.card}>
+            <InfoRow
+              label={t("profile.dateOfBirth", {
+                defaultValue: "Date of Birth",
+              })}
+              value={patient.dob}
+            />
+            <View style={styles.innerDivider} />
+            <InfoRow
+              label={t("profile.gender", { defaultValue: "Gender" })}
+              value={patient.gender}
+            />
+            <View style={styles.innerDivider} />
+            <InfoRow
+              label={t("profile.nationality", { defaultValue: "Nationality" })}
+              value={patient.nationality}
+            />
+          </View>
+        </View>
+
+        {/* My Care Section */}
+        <View style={styles.section}>
+          <SectionLabel
+            title={t("profile.myCare", { defaultValue: "My Care" })}
+          />
+          <View style={styles.card}>
+            {careItems.map((item, index) => {
+              const isExpanded = expandedCareId === item.id;
+
               return (
-                <Pressable
-                  key={tab.id}
-                  onPress={() => setActiveTab(tab.id)}
-                  style={styles.tabItem}
-                >
-                  <AppIcon
-                    name={tab.icon}
-                    size={20}
-                    color={
-                      isActive
-                        ? theme.colors.primaryDark
-                        : theme.colors.textMuted
-                    }
-                  />
-                  <AppText
-                    variant="small"
-                    color={
-                      isActive
-                        ? theme.colors.primaryDark
-                        : theme.colors.textMuted
-                    }
+                <React.Fragment key={item.id}>
+                  {index > 0 && <View style={styles.innerDivider} />}
+
+                  <Pressable
+                    onPress={() => {
+                      if (item.isExpandable) {
+                        toggleCare(item.id);
+                      } else {
+                        item.onPress?.();
+                      }
+                    }}
+                    style={({ pressed }) => [
+                      styles.row,
+                      pressed && styles.pressedRow,
+                    ]}
                   >
-                    {/* {tab.label} */}
-                    {t(`profile.${tab.id}`)}
-                  </AppText>
-                  {isActive ? <View style={styles.tabUnderline} /> : null}
-                </Pressable>
+                    <View style={styles.navLeft}>
+                      <View style={styles.iconBubble}>
+                        <AppIcon
+                          name={item.icon}
+                          size={18}
+                          color={theme.colors.primaryDark}
+                        />
+                      </View>
+                      <AppText variant="bodyMedium">{item.label}</AppText>
+                    </View>
+                    <Chevron expanded={isExpanded} />
+                  </Pressable>
+
+                  {/* Expanded Content Area */}
+                  {isExpanded && (
+                    <View style={styles.careExpandedContainer}>
+                      {item.id === "personalSummary" && (
+                        <View style={styles.statsGrid}>
+                          {summaryStats.map((stat) => (
+                            <View key={stat.id} style={styles.statCard}>
+                              <View style={styles.statHeader}>
+                                <AppIcon
+                                  name={stat.icon}
+                                  size={14}
+                                  color={theme.colors.primaryDark}
+                                />
+                                <AppText
+                                  variant="caption"
+                                  color={theme.colors.textMuted}
+                                >
+                                  {stat.label}
+                                </AppText>
+                              </View>
+                              <AppText
+                                variant="bodyMedium"
+                                style={styles.statValue}
+                              >
+                                {stat.value}
+                              </AppText>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+
+                      {item.id === "treatments" && (
+                        <View style={styles.treatmentsList}>
+                          {recentAppointments.map((appt) => (
+                            <View key={appt.id} style={styles.appointmentRow}>
+                              <View style={styles.dateBadge}>
+                                <AppText
+                                  variant="bodyMedium"
+                                  style={styles.dateDay}
+                                >
+                                  {appt.day}
+                                </AppText>
+                                <AppText
+                                  variant="caption"
+                                  color={theme.colors.textMuted}
+                                >
+                                  {appt.month}
+                                </AppText>
+                              </View>
+                              <View style={styles.apptInfo}>
+                                <AppText variant="bodyMedium">
+                                  {appt.title}
+                                </AppText>
+                                <AppText
+                                  variant="caption"
+                                  color={theme.colors.textMuted}
+                                >
+                                  {appt.doctorName}
+                                </AppText>
+                              </View>
+                              <View style={styles.statusBadge}>
+                                <AppText
+                                  variant="caption"
+                                  color={theme.colors.primaryDark}
+                                >
+                                  {appt.status}
+                                </AppText>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+
+                      {/* Medical Info Tab formatted exactly like personalSummary (statsGrid & statCard) */}
+                      {item.id === "medicalInfo" && (
+                        <View style={styles.statsGrid}>
+                          {contactRight.map((detail) => (
+                            <View key={detail.id} style={styles.statCard}>
+                              <View style={styles.statHeader}>
+                                <AppIcon
+                                  name={detail.icon}
+                                  size={14}
+                                  color={theme.colors.primaryDark}
+                                />
+                                <AppText
+                                  variant="caption"
+                                  color={theme.colors.textMuted}
+                                >
+                                  {detail.label}
+                                </AppText>
+                              </View>
+                              <AppText
+                                variant="bodyMedium"
+                                style={styles.statValue}
+                              >
+                                {detail.value}
+                              </AppText>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                    </View>
+                  )}
+                </React.Fragment>
               );
             })}
-          </ScrollView>
-        </View>
-        {/* Only "Overview" has content wired up today — the other tabs are
-            placeholders until their respective screens/data exist. */}
-        {activeTab === "overview" ? (
-          <>
-            <View style={styles.section}>
-              <View style={styles.sectionHeaderRow}>
-                <SectionHeader title={t("profile.patientSummary")} />
-                
-                <EditButton onPress={() => {}} />
-              </View>
-
-              <View style={styles.summaryGrid}>
-                {summaryStats.map((stat) => (
-                  <View key={stat.id} style={styles.summaryCell}>
-                    <AppText variant="caption" color={theme.colors.textMuted}>
-                      {stat.label}
-                    </AppText>
-                    <View style={styles.summaryValueRow}>
-                      <AppIcon
-                        name={stat.icon}
-                        size={16}
-                        color={theme.colors.primaryDark}
-                      />
-                      <AppText variant="bodyMedium">{stat.value}</AppText>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <View style={styles.sectionHeaderRow}>
-                <SectionHeader title="Contact Information" />
-                <EditButton onPress={() => {}} />
-              </View>
-
-              <View style={styles.card}>
-                <View style={styles.contactColumns}>
-                  <View style={styles.contactColumn}>
-                    {contactLeft.map((item) => (
-                      <ContactLine key={item.id} item={item} />
-                    ))}
-                  </View>
-                  <View style={styles.contactColumn}>
-                    {contactRight.map((item) => (
-                      <ContactLine key={item.id} item={item} />
-                    ))}
-                  </View>
-                </View>
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <View style={styles.sectionHeaderRow}>
-                <SectionHeader title="Recent Appointments" />
-                <Pressable onPress={() => {}}>
-                  <AppText variant="small" color={theme.colors.primaryDark}>
-                    View All
-                  </AppText>
-                </Pressable>
-              </View>
-
-              <View style={styles.card}>
-                {recentAppointments.map((appointment, index) => (
-                  <AppointmentRow
-                    key={appointment.id}
-                    appointment={appointment}
-                    showDivider={index !== recentAppointments.length - 1}
-                  />
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <SectionHeader title="Quick Actions" />
-
-              <View style={styles.quickGrid}>
-                {quickActions.map((action) => (
-                  <QuickActionTile key={action.id} action={action} />
-                ))}
-              </View>
-            </View>
-          </>
-        ) : null}
-
-        <View style={styles.section}>
-          <SectionHeader title={t("common.appearance")} />
-          <AppText
-            color={theme.colors.textMuted}
-            style={styles.sectionDescription}
-          >
-            {t("profile.appearanceDescription")}
-          </AppText>
-          <ThemeModeSelector />
-        </View>
-
-        <View style={styles.section}>
-          <SectionHeader title={t("common.language")} />
-          <AppText
-            color={theme.colors.textMuted}
-            style={styles.sectionDescription}
-          >
-            {t("profile.languageDescription")}
-          </AppText>
-          <LanguageSelector />
-        </View>
-
-        <View style={styles.logoutCard}>
-          <View style={styles.logoutInfo}>
-            <View style={styles.logoutIcon}>
-              <AppIcon name="LogOut" size={22} color={theme.colors.errorText} />
-            </View>
-
-            <View style={styles.cardText}>
-              <AppText variant="bodyMedium">Logout</AppText>
-              <AppText variant="caption" color={theme.colors.textMuted}>
-                Sign out from this device.
-              </AppText>
-            </View>
           </View>
-
-          <AppButton
-            title={isLoading ? "Logging out..." : "Logout"}
-            variant="outline"
-            loading={isLoading}
-            disabled={isLoading}
-            onPress={logout}
-          />
         </View>
+
+        {/* Preferences Section */}
+        <View style={styles.section}>
+          <SectionLabel
+            title={t("profile.preferences", { defaultValue: "Preferences" })}
+          />
+          <View style={styles.card}>
+            <View style={styles.row}>
+              
+              <AppText variant="bodyMedium">{t("common.language")}</AppText>
+              <View>
+                <LanguageSelector  />
+              </View>
+            </View>
+
+            <View style={styles.innerDivider} />
+
+            <PreferenceRow
+              label={t("common.appearance")}
+              value={appearanceLabel}
+              isExpanded={expandedPreference === "appearance"}
+              onPress={() => togglePreference("appearance")}
+            >
+              <ThemeModeSelector />
+            </PreferenceRow>
+          </View>
+        </View>
+
+        {/* Sign Out Button */}
+        <Pressable
+          onPress={logout}
+          disabled={isLoading}
+          style={({ pressed }) => [
+            styles.signOutCard,
+            (pressed || isLoading) && styles.pressed,
+          ]}
+        >
+          <AppIcon name="LogOut" size={18} color={theme.colors.errorText} />
+          <AppText variant="bodyMedium" color={theme.colors.errorText}>
+            {isLoading
+              ? t("profile.signingOut", { defaultValue: "Signing out..." })
+              : t("profile.signOut", { defaultValue: "Sign Out" })}
+          </AppText>
+        </Pressable>
       </View>
     </Screen>
-  );
-}
-
-// --- Subcomponents -----------------------------------------------------
-
-function SectionHeader({ title }: { title: string }) {
-  return <AppText variant="h3">{title}</AppText>;
-}
-
-function EditButton({ onPress }: { onPress: () => void }) {
-  const theme = useAppTheme();
-  const styles = useMemo(() => createStyles(theme), [theme]);
-
-  return (
-    <Pressable onPress={onPress} style={styles.editButton}>
-      <AppIcon name="Pencil" size={14} color={theme.colors.primaryDark} />
-      <AppText variant="small" color={theme.colors.primaryDark}>
-        Edit
-      </AppText>
-    </Pressable>
-  );
-}
-
-function ContactLine({ item }: { item: ContactDetail }) {
-  const theme = useAppTheme();
-  const styles = useMemo(() => createStyles(theme), [theme]);
-
-  return (
-    <View style={styles.contactLine}>
-      <AppIcon name={item.icon} size={16} color={theme.colors.textMuted} />
-      <AppText
-        variant="small"
-        color={theme.colors.text}
-        style={styles.flexShrink}
-      >
-        {item.value}
-      </AppText>
-    </View>
-  );
-}
-
-const STATUS_LABEL: Record<AppointmentStatus, string> = {
-  completed: "Completed",
-  upcoming: "Upcoming",
-  cancelled: "Cancelled",
-};
-
-function AppointmentRow({
-  appointment,
-  showDivider,
-}: {
-  appointment: RecentAppointment;
-  showDivider: boolean;
-}) {
-  const theme = useAppTheme();
-  const styles = useMemo(() => createStyles(theme), [theme]);
-
-  const statusColor =
-    appointment.status === "cancelled"
-      ? theme.colors.errorText
-      : theme.colors.successText;
-  const statusBg =
-    appointment.status === "cancelled"
-      ? theme.colors.error
-      : theme.colors.success;
-
-  return (
-    <View>
-      <Pressable
-        onPress={() => {}}
-        style={({ pressed }) => [
-          styles.appointmentRow,
-          pressed && styles.pressed,
-        ]}
-      >
-        <View style={styles.dateBlock}>
-          <AppText variant="bodyMedium">{appointment.day}</AppText>
-          <AppText variant="small" color={theme.colors.textMuted}>
-            {appointment.month}
-          </AppText>
-          <AppText variant="small" color={theme.colors.textMuted}>
-            {appointment.year}
-          </AppText>
-        </View>
-
-        <View style={styles.cardText}>
-          <AppText variant="bodyMedium">{appointment.title}</AppText>
-          <AppText variant="caption" color={theme.colors.textMuted}>
-            {appointment.doctorName}
-          </AppText>
-        </View>
-
-        <View style={[styles.statusChip, { backgroundColor: statusBg }]}>
-          <AppText variant="small" color={statusColor}>
-            {STATUS_LABEL[appointment.status]}
-          </AppText>
-        </View>
-
-        <AppIcon name="ChevronRight" size={18} color={theme.colors.textMuted} />
-      </Pressable>
-
-      {showDivider ? <View style={styles.divider} /> : null}
-    </View>
-  );
-}
-
-function QuickActionTile({ action }: { action: QuickAction }) {
-  const theme = useAppTheme();
-  const styles = useMemo(() => createStyles(theme), [theme]);
-
-  return (
-    <Pressable
-      onPress={action.onPress}
-      style={({ pressed }) => [styles.quickTile, pressed && styles.pressed]}
-    >
-      <AppIcon name={action.icon} size={22} color={theme.colors.primaryDark} />
-      <AppText variant="caption" align="center">
-        {action.label}
-      </AppText>
-    </Pressable>
   );
 }
 
@@ -654,259 +515,225 @@ function QuickActionTile({ action }: { action: QuickAction }) {
 function createStyles(theme: ReturnType<typeof useAppTheme>) {
   return StyleSheet.create({
     root: {
-      gap: theme.spacing["2xl"],
+      // paddingHorizontal: theme.spacing.lg,
+      // paddingBottom: theme.spacing["2xl"],
     },
 
-    // Hero card
-    heroCard: {
-      backgroundColor: theme.colors.card,
-      borderRadius: theme.radius["2xl"],
-      padding: theme.spacing["2xl"],
-      borderWidth: 1,
-      borderColor: theme.colors.border,
+    // Hero Header
+    hero: {
+      alignItems: "center",
       gap: theme.spacing.md,
-      ...(theme.shadows.card ?? {}),
+      paddingVertical: theme.spacing.xl,
     },
 
-    heroTopRow: {
-      flexDirection: "row",
-      gap: theme.spacing.lg,
-      alignItems: "flex-start",
+    avatarContainer: {
+      position: "relative",
     },
 
     avatar: {
-      width: 64,
-      height: 64,
+      width: 88,
+      height: 88,
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.cardMuted,
       alignItems: "center",
       justifyContent: "center",
-      borderWidth: 1,
+      borderWidth: 2,
       borderColor: theme.colors.border,
     },
 
+    editBadge: {
+      position: "absolute",
+      bottom: 0,
+      right: 0,
+      backgroundColor: theme.colors.card,
+      padding: theme.spacing.xs,
+      borderRadius: theme.radius.full,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      elevation: 2,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+    },
+
     heroText: {
-      flex: 1,
-      gap: theme.spacing.xs,
-    },
-
-    vipBadge: {
-      alignSelf: "flex-start",
-      flexDirection: "row",
       alignItems: "center",
       gap: theme.spacing.xs,
     },
 
-    metaRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.xs,
-      // flexWrap: "wrap",
-      // backgroundColor:'red'
-    },
-
-    statusBadge: {
-      paddingHorizontal: theme.spacing.sm,
+    idBadge: {
+      backgroundColor: theme.colors.cardMuted,
+      paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.xs,
       borderRadius: theme.radius.full,
-      backgroundColor: theme.colors.success,
-      position: "absolute",
-      bottom: -20,
-      right: 5,
+      marginTop: theme.spacing.xs,
     },
 
-    heroDetailRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      // alignSelf:'flex-end',
-      gap: theme.spacing.xs,
-    },
-
-    flexShrink: {
-      flexShrink: 1,
-    },
-
-    // Tabs
-    tabsRow: {
-      flexDirection: "row",
-      gap: theme.spacing.xl,
-      paddingHorizontal: theme.spacing.xs,
-    },
-
-    tabItem: {
-      alignItems: "center",
-      gap: theme.spacing.xs,
-      paddingBottom: theme.spacing.sm,
-    },
-
-    tabUnderline: {
-      height: 2,
-      width: "100%",
-      borderRadius: theme.radius.full,
-      backgroundColor: theme.colors.primaryDark,
-    },
-
-    // Shared section/card primitives
+    // Card Sections
     section: {
-      gap: theme.spacing.md,
+      marginBottom: theme.spacing.xl,
     },
 
-    sectionHeaderRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-    },
-
-    sectionDescription: {
-      marginTop: -theme.spacing.xs,
+    sectionLabel: {
+      textTransform: "uppercase",
+      letterSpacing: 1,
+      marginBottom: theme.spacing.xs,
+      marginLeft: theme.spacing.xs,
     },
 
     card: {
       backgroundColor: theme.colors.card,
-      borderRadius: theme.radius.xl,
+      borderRadius: theme.radius.lg ?? 16,
       borderWidth: 1,
       borderColor: theme.colors.border,
       overflow: "hidden",
-      ...(theme.shadows.card ?? {}),
     },
 
-    cardText: {
-      flex: 1,
-      gap: theme.spacing.xs,
-    },
-
-    divider: {
+    innerDivider: {
       height: StyleSheet.hairlineWidth,
       backgroundColor: theme.colors.border,
+      marginLeft: theme.spacing.lg,
     },
 
-    pressed: {
-      opacity: 0.82,
-    },
-
-    editButton: {
+    // Rows
+    row: {
+      minHeight: 52,
+      paddingHorizontal: theme.spacing.lg,
       flexDirection: "row",
       alignItems: "center",
-      gap: theme.spacing.xs,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.xs,
-      borderRadius: theme.radius.full,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      backgroundColor: theme.colors.card,
-    },
-
-    // Patient Summary
-    summaryGrid: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      backgroundColor: theme.colors.card,
-      borderRadius: theme.radius.xl,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      padding: theme.spacing.lg,
-      ...(theme.shadows.card ?? {}),
-    },
-
-    summaryCell: {
-      width: "50%",
-      gap: theme.spacing.xs,
-      paddingVertical: theme.spacing.sm,
-    },
-
-    summaryValueRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.xs,
-    },
-
-    // Contact Information
-    contactColumns: {
-      flexDirection: "row",
-      padding: theme.spacing.lg,
-      gap: theme.spacing.lg,
-    },
-
-    contactColumn: {
-      flex: 1,
+      justifyContent: "space-between",
       gap: theme.spacing.md,
     },
 
-    contactLine: {
+    rowValue: {
+      flexShrink: 1,
+      textAlign: "right",
+    },
+
+    navLeft: {
       flexDirection: "row",
       alignItems: "center",
+      gap: theme.spacing.md,
+    },
+
+    iconBubble: {
+      width: 32,
+      height: 32,
+      borderRadius: theme.radius.md ?? 8,
+      backgroundColor: theme.colors.cardMuted,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+
+    preferenceRight: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.xs,
+    },
+
+    expandedBody: {
+      paddingHorizontal: theme.spacing.lg,
+      paddingBottom: theme.spacing.md,
+    },
+
+    // Care Accordion Content
+    careExpandedContainer: {
+      paddingHorizontal: theme.spacing.lg,
+      paddingBottom: theme.spacing.lg,
+      backgroundColor: theme.colors.cardMuted,
+      paddingTop: theme.spacing.sm,
+    },
+
+    // Grid System (Shared by Personal Summary & Medical Info)
+    statsGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
       gap: theme.spacing.sm,
     },
 
-    // Recent Appointments
-    appointmentRow: {
-      minHeight: 76,
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.md,
+    statCard: {
+      flex: 1,
+      minWidth: "45%",
+      backgroundColor: theme.colors.card,
+      padding: theme.spacing.md,
+      borderRadius: theme.radius.md ?? 10,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+
+    statHeader: {
       flexDirection: "row",
       alignItems: "center",
-      gap: theme.spacing.md,
+      gap: theme.spacing.xs,
+      marginBottom: theme.spacing.xs,
     },
 
-    dateBlock: {
-      width: 48,
+    statValue: {
+      fontWeight: "600",
+    },
+
+    // Treatments List
+    treatmentsList: {
+      gap: theme.spacing.sm,
+    },
+
+    appointmentRow: {
+      flexDirection: "row",
       alignItems: "center",
+      backgroundColor: theme.colors.card,
+      padding: theme.spacing.md,
+      borderRadius: theme.radius.md ?? 10,
+      gap: theme.spacing.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
     },
 
-    statusChip: {
+    dateBadge: {
+      alignItems: "center",
+      justifyContent: "center",
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.xs,
+      backgroundColor: theme.colors.cardMuted,
+      borderRadius: theme.radius.sm ?? 6,
+      minWidth: 44,
+    },
+
+    dateDay: {
+      fontWeight: "700",
+    },
+
+    apptInfo: {
+      flex: 1,
+    },
+
+    statusBadge: {
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 2,
       borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.cardMuted,
     },
 
-    // Quick Actions
-    quickGrid: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: theme.spacing.md,
-    },
-
-    quickTile: {
-      width: "18%",
-      minWidth: 64,
-      flexGrow: 1,
-      // aspectRatio: 0.95,
+    // Sign Out Button
+    signOutCard: {
+      minHeight: 52,
+      borderRadius: theme.radius.lg ?? 16,
       backgroundColor: theme.colors.card,
-      borderRadius: theme.radius.xl,
       borderWidth: 1,
       borderColor: theme.colors.border,
-      alignItems: "center",
-      justifyContent: "center",
-      gap: theme.spacing.xs,
-      padding: theme.spacing.sm,
-      ...(theme.shadows.card ?? {}),
-    },
-
-    // Logout
-    logoutCard: {
-      backgroundColor: theme.colors.card,
-      borderRadius: theme.radius.xl,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      padding: theme.spacing.lg,
-      gap: theme.spacing.lg,
-      marginBottom: theme.spacing.lg,
-      ...(theme.shadows.card ?? {}),
-    },
-
-    logoutInfo: {
       flexDirection: "row",
       alignItems: "center",
-      gap: theme.spacing.md,
+      justifyContent: "center",
+      gap: theme.spacing.sm,
+      marginTop: theme.spacing.sm,
     },
 
-    logoutIcon: {
-      width: 46,
-      height: 46,
-      borderRadius: theme.radius.lg,
-      backgroundColor: theme.colors.error,
-      alignItems: "center",
-      justifyContent: "center",
+    pressed: {
+      opacity: 0.8,
+    },
+
+    pressedRow: {
+      backgroundColor: theme.colors.cardMuted,
     },
   });
 }

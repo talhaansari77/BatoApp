@@ -56,6 +56,8 @@ export function RootNavigator() {
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         <Stack.Screen name="Auth" component={AuthNavigator} />
         <Stack.Screen name="PatientApp" component={PatientNavigator} />
+        <Stack.Screen name="ReportsApp" component={ReportsNavigator} />
+
 
         {/* {status === "authenticated" && user ? (
           <Stack.Screen name="PatientApp" component={PatientNavigator} />

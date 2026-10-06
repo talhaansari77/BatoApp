@@ -54,6 +54,7 @@ export function Screen({
       ]}
     >
       {children}
+      <View style={{ height: 64 + insets.bottom + 12 }} />
     </View>
   );
 

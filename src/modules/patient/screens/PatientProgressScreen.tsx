@@ -173,21 +173,9 @@ export function PatientProgressScreen() {
       <View style={styles.root}>
         <View style={styles.heroCard}>
           <View style={styles.heroTop}>
-            <View style={styles.heroIcon}>
-              <AppIcon
-                name="ChartNoAxesColumnIncreasing"
-                size={34}
-                color={theme.colors.primaryDark}
-              />
-            </View>
 
             <View style={styles.heroText}>
-              <AppText variant="h2">Your care progress</AppText>
-
-              <AppText color={theme.colors.textMuted}>
-                Follow your treatment plan, completed sessions, doctor notes,
-                and visible improvements.
-              </AppText>
+              <AppText variant="h2">Progress</AppText>
             </View>
           </View>
 
