@@ -43,7 +43,7 @@ export function PatientTabs() {
     <Tab.Navigator
       initialRouteName="PatientProfile"
       tabBar={(props) => <FloatingTabBar {...props} />}
-      screenOptions={{ headerShown: false, animation: "fade" }}
+      screenOptions={{ headerShown: false, animation: "shift" }}
     >
       <Tab.Screen
         name="PatientHome"
@@ -60,11 +60,11 @@ export function PatientTabs() {
         component={PatientAppointmentsScreen}
         options={{ title: "Appointments" }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="PatientProgress"
         component={PatientProgressScreen}
         options={{ title: "Progress" }}
-      />
+      /> */}
       <Tab.Screen
         name="PatientProfile"
         component={PatientProfileScreen}
@@ -79,7 +79,9 @@ export function PatientTabs() {
 export const PatientNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="PatientTabs" component={PatientTabs} />
+      <Stack.Screen
+      
+      name="PatientTabs" component={PatientTabs} />
       <Stack.Screen
         name="AppointmentDetails"
         component={AppointmentDetailsScreen}

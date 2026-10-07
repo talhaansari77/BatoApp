@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { View, Pressable, StyleSheet } from "react-native";
+import { View, Pressable, StyleSheet, useWindowDimensions } from "react-native";
 import { BlurView } from "expo-blur";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -7,12 +7,16 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  interpolate,
+  Extrapolation,
+  SharedValue,
 } from "react-native-reanimated";
 import { AppIcon } from "../atoms/AppIcon";
 import * as Icons from "lucide-react-native";
 import { PatientTabParamList } from "@/core/navigation/navigation.types";
 import { lightColors } from "@/theme";
 import { useAppTheme } from "@/app/providers/ThemeProvider";
+import { AppText } from "../atoms/AppText";
 export type AppIconName = keyof typeof Icons;
 
 const icons: Record<keyof PatientTabParamList, AppIconName> = {
@@ -23,75 +27,146 @@ const icons: Record<keyof PatientTabParamList, AppIconName> = {
   PatientProfile: "UserRound",
 };
 
-const ITEM_SIZE = 52;
+const ITEM_SIZE = 56; // collapsed circle size
 const GAP = 10;
-const PADDING = 8;
-const SPRING = { damping: 18, stiffness: 220, mass: 0.7 };
+const PADDING = 12;
+const ICON_SIZE = 32;
+const ICON_PAD = (ITEM_SIZE - ICON_SIZE) / 2; // keeps the icon centered when collapsed
+const LABEL_GAP = 6;
+const LABEL_PAD_RIGHT = 14;
+const BAR_WIDTH_RATIO = 0.9;
 
-function TabIcon({
-  name,
-  focused,
-  color,
-}: {
+// Critically damped spring: smooth, no overshoot (so widths never exceed the bar).
+const SPRING = { damping: 26, stiffness: 220, mass: 0.8 };
+
+type TabItemProps = {
+  index: number;
+  position: SharedValue<number>; // animated (fractional) active index
+  expandedWidth: number;
   name: AppIconName;
-  focused: boolean;
+  label: string;
   color: string;
-}) {
-  const scale = useSharedValue(focused ? 1.1 : 1);
+  focused: boolean;
+  onPress: () => void;
+  onLongPress: () => void;
+};
 
-  useEffect(() => {
-    scale.value = withSpring(focused ? 1.1 : 1, SPRING);
-  }, [focused, scale]);
+function TabItem({
+  index,
+  position,
+  expandedWidth,
+  name,
+  label,
+  color,
+  focused,
+  onPress,
+  onLongPress,
+}: TabItemProps) {
+  const labelWidth =
+    expandedWidth - ICON_PAD - ICON_SIZE - LABEL_GAP - LABEL_PAD_RIGHT;
 
-  const style = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
+  // 0 = collapsed, 1 = fully expanded. Derived from the shared position so every
+  // item (the one growing and the one shrinking) stays perfectly in sync.
+  const containerStyle = useAnimatedStyle(() => {
+    const p = Math.max(0, Math.min(1, 1 - Math.abs(position.value - index)));
+    return {
+      width: interpolate(
+        p,
+        [0, 1],
+        [ITEM_SIZE, expandedWidth],
+        Extrapolation.CLAMP,
+      ),
+    };
+  });
+
+  const activeBgStyle = useAnimatedStyle(() => {
+    const p = Math.max(0, Math.min(1, 1 - Math.abs(position.value - index)));
+    return { opacity: p };
+  });
+
+  const iconStyle = useAnimatedStyle(() => {
+    const p = Math.max(0, Math.min(1, 1 - Math.abs(position.value - index)));
+    return { transform: [{ scale: interpolate(p, [0, 1], [1, 1.08]) }] };
+  });
+
+  const labelStyle = useAnimatedStyle(() => {
+    const p = Math.max(0, Math.min(1, 1 - Math.abs(position.value - index)));
+    return {
+      // text fades in only once the pill is mostly open, and fades out first on close
+      opacity: interpolate(p, [0.45, 1], [0, 1], Extrapolation.CLAMP),
+      transform: [
+        { translateX: interpolate(p, [0, 1], [-8, 0], Extrapolation.CLAMP) },
+      ],
+    };
+  });
 
   return (
-    <Animated.View style={style}>
-      <AppIcon name={name} size={22} color={color} />
+    <Animated.View style={[styles.item, containerStyle]}>
+      <Animated.View
+        pointerEvents="none"
+        style={[StyleSheet.absoluteFill, styles.activeBg, activeBgStyle]}
+      />
+      <Pressable
+        onPress={onPress}
+        onLongPress={onLongPress}
+        accessibilityRole="button"
+        accessibilityState={{ selected: focused }}
+        accessibilityLabel={label}
+        style={styles.pressable}
+      >
+        <Animated.View style={iconStyle}>
+          <AppIcon name={name} size={ICON_SIZE} color={color} />
+        </Animated.View>
+        <Animated.Text
+          numberOfLines={1}
+          style={[styles.label, { width: labelWidth, color }, labelStyle]}
+        >
+          {label}
+        </Animated.Text>
+      </Pressable>
     </Animated.View>
   );
 }
 
-export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+export function FloatingTabBar({
+  state,
+  descriptors,
+  navigation,
+}: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const theme = useAppTheme();
+  const { width: screenWidth } = useWindowDimensions();
 
-  const indicatorX = useSharedValue(state.index * (ITEM_SIZE + GAP));
+  const count = state.routes.length;
+  const barWidth = screenWidth * BAR_WIDTH_RATIO;
+  // The active pill takes whatever space the collapsed circles leave over.
+  const expandedWidth =
+    barWidth - PADDING * 2 - (count - 1) * (ITEM_SIZE + GAP);
+
+  const position = useSharedValue(state.index);
 
   useEffect(() => {
-    indicatorX.value = withSpring(state.index * (ITEM_SIZE + GAP), SPRING);
-  }, [state.index, indicatorX]);
-
-  const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorX.value }],
-  }));
+    position.value = withSpring(state.index, SPRING);
+  }, [state.index, position]);
 
   return (
     <View
       pointerEvents="box-none"
-      style={[styles.wrapper, { bottom: insets.bottom + 12 }]}
+      style={[styles.wrapper, { bottom: insets.bottom }]}
     >
-      <BlurView intensity={35} tint="light" style={styles.bar}>
-        {/* Layer 1: static circles behind everything */}
-        <View style={styles.row} pointerEvents="none">
-          {state.routes.map((route) => (
-            <View key={route.key} style={styles.circle} />
-          ))}
-        </View>
-
-        {/* Layer 2: sliding active indicator */}
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.circle, styles.indicator, indicatorStyle]}
-        />
-
-        {/* Layer 3: touch targets + icons */}
-        <View style={[styles.row, styles.rowOverlay]}>
+      <BlurView
+        intensity={35}
+        tint="light"
+        style={[styles.bar, { width: barWidth }]}
+      >
+        <View style={styles.row}>
           {state.routes.map((route, index) => {
             const focused = state.index === index;
             const { options } = descriptors[route.key];
+            const label =
+              typeof options.tabBarLabel === "string"
+                ? options.tabBarLabel
+                : (options.title ?? route.name);
 
             const onPress = () => {
               const event = navigation.emit({
@@ -105,23 +180,20 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
             };
 
             return (
-              <Pressable
+              <TabItem
                 key={route.key}
+                index={index}
+                position={position}
+                expandedWidth={expandedWidth}
+                name={icons[route.name as keyof PatientTabParamList]}
+                label={label}
+                color={theme.colors.nude}
+                focused={focused}
                 onPress={onPress}
                 onLongPress={() =>
                   navigation.emit({ type: "tabLongPress", target: route.key })
                 }
-                accessibilityRole="button"
-                accessibilityState={{ selected: focused }}
-                accessibilityLabel={options.title}
-                style={styles.item}
-              >
-                <TabIcon
-                  name={icons[route.name as keyof PatientTabParamList]}
-                  focused={focused}
-                  color={theme.colors.nude}
-                />
-              </Pressable>
+              />
             );
           })}
         </View>
@@ -148,28 +220,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: GAP,
   },
-  rowOverlay: {
-    position: "absolute",
-    top: PADDING,
-    left: PADDING,
-  },
-  circle: {
-    width: ITEM_SIZE,
+  item: {
     height: ITEM_SIZE,
     borderRadius: ITEM_SIZE / 2,
+    overflow: "hidden",
     backgroundColor: lightColors.overlayDark,
   },
-  indicator: {
-    position: "absolute",
-    top: PADDING,
-    left: PADDING,
+  activeBg: {
     backgroundColor: lightColors.overlay_2,
-  },
-  item: {
-    width: ITEM_SIZE,
-    height: ITEM_SIZE,
     borderRadius: ITEM_SIZE / 2,
+  },
+  pressable: {
+    flex: 1,
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    paddingLeft: ICON_PAD,
+  },
+  label: {
+    marginLeft: LABEL_GAP,
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

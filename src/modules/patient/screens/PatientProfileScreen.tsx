@@ -10,6 +10,7 @@ import { LanguageSelector } from "../../../shared/ui/molecules/LanguageSelector"
 import { ThemeModeSelector } from "../../../shared/ui/molecules/ThemeModeSelector";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { useAuthStore } from "../../auth/store/auth.store";
+import { EditProfileModal, EditProfileData } from "../components/EditProfileModal";
 import { SectionLabel } from "../Molecules/SectionLabel";
 import { InfoRow } from "../Molecules/InfoRow";
 import { Chevron } from "../Molecules/Chevron";
@@ -93,6 +94,7 @@ export function PatientProfileScreen() {
   const logout = useAuthStore((state) => state.logout);
   const isLoading = useAuthStore((state) => state.isLoading);
   const user = useAuthStore((state) => state.user);
+  const updateUser = useAuthStore((state) => state.updateUser);
 
   const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -100,13 +102,22 @@ export function PatientProfileScreen() {
     useState<PreferenceId | null>(null);
   const [expandedCareId, setExpandedCareId] = useState<CareItemId | null>(null);
 
+  // Edit Profile Modal States
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [profileOverride, setProfileOverride] = useState<{
+    fullName?: string;
+    dob?: string;
+    gender?: string;
+    nationality?: string;
+  }>({});
+
   const patient = useMemo(
     () => ({
-      fullName: user?.full_name ?? "Guest Patient",
+      fullName: profileOverride.fullName ?? user?.full_name ?? "Guest Patient",
       patientCode: user?.patient_code ?? "PT-849201",
-      dob: (user as any)?.dob ?? MOCK_PATIENT.dob,
-      gender: (user as any)?.gender ?? MOCK_PATIENT.gender,
-      nationality: (user as any)?.nationality ?? MOCK_PATIENT.nationality,
+      dob: profileOverride.dob ?? (user as any)?.dob ?? MOCK_PATIENT.dob,
+      gender: profileOverride.gender ?? (user as any)?.gender ?? MOCK_PATIENT.gender,
+      nationality: profileOverride.nationality ?? (user as any)?.nationality ?? MOCK_PATIENT.nationality,
       firstVisit: MOCK_PATIENT.firstVisit,
       lastVisit: MOCK_PATIENT.lastVisit,
       totalVisits: MOCK_PATIENT.totalVisits,
@@ -114,8 +125,20 @@ export function PatientProfileScreen() {
       bloodType: (user as any)?.bloodType ?? MOCK_PATIENT.bloodType,
       allergies: (user as any)?.allergies ?? MOCK_PATIENT.allergies,
     }),
-    [user],
+    [user, profileOverride],
   );
+
+  const handleSaveProfile = (updated: EditProfileData) => {
+    updateUser({
+      full_name: updated.fullName,
+      dob: updated.dob,
+      gender: updated.gender,
+      nationality: updated.nationality,
+    });
+
+    setProfileOverride(updated);
+    setIsEditModalVisible(false);
+  };
 
   const languageLabel =
     LANGUAGE_NAMES[i18n.language?.split("-")[0]] ??
@@ -253,7 +276,7 @@ export function PatientProfileScreen() {
               </AppText>
             </View>
             <Pressable
-              onPress={() => {}}
+              onPress={() => setIsEditModalVisible(true)}
               style={({ pressed }) => [
                 styles.editBadge,
                 pressed && styles.pressed,
@@ -506,6 +529,20 @@ export function PatientProfileScreen() {
           </AppText>
         </Pressable>
       </View>
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        visible={isEditModalVisible}
+        initialData={{
+          fullName: patient.fullName,
+          dob: patient.dob,
+          gender: patient.gender,
+          nationality: patient.nationality,
+        }}
+        patientCode={patient.patientCode}
+        onClose={() => setIsEditModalVisible(false)}
+        onSave={handleSaveProfile}
+      />
     </Screen>
   );
 }

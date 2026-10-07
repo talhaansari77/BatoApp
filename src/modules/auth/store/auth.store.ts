@@ -30,6 +30,7 @@ type AuthState = {
   loginViaFile: (payload: LoginViaFilePayload) => Promise<any>;
   register: (payload: RegisterPayload) => Promise<any>;
   logout: () => Promise<void>;
+  updateUser: (updatedFields: Partial<AuthUser> & Record<string, any>) => void;
   clearError: () => void;
 };
 
@@ -208,6 +209,12 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
     }
+  },
+
+  updateUser: (updatedFields: Partial<AuthUser> & Record<string, any>) => {
+    set((state) => ({
+      user: state.user ? { ...state.user, ...updatedFields } : null,
+    }));
   },
 
   clearError: () => {

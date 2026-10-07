@@ -26,7 +26,7 @@ export type PatientTabParamList = {
   PatientHome: undefined;
   PatientServices: undefined;
   PatientAppointments: undefined;
-  PatientProgress: undefined;
+  PatientProgress?: undefined;
 PatientProfile: undefined;
 };
 

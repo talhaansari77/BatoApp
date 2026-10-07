@@ -13,7 +13,7 @@ type PatientAppointmentState = {
   error: string | null;
 
   bootstrapAuth: () => Promise<void>;
-  getPatientAppointments: () => Promise<void>;
+  getPatientAppointments: (patientId?: number) => Promise<void>;
   clearError: () => void;
 };
 
@@ -61,15 +61,15 @@ export const usePatientAppointmentStore = create<PatientAppointmentState>((set) 
     }
   },
 
-  getPatientAppointments: async () => {
+  getPatientAppointments: async (patientId?: number) => {
     try {
-        set({
+      set({
         status: "checking",
         isLoading: true,
         error: null,
       });
 
-      const response = await patientApi.getPatientAppointments();
+      const response = await patientApi.getPatientAppointments(patientId);
 
       console.log("Patient Appointments:", response[0]);
       set({

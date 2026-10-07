@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, TextProps, TextStyle } from 'react-native';
 import { useAppTheme } from '../../../app/providers/ThemeProvider';
 
-type AppTextVariant = 'h1' | 'h2' | 'h3' | 'body' | 'bodyMedium' | 'caption' | 'small';
+type AppTextVariant = 'h1' | 'h2' | 'h3'| 'h4' | 'body' | 'bodyMedium' | 'caption' | 'small';
 
 type AppTextProps = TextProps & {
   variant?: AppTextVariant;

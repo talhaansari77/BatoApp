@@ -17,10 +17,12 @@ type AppointmentCardProps = {
   timeRange: string;
   room: string;
   doctor: string;
+  doctorName?: string;
   sessions: number;
   priority: string;
   statusLabel: string;
   statusTextColor: string;
+  statusBgColor?: string;
   isActive?: boolean;
 };
 
@@ -35,10 +37,12 @@ export default function AppointmentCard({
   timeRange,
   room,
   doctor,
+  doctorName,
   sessions,
   priority,
   statusLabel,
   statusTextColor,
+  statusBgColor,
   isActive = false,
 }: AppointmentCardProps) {
   const theme = useAppTheme();
@@ -65,7 +69,7 @@ export default function AppointmentCard({
             <View
               style={[
                 styles.statusBadge,
-                { backgroundColor: theme.colors.background },
+                { backgroundColor: statusBgColor ?? theme.colors.background },
               ]}
             >
               <AppText variant="small" color={statusTextColor}>

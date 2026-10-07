@@ -16,9 +16,9 @@ export type Appointment = {
 
 
 export const patientApi = {
-  async getPatientAppointments() {
+  async getPatientAppointments(patientId: number = 12290) {
     const response = await apiClient.get<Appointment>(
-      "/appointment/patient/12290?status=&limit=50&offset=0"
+      `/appointment/patient/${patientId}?status=&limit=50&offset=0`
     );
     // console.log(response.data?.data)
     return response.data.data;
