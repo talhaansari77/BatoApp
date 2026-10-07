@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Bato",
+    "name": "BATO",
     "slug": "Bato",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -36,6 +36,11 @@
       "expo-status-bar",
       "expo-build-properties",
       "expo-notifications"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "014b59f1-5162-43fd-b50c-1f499fe2b64f"
+      }
+    }
   }
 }
