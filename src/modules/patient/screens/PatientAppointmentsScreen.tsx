@@ -56,14 +56,11 @@ type AppointmentApiResponse = {
   payment_status?: string;
 };
 
-export type PatientAppointmentsScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<PatientTabParamList, "PatientAppointments">,
-  NativeStackScreenProps<PatientStackParamList>
->;
+
 
 export function PatientAppointmentsScreen({
   navigation,
-}: PatientAppointmentsScreenProps) {
+}: any) {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const insets = useSafeAreaInsets();

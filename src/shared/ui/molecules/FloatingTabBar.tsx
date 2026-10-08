@@ -20,11 +20,11 @@ import { AppText } from "../atoms/AppText";
 export type AppIconName = keyof typeof Icons;
 
 const icons: Record<keyof PatientTabParamList, AppIconName> = {
-  PatientHome: "House",
-  PatientServices: "Sparkles",
-  PatientAppointments: "CalendarDays",
-  PatientProgress: "ChartNoAxesColumnIncreasing",
-  PatientProfile: "UserRound",
+  HomeStack: "House",
+  ServicesStack: "Sparkles",
+  AppointmentsStack: "CalendarDays",
+  ProgressStack: "ChartNoAxesColumnIncreasing",
+  ProfileStack: "UserRound",
 };
 
 const ITEM_SIZE = 56; // collapsed circle size
@@ -187,7 +187,7 @@ export function FloatingTabBar({
                 expandedWidth={expandedWidth}
                 name={icons[route.name as keyof PatientTabParamList]}
                 label={label}
-                color={theme.colors.nude}
+                color={theme.colors.background}
                 focused={focused}
                 onPress={onPress}
                 onLongPress={() =>
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     padding: PADDING,
     borderRadius: 999,
     overflow: "hidden",
-    backgroundColor: lightColors.greyGlass,
+    backgroundColor: lightColors.overlayDark,
   },
   row: {
     flexDirection: "row",
@@ -224,10 +224,10 @@ const styles = StyleSheet.create({
     height: ITEM_SIZE,
     borderRadius: ITEM_SIZE / 2,
     overflow: "hidden",
-    backgroundColor: lightColors.overlayDark,
+    backgroundColor: lightColors.overlay_2,
   },
   activeBg: {
-    backgroundColor: lightColors.overlay_2,
+    backgroundColor: lightColors.overlayDark,
     borderRadius: ITEM_SIZE / 2,
   },
   pressable: {

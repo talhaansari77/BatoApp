@@ -139,7 +139,7 @@ type props = NativeStackScreenProps<
   PatientStackParamList,
   "AppointmentMoreDetails"
 >;
-export function AppointmentMoreDetails({ route }: props) {
+export function AppointmentMoreDetails({ route }: any) {
   const appointmentId = route?.params?.appointmentId;
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);

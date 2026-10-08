@@ -22,84 +22,48 @@ import { AppointmentDetailsScreen } from "@/modules/patient/screens/AppointmentD
 import { AppointmentMoreDetails } from "@/modules/patient/screens/AppointmentMoreDetails";
 import { DoctorDetailsScreen } from "@/modules/patient/screens/DoctorDetailsScreen";
 import { FloatingTabBar } from "@/shared/ui/molecules/FloatingTabBar";
+import {
+  PatientAppointmentsNavigator,
+  PatientHomeNavigator,
+  PatientProfileNavigator,
+  PatientServicesNavigator,
+} from "./PatientStacks";
 
-const Tab = createBottomTabNavigator<PatientTabParamList>();
-const Stack = createNativeStackNavigator<PatientStackParamList>();
+const Tab = createBottomTabNavigator<any>();
 
-const icons: Record<keyof PatientTabParamList, AppIconName> = {
-  PatientHome: "House",
-  PatientServices: "Sparkles",
-  PatientAppointments: "CalendarDays",
-  PatientProgress: "ChartNoAxesColumnIncreasing",
-  PatientProfile: "UserRound",
-  // AppointmentDetails: 'Phone'
-};
-
-export function PatientTabs() {
-  const theme = useAppTheme();
-  const insets = useSafeAreaInsets();
-
+export function PatientApp() {
   return (
     <Tab.Navigator
-      initialRouteName="PatientProfile"
+      initialRouteName="ServicesStack"
       tabBar={(props) => <FloatingTabBar {...props} />}
-      screenOptions={{ headerShown: false, animation: "shift" }}
+      screenOptions={{
+        headerShown: false,
+        animation: "shift",
+      }}
     >
       <Tab.Screen
-        name="PatientHome"
-        component={PatientHomeScreen}
+        name="HomeStack"
+        component={PatientHomeNavigator}
         options={{ title: "Home" }}
       />
+
       <Tab.Screen
-        name="PatientServices"
-        component={PatientServicesScreen}
+        name="ServicesStack"
+        component={PatientServicesNavigator}
         options={{ title: "Services" }}
       />
+
       <Tab.Screen
-        name="PatientAppointments"
-        component={PatientAppointmentsScreen}
+        name="AppointmentsStack"
+        component={PatientAppointmentsNavigator}
         options={{ title: "Appointments" }}
       />
-      {/* <Tab.Screen
-        name="PatientProgress"
-        component={PatientProgressScreen}
-        options={{ title: "Progress" }}
-      /> */}
+
       <Tab.Screen
-        name="PatientProfile"
-        component={PatientProfileScreen}
-        options={{
-          title: "Profile",
-        }}
+        name="ProfileStack"
+        component={PatientProfileNavigator}
+        options={{ title: "Profile" }}
       />
     </Tab.Navigator>
   );
 }
-
-export const PatientNavigator = () => {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-      
-      name="PatientTabs" component={PatientTabs} />
-      <Stack.Screen
-        name="AppointmentDetails"
-        component={AppointmentDetailsScreen}
-      />
-      <Stack.Screen
-        name="AppointmentMoreDetails"
-        component={AppointmentMoreDetails}
-      />
-      <Stack.Screen name="ServiceDetails" component={ServiceDetailsScreen} />
-      <Stack.Screen name="DoctorProfile" component={DoctorProfileScreen} />
-      <Stack.Screen name="DoctorDetails" component={DoctorDetailsScreen} />
-      <Stack.Screen name="BookingBranch" component={BookingBranchScreen} />
-      <Stack.Screen name="BookingDateTime" component={BookingDateTimeScreen} />
-      <Stack.Screen name="BookingPayment" component={BookingPaymentScreen} />
-      <Stack.Screen
-        name="AppointmentConfirmation"
-        component={AppointmentConfirmationScreen}
-      />
-    </Stack.Navigator>
-  );
-};

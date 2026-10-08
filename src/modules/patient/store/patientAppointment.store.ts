@@ -1,7 +1,6 @@
 import { create } from "zustand";
 
-import { tokenStorage } from "../../../core/storage/tokenStorage";
-import { Appointment, patientApi } from "../services/patientAppointment.Api";
+import { patientApi } from "../services/patientAppointment.Api";
 
 type AuthStatus = "checking" | "authenticated" | "unauthenticated";
 
@@ -12,7 +11,6 @@ type PatientAppointmentState = {
   isLoading: boolean;
   error: string | null;
 
-  bootstrapAuth: () => Promise<void>;
   getPatientAppointments: (patientId?: number) => Promise<void>;
   clearError: () => void;
 };
@@ -31,35 +29,7 @@ export const usePatientAppointmentStore = create<PatientAppointmentState>((set) 
   isLoading: false,
   error: null,
 
-  // Runs when app starts.
-  // If saved token exists, we call /auth/me to restore user session.
-  bootstrapAuth: async () => {
-    try {
-      set({
-        status: "checking",
-        isLoading: true,
-        error: null,
-      });
-
-      
-
-      // set({
-      //         user: null,
-      //         status: "unauthenticated",
-      //         isLoading: false,
-      //         error: getErrorMessage(error),
-      //       });
-    } catch (error) {
-      await tokenStorage.clearTokens();
-
-      set({
-        appointments: null,
-        status: "unauthenticated",
-        isLoading: false,
-        error: getErrorMessage(error),
-      });
-    }
-  },
+  
 
   getPatientAppointments: async (patientId?: number) => {
     try {

@@ -11,6 +11,7 @@ export type RootStackParamList = {
 export type AuthStackParamList = {
   Splash: undefined;
   Welcome: undefined;
+  Onboarding: undefined;
   Login: undefined;
   LoginViaFile: undefined;
   Register: undefined;
@@ -23,11 +24,11 @@ export type AuthStackParamList = {
 };
 
 export type PatientTabParamList = {
-  PatientHome: undefined;
-  PatientServices: undefined;
-  PatientAppointments: undefined;
-  PatientProgress?: undefined;
-PatientProfile: undefined;
+  HomeStack: undefined;
+  ServicesStack: undefined;
+  AppointmentsStack: undefined;
+  ProgressStack?: undefined;
+  ProfileStack: undefined;
 };
 
 export type DoctorTabParamList = {

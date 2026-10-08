@@ -7,7 +7,7 @@ import {
   LoginViaFilePayload,
   OtpPayload,
   RegisterPayload,
-} from "../services/authApi";
+} from "../services/auth.Api";
 import { tokenStorage } from "../../../core/storage/tokenStorage";
 import { User } from "lucide-react-native";
 

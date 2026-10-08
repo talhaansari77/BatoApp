@@ -28,7 +28,7 @@ import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppInput } from "../../../shared/ui/atoms/AppInput";
 import { AuthCard } from "../../../shared/ui/molecules/AuthCard";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
-import { authApi } from "../services/authApi";
+import { authApi } from "../services/auth.Api";
 import { useAuthStore } from "../store/auth.store";
 import CountryPickerField from "../../../shared/ui/atoms/CountryPickerField";
 import { PhoneNumberInput } from "../../../shared/ui/atoms/PhoneNumberInput";
@@ -71,7 +71,7 @@ export function LoginScreen({ navigation }: Props) {
   const [mobileNumber, setMobileNumber] = useState<number>();
   const [fileNumber, setFileNumber] = useState("");
   const [civilId, setCivilId] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("66213403");
+  const [phoneNumber, setPhoneNumber] = useState("65910095");
 
   const [countryCode, setCountryCode] = useState<any>("KW");
   const [callingCode, setCallingCode] = useState("965");

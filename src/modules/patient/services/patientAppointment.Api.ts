@@ -1,8 +1,6 @@
 import { apiClient } from "../../../core/api/apiClient";
-import { tokenStorage } from "../../../core/storage/tokenStorage";
 
-export type UserRole = "Patient" | "Doctor" | "Admin";
-type Gender = "male" | "female";
+
 // {{base_url}}/appointment/patient/:patientId?status=&limit=50&offset=0
 
 
@@ -27,6 +25,10 @@ export const patientApi = {
 
   async patientProfile() {
     const response = await apiClient.get<Appointment>("/patient/profile");
+    return response.data;
+  },
+  async getMedicalReports(range: string = "all", search: string = "") {
+    const response = await apiClient.get<Appointment>(`/patient/reports?range=${range}&search=${search}`);
     return response.data;
   },
 

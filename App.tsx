@@ -9,6 +9,14 @@ import { LanguageProvider } from "./src/app/providers/LanguageProvider";
 import { ThemeProvider, useAppTheme } from "./src/app/providers/ThemeProvider";
 import { RootNavigator } from "./src/core/navigation/RootNavigator";
 import { useAuthStore } from "./src/modules/auth/store/auth.store";
+import * as SplashScreen from 'expo-splash-screen';
+
+
+SplashScreen.setOptions({
+  duration: 1000,
+  fade: true,
+});
+
 
 function AppContent() {
   const theme = useAppTheme();

@@ -1,107 +1,57 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Linking, Pressable, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-// NOTE: same assumption as MedicalReportsScreen — adjust the import path
-// to your actual navigation types file.
-//   export type ReportsStackParamList = {
-//     MedicalReports: undefined;
-//     ReportDetails: { reportId: string };
-//   };
 import { ReportsStackParamList } from "../../../core/navigation/navigation.types";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppIcon } from "../../../shared/ui/atoms/AppIcon";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { usePatientReportsStore } from "./store/patientReports.store";
+import * as Print from 'expo-print';
+import { shareAsync } from 'expo-sharing';
+import { reportDetail } from "../Molecules";
+
+
+
+
+
+
 
 type Props = NativeStackScreenProps<ReportsStackParamList, "ReportDetails">;
 
-interface TestRow {
-  test: string;
-  result: string;
-  unit: string;
-  refRange: string;
-  remarks: string;
-  isNormal: boolean;
-}
-
-interface ReportDetailData {
-  clinic: {
-    name: string;
-    tagline: string;
-    handle: string;
-    phones: string[];
-    address: string;
-    email: string;
-  };
-  patient: { name: string; civilId: string; mobile: string };
-  file: { fileNo: string; doctorName: string; reportDate: string };
-  tests: TestRow[];
-  pdfUrl: string;
-}
-
-// Placeholder lookup keyed by reportId — replace with your real fetch
-// (e.g. useQuery(['report', reportId], fetchReport)).
-const MOCK_REPORTS: Record<string, ReportDetailData> = {
-  rep_2026_07_05_a: {
-    clinic: {
-      name: "BATO",
-      tagline: "Health/Beauty",
-      handle: "@BATOCLINIC",
-      phones: ["12345678", "12345678"],
-      address: "SALMIYA, BLOCK 75, BUILDING 24",
-      email: "CLINICBATO@GMAIL.COM",
-    },
-    patient: { name: "talha", civilId: "297070707087", mobile: "15478692" },
-    file: {
-      fileNo: "202670702026",
-      doctorName: "Mr Doctor",
-      reportDate: "05/07/2026",
-    },
-    tests: [
-      {
-        test: "Vitamin B12",
-        result: "236.4",
-        unit: "Pmol/L",
-        refRange: "145-639",
-        remarks: "Vitamin B12",
-        isNormal: true,
-      },
-      {
-        test: "Vitamin D",
-        result: "53.53",
-        unit: "ng/mL",
-        refRange: "Deficiency: <10 / Insufficiency: 10-30 / Sufficiency: 30-100 / Toxicity: >100",
-        remarks: "Vitamin D",
-        isNormal: true,
-      },
-    ],
-    pdfUrl: "https://example.com/reports/rep_2026_07_05_a.pdf",
-  },
-};
-
-export function ReportDetailsScreen({ navigation, route }: Props) {
+export function ReportDetailsScreen({ navigation, route }: any) {
   const theme = useAppTheme();
   const { reportId } = route.params;
 
-  const report = MOCK_REPORTS[reportId];
+  const report = usePatientReportsStore((state) => state.reportDetails);
+  const getMedicalReportDetails = usePatientReportsStore((state) => state.getMedicalReportDetails);
 
-  const handlePrint = () => {
-    // TODO: wire up to your print flow, e.g. expo-print's printAsync.
+  useEffect(() => {
+    console.log("reportId", reportId);
+    getMedicalReportDetails(reportId);
+  }, [reportId]);
+
+  const handlePrint = async () => {
+    const html = reportDetail(report);
+    // On iOS/android prints the given html. On web prints the HTML from the current page.
+    const { uri } = await Print.printToFileAsync({ html });
+    console.log('File has been saved to:', uri);
+    await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
   };
 
   const handleOpenPdf = () => {
-    if (report?.pdfUrl) {
-      Linking.openURL(report.pdfUrl);
+    if (report?.pdf_attachment) {
+      Linking.openURL(report.pdf_attachment);
     }
   };
 
   if (!report) {
     return (
       <Screen title="Report Details" showBack onBackPress={() => navigation.goBack()}>
-        <AppText color={theme.colors.textMuted}>
-          This report couldn't be found.
+        <AppText color={theme.colors.textMuted} style={{ marginTop: theme.spacing.md }}>
+          Loading report details...
         </AppText>
       </Screen>
     );
@@ -109,14 +59,12 @@ export function ReportDetailsScreen({ navigation, route }: Props) {
 
   return (
     <Screen title="Report Details" showBack onBackPress={() => navigation.goBack()}>
-      <View style={{ gap: theme.spacing.md }}>
-        {/* Screen doesn't expose a header-right slot in this codebase yet,
-            so Print is placed as the first action in the body. Move it into
-            Screen itself if you add that capability there. */}
+      <View style={{ gap: theme.spacing.md, paddingBottom: theme.spacing.xl }}>
+        {/* Print Action Button */}
         <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
           <Pressable
             onPress={handlePrint}
-            style={{
+            style={({pressed})=>([{
               flexDirection: "row",
               alignItems: "center",
               gap: 6,
@@ -125,7 +73,12 @@ export function ReportDetailsScreen({ navigation, route }: Props) {
               borderRadius: 20,
               borderWidth: 1,
               borderColor: theme.colors.border,
-            }}
+            },
+            pressed && {
+              opacity: 0.82,
+              transform: [{ scale: 0.91 }],
+            },
+          ])}
           >
             <AppIcon name="Printer" size={16} color={theme.colors.text} />
             <AppText variant="bodyMedium" color={theme.colors.text}>
@@ -134,6 +87,7 @@ export function ReportDetailsScreen({ navigation, route }: Props) {
           </Pressable>
         </View>
 
+        {/* Main Info Card */}
         <View
           style={{
             backgroundColor: theme.colors.card,
@@ -144,119 +98,129 @@ export function ReportDetailsScreen({ navigation, route }: Props) {
             gap: theme.spacing.md,
           }}
         >
-          {/* Clinic header */}
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <View>
+          <View style={{ alignItems: "flex-end" }}>
+              <AppText variant="small" color={theme.colors.textMuted}>
+                Report Date
+              </AppText>
+              <AppText variant="bodyMedium" color={theme.colors.text}>
+                {report.report_date}
+              </AppText>
+            </View>
+          {/* Header section */}
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <View style={{ flex: 1 }}>
               <AppText variant="h2" color={theme.colors.text}>
-                {report.clinic.name}
+                Medical Investigation
               </AppText>
               <AppText variant="small" color={theme.colors.textMuted}>
-                {report.clinic.tagline}
+                Token: #{report.report_token}
               </AppText>
             </View>
-            <View style={{ alignItems: "flex-end" }}>
-              <AppText variant="small" color={theme.colors.textMuted}>
-                {report.clinic.handle}
-              </AppText>
-              <AppText variant="small" color={theme.colors.textMuted}>
-                {report.clinic.phones.join(" | ")}
-              </AppText>
-              <AppText variant="small" color={theme.colors.textMuted}>
-                {report.clinic.address}
-              </AppText>
-              <AppText variant="small" color={theme.colors.textMuted}>
-                {report.clinic.email}
-              </AppText>
-            </View>
+            
           </View>
 
           <View style={{ height: 1, backgroundColor: theme.colors.border }} />
 
-          {/* Patient / file info grid */}
-          <View style={{ flexDirection: "row", gap: theme.spacing.lg }}>
-            <View style={{ flex: 1, gap: 4 }}>
-              <InfoRow label="Patient Name" value={report.patient.name} />
-              <InfoRow label="Civil ID" value={report.patient.civilId} />
-              <InfoRow label="Mobile" value={report.patient.mobile} />
-            </View>
-            <View style={{ flex: 1, gap: 4 }}>
-              <InfoRow label="File No." value={report.file.fileNo} />
-              <InfoRow label="Doctor Name" value={report.file.doctorName} />
-              <InfoRow label="Report Date" value={report.file.reportDate} />
-            </View>
+          {/* Doctor Info */}
+          <View style={{ gap: theme.spacing.xs }}>
+            <InfoRow label="Doctor Name" value={report.doctor_name} />
           </View>
 
+          {/* Conclusion / Notes section */}
+          {report.conclusion ? (
+            <View
+              style={{
+                backgroundColor: theme.colors.cardMuted,
+                borderRadius: 10,
+                padding: theme.spacing.sm,
+                gap: 4,
+                marginTop: 4,
+              }}
+            >
+              <AppText variant="small" color={theme.colors.textMuted}>
+                Conclusion / Notes:
+              </AppText>
+              <AppText variant="bodyMedium" color={theme.colors.text}>
+                {report.conclusion}
+              </AppText>
+            </View>
+          ) : null}
+
+          <View style={{ height: 1, backgroundColor: theme.colors.border }} />
+
+          {/* Tests Section */}
           <AppText variant="bodyMedium" color={theme.colors.textMuted}>
-            MEDICAL REPORT
+            TESTS ({report.tests?.length ?? 0})
           </AppText>
 
-          {/* Results table */}
           <View style={{ gap: theme.spacing.sm }}>
-            <View style={{ flexDirection: "row" }}>
-              <TableHeaderCell label="Test" flex={1.2} />
-              <TableHeaderCell label="Result" flex={1} />
-              <TableHeaderCell label="Unit" flex={1} />
-              <TableHeaderCell label="Ref. Range" flex={1.6} />
-              <TableHeaderCell label="Remarks" flex={1} />
-            </View>
+            {report.tests?.map((item: any) => {
+              const isNormal = item.flag.toLowerCase() === "normal";
+              const flagBgColor = isNormal ? "#DCFCE7" : "#FEE2E2";
+              const flagTextColor = isNormal ? "#166534" : "#991B1B";
 
-            {report.tests.map((row, index) => (
-              <View
-                key={row.test}
-                style={{
-                  flexDirection: "row",
-                  paddingVertical: theme.spacing.sm,
-                  borderTopWidth: index === 0 ? 1 : 0,
-                  borderColor: theme.colors.border,
-                }}
-              >
-                <View style={{ flex: 1.2 }}>
-                  <AppText variant="small" color={theme.colors.text}>
-                    {row.test}
-                  </AppText>
-                </View>
-                <View style={{ flex: 1, gap: 4 }}>
-                  <AppText variant="small" color={theme.colors.text}>
-                    {row.result}
-                  </AppText>
-                  <View
-                    style={{
-                      alignSelf: "flex-start",
-                      paddingVertical: 2,
-                      paddingHorizontal: 6,
-                      borderRadius: 6,
-                      backgroundColor: row.isNormal ? "#DCFCE7" : "#FEE2E2",
-                    }}
-                  >
-                    <AppText
-                      variant="small"
-                      color={row.isNormal ? "#166534" : "#991B1B"}
-                    >
-                      {row.isNormal ? "NORMAL" : "ABNORMAL"}
+              return (
+                <View
+                  key={item.id}
+                  style={{
+                    backgroundColor: theme.colors.cardMuted,
+                    borderRadius: 12,
+                    padding: theme.spacing.sm,
+                    gap: 8,
+                  }}
+                >
+                  {/* Test Name & Flag Badge */}
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                    <AppText variant="bodyMedium" color={theme.colors.text} style={{ flex: 1, fontWeight: "600" }}>
+                      {item.test_name}
                     </AppText>
+                    <View
+                      style={{
+                        paddingVertical: 2,
+                        paddingHorizontal: 8,
+                        borderRadius: 6,
+                        backgroundColor: flagBgColor,
+                      }}
+                    >
+                      <AppText variant="small" color={flagTextColor} style={{ fontWeight: "600" }}>
+                        {item.flag}
+                      </AppText>
+                    </View>
                   </View>
+
+                  {/* Value, Unit, & Reference Range */}
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                    <View>
+                      <AppText variant="small" color={theme.colors.textMuted}>Result</AppText>
+                      <AppText variant="bodyMedium" color={theme.colors.text}>
+                        {item.test_value} {item.unit}
+                      </AppText>
+                    </View>
+                    {item.normal_range ? (
+                      <View style={{ alignItems: "flex-end" }}>
+                        <AppText variant="small" color={theme.colors.textMuted}>Ref. Range</AppText>
+                        <AppText variant="small" color={theme.colors.text}>
+                          {item.normal_range}
+                        </AppText>
+                      </View>
+                    ) : null}
+                  </View>
+
+                  {/* Remarks if available */}
+                  {item.remarks ? (
+                    <View style={{ borderTopWidth: 1, borderColor: theme.colors.border, paddingTop: 6, marginTop: 2 }}>
+                      <AppText variant="small" color={theme.colors.textMuted}>
+                        Remarks: {item.remarks}
+                      </AppText>
+                    </View>
+                  ) : null}
                 </View>
-                <View style={{ flex: 1 }}>
-                  <AppText variant="small" color={theme.colors.text}>
-                    {row.unit}
-                  </AppText>
-                </View>
-                <View style={{ flex: 1.6 }}>
-                  <AppText variant="small" color={theme.colors.textMuted}>
-                    {row.refRange}
-                  </AppText>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <AppText variant="small" color={theme.colors.textMuted}>
-                    {row.remarks}
-                  </AppText>
-                </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         </View>
 
-        {/* Attached PDF */}
+        {/* Attached PDF Section */}
         <View
           style={{
             flexDirection: "row",
@@ -273,37 +237,29 @@ export function ReportDetailsScreen({ navigation, route }: Props) {
               Attached Report Document
             </AppText>
             <AppText variant="small" color={theme.colors.textMuted}>
-              A detailed PDF has been attached by your doctor. Click to open or
-              download.
+              {report.pdf_attachment
+                ? "A detailed PDF has been attached. Click to open."
+                : "No PDF document attached to this report."}
             </AppText>
           </View>
         </View>
+
+        {report.pdf_attachment && (
           <AppButton title="View / Download PDF" onPress={handleOpenPdf} />
+        )}
       </View>
     </Screen>
   );
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
-  const theme = useAppTheme();
   return (
-    <View style={{ flexDirection: "row", gap: 6 }}>
-      <AppText variant="small" color={theme.colors.textMuted}>
-        {label}:
-      </AppText>
-      <AppText variant="small" color={theme.colors.text}>
-        {value}
-      </AppText>
-    </View>
-  );
-}
-
-function TableHeaderCell({ label, flex }: { label: string; flex: number }) {
-  const theme = useAppTheme();
-  return (
-    <View style={{ flex }}>
-      <AppText variant="small" color={theme.colors.textMuted}>
+    <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+      <AppText variant="small" color="textMuted">
         {label}
+      </AppText>
+      <AppText variant="small" color="text">
+        {value}
       </AppText>
     </View>
   );

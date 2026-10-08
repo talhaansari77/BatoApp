@@ -251,8 +251,7 @@ export function PatientProfileScreen() {
       label: t("profile.documents", { defaultValue: "Documents" }),
       icon: "FileText",
       isExpandable: false,
-      onPress: () =>
-        navigation.navigate("ReportsApp", { screen: "MedicalReports" }),
+      onPress: () => navigation.navigate("MedicalReports"),
     },
   ];
 
@@ -514,7 +513,10 @@ export function PatientProfileScreen() {
 
         {/* Sign Out Button */}
         <Pressable
-          onPress={logout}
+          onPress={() => {
+            logout();
+            navigation.navigate("Auth");
+          }}
           disabled={isLoading}
           style={({ pressed }) => [
             styles.signOutCard,

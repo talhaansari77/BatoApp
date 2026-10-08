@@ -1,6 +1,6 @@
 const Icons = {
-  appIcon: require('./AppIcon.png'),
-  batoLogo: require('./bato-logo.png'),
+  appIcon: require('./logo1024_1024.png'),
+  batoLogo: require('./logo1024_1024.png'),
 };
 
 export default Icons;
