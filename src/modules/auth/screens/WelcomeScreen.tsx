@@ -7,6 +7,7 @@ import { Screen } from "../../../shared/ui/templates/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { useAppLanguage } from "../../../app/providers/LanguageProvider";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Welcome">;
@@ -15,9 +16,10 @@ export function WelcomeScreen({ navigation }: Props) {
   const { height, width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const theme = useAppTheme();
+  const { isRTL } = useAppLanguage();
 
   return (
-    <View>
+    <View style={{ direction: isRTL ? "rtl" : "ltr" }}>
       <View
         style={{
           position: "absolute",

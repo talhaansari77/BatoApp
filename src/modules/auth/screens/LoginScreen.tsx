@@ -28,6 +28,7 @@ import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppInput } from "../../../shared/ui/atoms/AppInput";
 import { AuthCard } from "../../../shared/ui/molecules/AuthCard";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { useAppLanguage } from "../../../app/providers/LanguageProvider";
 import { authApi } from "../services/auth.Api";
 import { useAuthStore } from "../store/auth.store";
 import CountryPickerField from "../../../shared/ui/atoms/CountryPickerField";
@@ -62,6 +63,7 @@ const COUNTRY_CODES = [
 
 export function LoginScreen({ navigation }: Props) {
   const theme = useAppTheme();
+  const { isRTL } = useAppLanguage();
   const { t } = useTranslation();
   const sendOtp = useAuthStore((state) => state.sendOtp);
   const isLoading = useAuthStore((state) => state.isLoading);
@@ -161,11 +163,11 @@ export function LoginScreen({ navigation }: Props) {
         />
       }
     >
-      <View style={{ alignItems: "flex-end" }}>
+      <View style={{ direction: isRTL ? "rtl" : "ltr", alignItems: "flex-end" }}>
         {/* <LanguageToggle value={lang} onChange={handleLanguageChange} /> */}
         <LanguageSelector />
       </View>
-      <ScrollView nestedScrollEnabled={true}>
+      <ScrollView nestedScrollEnabled={true} style={{ direction: isRTL ? "rtl" : "ltr" }}>
         <View
           style={{
             alignItems: "center",
@@ -212,7 +214,7 @@ export function LoginScreen({ navigation }: Props) {
                 }}
               />
 
-              <AppText variant="small" color={theme.colors.textMuted}>
+              <AppText variant="small" color={theme.colors.textMuted} align={isRTL ? "right" : "left"}>
                 {t("auth.phoneDescription")}
               </AppText>
 
@@ -224,7 +226,7 @@ export function LoginScreen({ navigation }: Props) {
                 <AppText
                   variant="bodyMedium"
                   color={theme.colors.primaryDark}
-                  align="right"
+                  align={isRTL ? "left" : "right"}
                 >
                   {t("auth.loginViaFile")}
                 </AppText>
@@ -237,7 +239,7 @@ export function LoginScreen({ navigation }: Props) {
                 <AppText
                   variant="bodyMedium"
                   color={theme.colors.primaryDark}
-                  align="right"
+                  align={isRTL ? "left" : "right"}
                 >
                   {t("auth.forgotOrResetPassword")}
                 </AppText>
@@ -283,7 +285,7 @@ export function LoginScreen({ navigation }: Props) {
                 }}
               />
 
-              <AppText variant="small" color={theme.colors.textMuted}>
+              <AppText variant="small" color={theme.colors.textMuted} align={isRTL ? "right" : "left"}>
                 We'll send the OTP to this number via WhatsApp.
               </AppText>
 
@@ -295,7 +297,7 @@ export function LoginScreen({ navigation }: Props) {
                 <AppText
                   variant="bodyMedium"
                   color={theme.colors.primaryDark}
-                  align="right"
+                  align={isRTL ? "left" : "right"}
                 >
                   Login via Mobile Number
                 </AppText>
@@ -308,7 +310,7 @@ export function LoginScreen({ navigation }: Props) {
                 <AppText
                   variant="bodyMedium"
                   color={theme.colors.primaryDark}
-                  align="right"
+                  align={isRTL ? "left" : "right"}
                 >
                   Forgot or Reset Password
                 </AppText>

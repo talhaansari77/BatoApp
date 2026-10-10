@@ -7,14 +7,16 @@ import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppInput } from "../../../shared/ui/atoms/AppInput";
 import { AuthCard } from "../../../shared/ui/molecules/AuthCard";
 import { AppHeader } from "../../../shared/ui/organisms/AppHeader";
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { AppIcon } from "../../../shared/ui/atoms/AppIcon";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { useAppLanguage } from "../../../app/providers/LanguageProvider";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ForgotPassword">;
 
 export function ForgotPasswordScreen({ navigation }: Props) {
   const theme = useAppTheme();
+  const { isRTL } = useAppLanguage();
   return (
     <Screen
       title="Forgot Password"
@@ -28,12 +30,13 @@ export function ForgotPasswordScreen({ navigation }: Props) {
         />
       }
     >
+      <View style={{ direction: isRTL ? "rtl" : "ltr" }}>
       <Pressable
         onPress={() => navigation.goBack()}
         hitSlop={12}
         style={styles.iconButton}
       >
-        <AppIcon name="ArrowLeft" color={theme.colors.primaryDark} />
+        <AppIcon name={isRTL ? "ArrowRight" : "ArrowLeft"} color={theme.colors.primaryDark} />
       </Pressable>
 
       <AuthCard
@@ -48,6 +51,7 @@ export function ForgotPasswordScreen({ navigation }: Props) {
           leftIcon="Phone"
         />
       </AuthCard>
+      </View>
     </Screen>
   );
 }

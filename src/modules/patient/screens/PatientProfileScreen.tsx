@@ -1,20 +1,25 @@
 import React, { useMemo, useState } from "react";
-import { I18nManager, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useNavigation } from "@react-navigation/native";
 
+import { useAppLanguage } from "../../../app/providers/LanguageProvider";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { LanguageSelector } from "../../../shared/ui/molecules/LanguageSelector";
-import { ThemeModeSelector } from "../../../shared/ui/molecules/ThemeModeSelector";
+import {
+  ThemeModeSelector,
+} from "../../../shared/ui/molecules/ThemeModeSelector";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { useAuthStore } from "../../auth/store/auth.store";
-import { EditProfileModal, EditProfileData } from "../components/EditProfileModal";
+import {
+  EditProfileModal,
+  EditProfileData,
+} from "../components/EditProfileModal";
 import { SectionLabel } from "../Molecules/SectionLabel";
 import { InfoRow } from "../Molecules/InfoRow";
 import { Chevron } from "../Molecules/Chevron";
-import { PreferenceRow } from "../Molecules/PreferenceRow";
 
 // --- Types & Placeholder Data ------------------------------------------
 
@@ -30,18 +35,8 @@ const MOCK_PATIENT = {
   allergies: "Penicillin, Peanuts",
 };
 
-const LANGUAGE_NAMES: Record<string, string> = {
-  en: "English",
-  ar: "العربية",
-};
-
-type PreferenceId = "language" | "appearance";
-
 type CareItemId =
-  | "personalSummary"
-  | "treatments"
-  | "medicalInfo"
-  | "documents";
+  "personalSummary" | "treatments" | "medicalInfo" | "documents";
 
 type CareItem = {
   id: CareItemId;
@@ -82,24 +77,20 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-function capitalize(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
 export function PatientProfileScreen() {
   const navigation = useNavigation<any>();
   const theme = useAppTheme();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const { isRTL } = useAppLanguage();
+  const textAlign = isRTL ? "right" : "left";
 
   const logout = useAuthStore((state) => state.logout);
   const isLoading = useAuthStore((state) => state.isLoading);
   const user = useAuthStore((state) => state.user);
   const updateUser = useAuthStore((state) => state.updateUser);
 
-  const styles = useMemo(() => createStyles(theme), [theme]);
+  const styles = useMemo(() => createStyles(theme, isRTL), [theme, isRTL]);
 
-  const [expandedPreference, setExpandedPreference] =
-    useState<PreferenceId | null>(null);
   const [expandedCareId, setExpandedCareId] = useState<CareItemId | null>(null);
 
   // Edit Profile Modal States
@@ -116,8 +107,12 @@ export function PatientProfileScreen() {
       fullName: profileOverride.fullName ?? user?.full_name ?? "Guest Patient",
       patientCode: user?.patient_code ?? "PT-849201",
       dob: profileOverride.dob ?? (user as any)?.dob ?? MOCK_PATIENT.dob,
-      gender: profileOverride.gender ?? (user as any)?.gender ?? MOCK_PATIENT.gender,
-      nationality: profileOverride.nationality ?? (user as any)?.nationality ?? MOCK_PATIENT.nationality,
+      gender:
+        profileOverride.gender ?? (user as any)?.gender ?? MOCK_PATIENT.gender,
+      nationality:
+        profileOverride.nationality ??
+        (user as any)?.nationality ??
+        MOCK_PATIENT.nationality,
       firstVisit: MOCK_PATIENT.firstVisit,
       lastVisit: MOCK_PATIENT.lastVisit,
       totalVisits: MOCK_PATIENT.totalVisits,
@@ -139,14 +134,6 @@ export function PatientProfileScreen() {
     setProfileOverride(updated);
     setIsEditModalVisible(false);
   };
-
-  const languageLabel =
-    LANGUAGE_NAMES[i18n.language?.split("-")[0]] ??
-    (i18n.language ?? "").toUpperCase();
-
-  const appearanceLabel = capitalize(
-    String((theme as any).mode ?? (theme as any).themeMode ?? "system"),
-  );
 
   // --- Dynamic Data Arrays ---
 
@@ -259,10 +246,6 @@ export function PatientProfileScreen() {
     setExpandedCareId((current) => (current === id ? null : id));
   };
 
-  const togglePreference = (id: PreferenceId) => {
-    setExpandedPreference((current) => (current === id ? null : id));
-  };
-
   return (
     <Screen>
       <View style={styles.root}>
@@ -370,7 +353,9 @@ export function PatientProfileScreen() {
                           color={theme.colors.primaryDark}
                         />
                       </View>
-                      <AppText variant="bodyMedium">{item.label}</AppText>
+                      <AppText variant="bodyMedium" align={textAlign}>
+                        {item.label}
+                      </AppText>
                     </View>
                     <Chevron expanded={isExpanded} />
                   </Pressable>
@@ -391,6 +376,7 @@ export function PatientProfileScreen() {
                                 <AppText
                                   variant="caption"
                                   color={theme.colors.textMuted}
+                                  align={textAlign}
                                 >
                                   {stat.label}
                                 </AppText>
@@ -425,12 +411,13 @@ export function PatientProfileScreen() {
                                 </AppText>
                               </View>
                               <View style={styles.apptInfo}>
-                                <AppText variant="bodyMedium">
+                                <AppText variant="bodyMedium" align={textAlign}>
                                   {appt.title}
                                 </AppText>
                                 <AppText
                                   variant="caption"
                                   color={theme.colors.textMuted}
+                                  align={textAlign}
                                 >
                                   {appt.doctorName}
                                 </AppText>
@@ -462,6 +449,7 @@ export function PatientProfileScreen() {
                                 <AppText
                                   variant="caption"
                                   color={theme.colors.textMuted}
+                                  align={textAlign}
                                 >
                                   {detail.label}
                                 </AppText>
@@ -491,23 +479,22 @@ export function PatientProfileScreen() {
           />
           <View style={styles.card}>
             <View style={styles.row}>
-              
-              <AppText variant="bodyMedium">{t("common.language")}</AppText>
+              <AppText variant="bodyMedium" align={textAlign}>
+                {t("common.language")}
+              </AppText>
               <View>
-                <LanguageSelector  />
+                <LanguageSelector />
               </View>
             </View>
 
             <View style={styles.innerDivider} />
 
-            <PreferenceRow
-              label={t("common.appearance")}
-              value={appearanceLabel}
-              isExpanded={expandedPreference === "appearance"}
-              onPress={() => togglePreference("appearance")}
-            >
+            <View style={styles.row}>
+              <AppText variant="bodyMedium" align={textAlign}>
+                {t("common.appearance")}
+              </AppText>
               <ThemeModeSelector />
-            </PreferenceRow>
+            </View>
           </View>
         </View>
 
@@ -551,9 +538,12 @@ export function PatientProfileScreen() {
 
 // --- Styles --------------------------------------------------------------
 
-function createStyles(theme: ReturnType<typeof useAppTheme>) {
+function createStyles(theme: ReturnType<typeof useAppTheme>, isRTL: boolean) {
   return StyleSheet.create({
     root: {
+      // Yoga mirrors inherited row layouts in RTL; keep flexDirection: "row"
+      // below to avoid reversing the layout twice.
+      direction: isRTL ? "rtl" : "ltr",
       // paddingHorizontal: theme.spacing.lg,
       // paddingBottom: theme.spacing["2xl"],
     },
@@ -583,7 +573,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     editBadge: {
       position: "absolute",
       bottom: 0,
-      right: 0,
+      end: 0,
       backgroundColor: theme.colors.card,
       padding: theme.spacing.xs,
       borderRadius: theme.radius.full,
@@ -618,21 +608,21 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       textTransform: "uppercase",
       letterSpacing: 1,
       marginBottom: theme.spacing.xs,
-      marginLeft: theme.spacing.xs,
+      marginStart: theme.spacing.xs,
     },
 
     card: {
       backgroundColor: theme.colors.card,
+      borderColor: theme.colors.border,
       borderRadius: theme.radius.lg ?? 16,
       borderWidth: 1,
-      borderColor: theme.colors.border,
       overflow: "hidden",
     },
 
     innerDivider: {
       height: StyleSheet.hairlineWidth,
       backgroundColor: theme.colors.border,
-      marginLeft: theme.spacing.lg,
+      marginStart: theme.spacing.lg,
     },
 
     // Rows
@@ -647,7 +637,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
 
     rowValue: {
       flexShrink: 1,
-      textAlign: "right",
+      textAlign: isRTL ? "left" : "right",
     },
 
     navLeft: {
@@ -709,6 +699,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     statValue: {
+      textAlign: isRTL ? "right" : "left",
+      writingDirection: isRTL ? "rtl" : "ltr",
       fontWeight: "600",
     },
 

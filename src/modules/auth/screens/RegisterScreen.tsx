@@ -8,6 +8,7 @@ import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppInput } from "../../../shared/ui/atoms/AppInput";
 import { AuthCard } from "../../../shared/ui/molecules/AuthCard";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { useAppLanguage } from "../../../app/providers/LanguageProvider";
 import { useAuthStore } from "../store/auth.store";
 import { LoginScreen } from "./LoginScreen";
 import axios from "axios";
@@ -107,10 +108,11 @@ function SectionHeading({
   color: string;
   muted: string;
 }) {
+  const { isRTL } = useAppLanguage();
   return (
     <View style={{ gap: 2 }}>
-      <Text style={{ fontSize: 16, fontWeight: "700", color }}>{title}</Text>
-      {hint ? <Text style={{ fontSize: 13, color: muted }}>{hint}</Text> : null}
+      <Text style={{ textAlign: isRTL ? "right" : "left", writingDirection: isRTL ? "rtl" : "ltr", fontSize: 16, fontWeight: "700", color }}>{title}</Text>
+      {hint ? <Text style={{ textAlign: isRTL ? "right" : "left", writingDirection: isRTL ? "rtl" : "ltr", fontSize: 13, color: muted }}>{hint}</Text> : null}
     </View>
   );
 }
@@ -126,6 +128,7 @@ function GenderPicker({
   error?: string;
   colors: Palette;
 }) {
+  const { isRTL } = useAppLanguage();
   const options: { label: string; value: Gender }[] = [
     { label: "Female", value: "female" },
     { label: "Male", value: "male" },
@@ -133,7 +136,7 @@ function GenderPicker({
 
   return (
     <View style={{ gap: 6 }}>
-      <Text style={{ fontSize: 14, fontWeight: "600", color: colors.text }}>
+      <Text style={{ textAlign: isRTL ? "right" : "left", writingDirection: isRTL ? "rtl" : "ltr", fontSize: 14, fontWeight: "600", color: colors.text }}>
         Gender
       </Text>
       <View
@@ -168,6 +171,7 @@ function GenderPicker({
             >
               <Text
                 style={{
+                  writingDirection: isRTL ? "rtl" : "ltr",
                   fontSize: 15,
                   fontWeight: "600",
                   color: selected ? colors.onPrimary : colors.text,
@@ -180,7 +184,7 @@ function GenderPicker({
         })}
       </View>
       {error ? (
-        <Text style={{ fontSize: 12, color: colors.danger }}>{error}</Text>
+        <Text style={{ textAlign: isRTL ? "right" : "left", writingDirection: isRTL ? "rtl" : "ltr", fontSize: 12, color: colors.danger }}>{error}</Text>
       ) : null}
     </View>
   );
@@ -193,6 +197,7 @@ function PasswordStrength({
   password: string;
   colors: Palette;
 }) {
+  const { isRTL } = useAppLanguage();
   if (!password) return null;
   const score = passwordScore(password);
   const tone =
@@ -217,7 +222,7 @@ function PasswordStrength({
           />
         ))}
       </View>
-      <Text style={{ fontSize: 12, color: colors.muted }}>
+      <Text style={{ textAlign: isRTL ? "right" : "left", writingDirection: isRTL ? "rtl" : "ltr", fontSize: 12, color: colors.muted }}>
         {STRENGTH_LABELS[score]}. Use {MIN_PASSWORD_LENGTH}+ characters with
         upper and lower case letters, a number and a symbol.
       </Text>
@@ -249,6 +254,7 @@ function buildPalette(theme: unknown) {
 
 export function RegisterScreen({ navigation }: Props) {
   const theme = useAppTheme();
+  const { isRTL } = useAppLanguage();
   const colors = useMemo(() => buildPalette(theme), [theme]);
 
   const register = useAuthStore((state) => state.register);
@@ -412,6 +418,7 @@ export function RegisterScreen({ navigation }: Props) {
         resizeMode="contain"
       />
       <View
+        style={{ direction: isRTL ? "rtl" : "ltr" }}
         // style={[
         //   {
         //     backgroundColor: theme.colors.card,

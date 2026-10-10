@@ -32,7 +32,7 @@ export function ProfileStack() {
         component={ReportsScreen}
       />
       <Stack.Screen
-        name="ReportDetails"
+        name="ReportDetails" 
         component={ReportDetailsScreen}
       />
     </Stack.Navigator>

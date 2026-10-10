@@ -48,6 +48,12 @@ export const darkColors = {
   surface: '#151515',
   danger: '#D18484',
   overlay: 'rgba(0, 0, 0, 0.60)',
+   yellow: '#FFD700',
+  overlayDark: 'rgba(0, 0, 0, 0.70)',
+  overlay_1: "rgba(255, 255, 255, 0.22)",
+  overlay_2: "rgba(255, 255, 255, 0.35)",
+  overlay_3: 'rgba(255, 255, 255, 0.7)',
+  greyGlass: "rgba(110, 110, 120, 0.35)",
 };
 
 export type AppColors = typeof lightColors;

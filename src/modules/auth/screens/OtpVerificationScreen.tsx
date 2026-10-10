@@ -20,6 +20,7 @@ import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AuthCard } from "../../../shared/ui/molecules/AuthCard";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { useAppLanguage } from "../../../app/providers/LanguageProvider";
 import { tokenStorage } from "../../../core/storage/tokenStorage";
 import { useAuthStore } from "../store/auth.store";
 
@@ -33,6 +34,7 @@ const RESEND_SECONDS = 30;
 
 export function OtpVerificationScreen({ navigation,route }: Props) {
   const theme = useAppTheme();
+  const { isRTL } = useAppLanguage();
 // Safe destructuring with fallback
   const { handleSendOtp } = route.params ?? {};
   // The original TextInputs had no `value`/`onChangeText` at all — fully
@@ -176,12 +178,14 @@ export function OtpVerificationScreen({ navigation,route }: Props) {
         />
       }
     >
+      <View style={{ direction: isRTL ? "rtl" : "ltr" }}>
       <AuthCard
         title="Enter verification code"
         subtitle="We sent a 6-digit code to your phone number."
       >
         <View
           style={{
+            direction: "ltr",
             flexDirection: "row",
             justifyContent: "space-between",
             gap: theme.spacing.sm,
@@ -222,6 +226,7 @@ export function OtpVerificationScreen({ navigation,route }: Props) {
                     ? (theme.colors.primaryDark ?? theme.colors.text)
                     : theme.colors.border,
                 backgroundColor: theme.colors.background,
+                writingDirection: "ltr",
                 textAlign: "center",
                 fontSize: 20,
                 color: theme.colors.text,
@@ -254,6 +259,7 @@ export function OtpVerificationScreen({ navigation,route }: Props) {
           </Pressable>
         )}
       </AuthCard>
+      </View>
     </Screen>
   );
 }

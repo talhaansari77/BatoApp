@@ -18,6 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RootStackParamList } from "@/core/navigation/types";
 import Assets from "@/assets";
 import { useAppTheme } from "@/app/providers/ThemeProvider";
+import { useAppLanguage } from "@/app/providers/LanguageProvider";
 // import type { RootStackParamList } from '../navigation/types';
 
 const { width } = Dimensions.get("window");
@@ -67,7 +68,8 @@ const SLIDES: SlideItem[] = [
 // ---------- Component ----------
 const OnboardingScreen = ({ navigation }: OnboardingScreenProps) => {
   const theme = useAppTheme();
-  const styles = useMemo(() => createStyles(theme), [theme]);
+  const { isRTL } = useAppLanguage();
+  const styles = useMemo(() => createStyles(theme, isRTL), [theme, isRTL]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -88,7 +90,7 @@ const OnboardingScreen = ({ navigation }: OnboardingScreenProps) => {
         {
           name: "Auth",
           state: {
-            routes: [{ name: "Login" }],
+            routes: [{ name: "Welcome" }],
           },
         },
       ], // changed from 'Home'
@@ -183,6 +185,7 @@ const OnboardingScreen = ({ navigation }: OnboardingScreenProps) => {
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         horizontal
+        style={{ direction: "ltr", transform: [{ scaleX: isRTL ? -1 : 1 }] }}
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         bounces={false}
@@ -219,13 +222,16 @@ const OnboardingScreen = ({ navigation }: OnboardingScreenProps) => {
 export default OnboardingScreen;
 
 // ---------- Styles ----------
-function createStyles(theme: ReturnType<typeof useAppTheme>) {
+function createStyles(theme: ReturnType<typeof useAppTheme>, isRTL: boolean) {
   return StyleSheet.create({
     container: {
+      direction: isRTL ? "rtl" : "ltr",
       flex: 1,
       backgroundColor: "#fff",
     },
     slide: {
+      direction: isRTL ? "rtl" : "ltr",
+      transform: [{ scaleX: isRTL ? -1 : 1 }],
       width,
       alignItems: "center",
       justifyContent: "center",
@@ -246,6 +252,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       alignItems: "center",
     },
     title: {
+      writingDirection: isRTL ? "rtl" : "ltr",
       fontSize: 24,
       fontWeight: "700",
       color: theme.colors.text,
@@ -253,6 +260,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       textAlign: "center",
     },
     description: {
+      writingDirection: isRTL ? "rtl" : "ltr",
       fontSize: 15,
       color: theme.colors.textMuted,
       textAlign: "center",
@@ -282,6 +290,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       paddingHorizontal: 8,
     },
     skipText: {
+      writingDirection: isRTL ? "rtl" : "ltr",
       fontSize: 16,
       color: theme.colors.textMuted,
       fontWeight: "500",
@@ -293,6 +302,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       paddingHorizontal: 40,
     },
     nextButtonText: {
+      writingDirection: isRTL ? "rtl" : "ltr",
       color: theme.colors.nude,
       fontSize: 16,
       fontWeight: "700",

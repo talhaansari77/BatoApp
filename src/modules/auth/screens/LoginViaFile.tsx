@@ -12,6 +12,7 @@ import { AppInput } from "../../../shared/ui/atoms/AppInput";
 import { PhoneNumberInput } from "../../../shared/ui/atoms/PhoneNumberInput";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { useAppLanguage } from "../../../app/providers/LanguageProvider";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { useAuthStore } from "../store/auth.store";
@@ -56,6 +57,7 @@ const LoginViaFile = ({ navigation }: Props) => {
     // navigation.navigate("OtpVerification");
   };
   const theme = useAppTheme();
+  const { isRTL } = useAppLanguage();
   return (
     <Screen
       title="LOGIN"
@@ -68,7 +70,7 @@ const LoginViaFile = ({ navigation }: Props) => {
         />
       }
     >
-      <ScrollView nestedScrollEnabled={true}>
+      <ScrollView nestedScrollEnabled={true} style={{ direction: isRTL ? "rtl" : "ltr" }}>
         <View
           style={{
             alignItems: "center",
@@ -118,7 +120,7 @@ const LoginViaFile = ({ navigation }: Props) => {
             }}
           />
 
-          <AppText variant="small" color={theme.colors.textMuted}>
+          <AppText variant="small" color={theme.colors.textMuted} align={isRTL ? "right" : "left"}>
             We'll send the OTP to this number via WhatsApp.
           </AppText>
 
@@ -135,7 +137,7 @@ const LoginViaFile = ({ navigation }: Props) => {
             <AppText
               variant="bodyMedium"
               color={theme.colors.primaryDark}
-              align="right"
+              align={isRTL ? "left" : "right"}
             >
               Login via Mobile Number
             </AppText>
@@ -148,7 +150,7 @@ const LoginViaFile = ({ navigation }: Props) => {
             <AppText
               variant="bodyMedium"
               color={theme.colors.primaryDark}
-              align="right"
+              align={isRTL ? "left" : "right"}
             >
               Forgot or Reset Password
             </AppText>
