@@ -24,7 +24,7 @@ export function RootNavigator() {
 
   return (
     <Stack.Navigator
-      initialRouteName="PatientApp"
+      initialRouteName="Auth"
       screenOptions={{ headerShown: false }}
     >
       

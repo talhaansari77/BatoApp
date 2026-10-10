@@ -214,7 +214,9 @@ export function LoginScreen({ navigation }: Props) {
                 }}
               />
 
-              <AppText variant="small" color={theme.colors.textMuted} align={isRTL ? "right" : "left"}>
+              <AppText variant="small" color={theme.colors.textMuted}
+              style={isRTL && {textAlign: 'left'}}
+              >
                 {t("auth.phoneDescription")}
               </AppText>
 

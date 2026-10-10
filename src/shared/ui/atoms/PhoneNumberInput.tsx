@@ -15,6 +15,7 @@ import CountryPicker, {
   Country,
   CountryCode,
 } from "react-native-country-picker-modal";
+import { useAppLanguage } from "@/app/providers/LanguageProvider";
 
 type AppInputProps = TextInputProps & {
   label?: string;
@@ -41,6 +42,7 @@ export function PhoneNumberInput({
   ...props
 }: AppInputProps) {
   const theme = useAppTheme();
+  const {isRTL} = useAppLanguage();
 
   return (
     <View style={styles.wrapper}>
@@ -48,7 +50,7 @@ export function PhoneNumberInput({
         <AppText
           variant="caption"
           color={theme.colors.textMuted}
-          style={styles.label}
+          style={[styles.label, isRTL && {textAlign: 'left'}]}
         >
           {label}
         </AppText>
