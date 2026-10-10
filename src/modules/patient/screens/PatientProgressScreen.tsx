@@ -10,10 +10,10 @@ import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
 import { AppText } from '../../../shared/ui/atoms/AppText';
 import { Screen } from '../../../shared/ui/templates/Screen';
 
-type PatientProgressNavigation = BottomTabNavigationProp<
-  PatientTabParamList,
-  'PatientProgress'
->;
+// type PatientProgressNavigation = BottomTabNavigationProp<
+//   PatientTabParamList,
+//   'PatientProgress'
+// >;
 
 type ProgressTab = 'overview' | 'sessions' | 'gallery';
 
@@ -153,7 +153,7 @@ const progressPhotos: ProgressPhoto[] = [
 
 export function PatientProgressScreen() {
   const theme = useAppTheme();
-  const navigation = useNavigation<PatientProgressNavigation>();
+  const navigation = useNavigation<any>();
 
   const [selectedTab, setSelectedTab] = useState<ProgressTab>('overview');
 

@@ -41,7 +41,7 @@ export function SplashScreen({ navigation,onFinish }:any) {
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject, // Covers the full screen over main content
+    // ...StyleSheet.absoluteFillObject, // Covers the full screen over main content
     backgroundColor: "#1E293B",
     alignItems: "center",
     justifyContent: "center",

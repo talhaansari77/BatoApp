@@ -12,14 +12,14 @@ import { AppText } from '../../../shared/ui/atoms/AppText';
 import { AppButton } from '../../../shared/ui/atoms/AppButton';
 import { useAppTheme } from '../../../app/providers/ThemeProvider';
 
-type Props = CompositeScreenProps<
-  NativeStackScreenProps<AuthStackParamList, 'RoleSelection'>,
-  NativeStackScreenProps<RootStackParamList>
->;
+// type Props = CompositeScreenProps<
+//   NativeStackScreenProps<AuthStackParamList, 'RoleSelection'>,
+//   NativeStackScreenProps<RootStackParamList>
+// >;
 
 type Role = 'Patient' | 'Doctor' | 'Admin';
 
-export function RoleSelectionScreen({ navigation }: Props) {
+export function RoleSelectionScreen({ navigation }: any) {
   const theme = useAppTheme();
   const [selectedRole, setSelectedRole] = React.useState<Role>('Patient');
 
