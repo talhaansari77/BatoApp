@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Alert, Image, Pressable, Text, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { AuthStackParamList } from "../../../core/navigation/navigation.types";
+import { AuthStackParamList } from "../../../core/navigation/types";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppInput } from "../../../shared/ui/atoms/AppInput";

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Animated, StyleSheet, Text, View, Image } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { AuthStackParamList } from "../../../core/navigation/navigation.types";
+import { AuthStackParamList } from "../../../core/navigation/types";
 
 // type Props = NativeStackScreenProps<AuthStackParamList, "Splash">;
 

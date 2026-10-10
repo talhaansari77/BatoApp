@@ -2,7 +2,7 @@ import React from "react";
 import { Image, Platform, useWindowDimensions, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { AuthStackParamList } from "../../../core/navigation/navigation.types";
+import { AuthStackParamList } from "../../../core/navigation/types";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";

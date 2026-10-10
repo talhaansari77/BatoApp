@@ -251,7 +251,7 @@ export function PatientProfileScreen() {
       label: t("profile.documents", { defaultValue: "Documents" }),
       icon: "FileText",
       isExpandable: false,
-      onPress: () => navigation.navigate("MedicalReports"),
+      onPress: () => navigation.navigate("ProfileStack"),
     },
   ];
 

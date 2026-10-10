@@ -6,21 +6,21 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   AdminStackParamList,
   AdminTabParamList,
-} from './navigation.types';
-import { useAppTheme } from '../../app/providers/ThemeProvider';
-import { AppIcon, AppIconName } from '../../shared/ui/atoms/AppIcon';
+} from '../types';
+import { useAppTheme } from '../../../app/providers/ThemeProvider';
+import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
 
-import { AdminDashboardScreen } from '../../modules/admin/screens/AdminDashboardScreen';
-import { AdminAppointmentsScreen } from '../../modules/admin/screens/AdminAppointmentsScreen';
-import { AdminPatientsScreen } from '../../modules/admin/screens/AdminPatientsScreen';
-import { AdminDoctorsScreen } from '../../modules/admin/screens/AdminDoctorsScreen';
-import { AdminMoreScreen } from '../../modules/admin/screens/AdminMoreScreen';
-import { AdminServicesScreen } from '../../modules/admin/screens/AdminServicesScreen';
-import { AdminReportsScreen } from '../../modules/admin/screens/AdminReportsScreen';
-import { AdminPaymentsScreen } from '../../modules/admin/screens/AdminPaymentsScreen';
-import { AdminPromotionsScreen } from '../../modules/admin/screens/AdminPromotionsScreen';
-import { AdminNotificationsScreen } from '../../modules/admin/screens/AdminNotificationsScreen';
-import { AdminBranchesScreen } from '../../modules/admin/screens/AdminBranchesScreen';
+import { AdminDashboardScreen } from '../../../modules/admin/screens/AdminDashboardScreen';
+import { AdminAppointmentsScreen } from '../../../modules/admin/screens/AdminAppointmentsScreen';
+import { AdminPatientsScreen } from '../../../modules/admin/screens/AdminPatientsScreen';
+import { AdminDoctorsScreen } from '../../../modules/admin/screens/AdminDoctorsScreen';
+import { AdminMoreScreen } from '../../../modules/admin/screens/AdminMoreScreen';
+import { AdminServicesScreen } from '../../../modules/admin/screens/AdminServicesScreen';
+import { AdminReportsScreen } from '../../../modules/admin/screens/AdminReportsScreen';
+import { AdminPaymentsScreen } from '../../../modules/admin/screens/AdminPaymentsScreen';
+import { AdminPromotionsScreen } from '../../../modules/admin/screens/AdminPromotionsScreen';
+import { AdminNotificationsScreen } from '../../../modules/admin/screens/AdminNotificationsScreen';
+import { AdminBranchesScreen } from '../../../modules/admin/screens/AdminBranchesScreen';
 
 const Stack = createNativeStackNavigator<AdminStackParamList>();
 const Tab = createBottomTabNavigator<AdminTabParamList>();

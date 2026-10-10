@@ -4,7 +4,7 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 
 import { useAppTheme } from '../../../app/providers/ThemeProvider';
-import { AdminTabParamList } from '../../../core/navigation/navigation.types';
+import { AdminTabParamList } from '../../../core/navigation/types';
 import {
   AdminCard,
   AdminDetailItem,

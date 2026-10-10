@@ -22,7 +22,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
   PatientStackParamList,
   PatientTabParamList,
-} from "@/core/navigation/navigation.types";
+} from "@/core/navigation/types";
 import { CompositeScreenProps } from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { getAppointmentCounts, getFirstName, getStatusColors } from "@/utils";
@@ -155,8 +155,11 @@ export function PatientAppointmentsScreen({
           statusBgColor={statusColors.bg}
           isActive={false}
           onPress={() => {
-            navigation.navigate("AppointmentDetails", {
-              appointmentId: item.id,
+            navigation.navigate("AppointmentsStack", {
+              screen: "AppointmentDetails",
+              params: {
+                appointmentId: item.id,
+              },
             });
           }}
         />

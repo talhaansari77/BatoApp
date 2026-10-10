@@ -4,14 +4,14 @@ import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
-import { PatientTabParamList } from "../../../core/navigation/navigation.types";
+import { PatientTabParamList } from "../../../core/navigation/types";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { useAuthStore } from "../../auth/store/auth.store";
 import { DoctorCard, DoctorCardExample } from "../components/DoctorCard";
-import { FontAwesomeIcon, } from '@fortawesome/react-native-fontawesome'
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 
 type PatientHomeNavigation = BottomTabNavigationProp<
@@ -24,7 +24,7 @@ type QuickAction = {
   title: string;
   subtitle: string;
   icon: AppIconName;
-  route: keyof PatientTabParamList;
+  route: "PatientServices" | "PatientProgress";
 };
 
 type ServiceCategory = {
@@ -50,26 +50,13 @@ const quickActions: QuickAction[] = [
     icon: "CalendarPlus",
     route: "PatientServices",
   },
-  {
-    id: "appointments",
-    title: "Appointments",
-    subtitle: "Upcoming visits",
-    icon: "CalendarDays",
-    route: "PatientAppointments",
-  },
+
   {
     id: "progress",
     title: "Progress",
     subtitle: "Track care plan",
     icon: "ChartNoAxesColumnIncreasing",
     route: "PatientProgress",
-  },
-  {
-    id: "profile",
-    title: "Profile",
-    subtitle: "Your care info",
-    icon: "UserRound",
-    route: "PatientProfile",
   },
 ];
 
@@ -118,7 +105,7 @@ export function PatientHomeScreen() {
 
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const navigateToTab = (route: keyof PatientTabParamList) => {
+  const navigateToTab = (route: any) => {
     navigation.navigate(route);
   };
 
@@ -184,15 +171,44 @@ export function PatientHomeScreen() {
               </Pressable>
             </View>
           </View>
-          <FlatList
-            horizontal
-            data={[1, 2]}
-            keyExtractor={(item) => item.toString()}
-            renderItem={() => <DoctorCardExample />}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.listContainer}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
-          />
+          <View style={styles.heroBox}>
+            <View style={styles.heroContent}>
+              <View style={styles.heroBadge}>
+                <AppIcon
+                  name="Sparkles"
+                  size={15}
+                  color={theme.colors.primaryDark}
+                />
+                <AppText variant="small" color={theme.colors.primaryDark}>
+                  Premium Care
+                </AppText>
+              </View>
+
+              <AppText variant="h2" style={styles.heroTitle}>
+                Your beauty and wellness journey starts here
+              </AppText>
+
+              <AppText color={theme.colors.textMuted} style={styles.heroText}>
+                Book treatments, follow care plans, and track your progress with
+                BATO Clinic.
+              </AppText>
+
+              <AppButton
+                title="Book Appointment"
+                fullWidth={false}
+                style={styles.heroButton}
+                onPress={() => navigateToTab('PatientServices')}
+              />
+            </View>
+
+            <View style={styles.heroIcon}>
+              <AppIcon
+                name="HeartPulse"
+                size={42}
+                color={theme.colors.primaryDark}
+              />
+            </View>
+          </View>
         </View>
 
         <View style={styles.section}>
@@ -402,7 +418,11 @@ export function PatientHomeScreen() {
 
                 <View style={styles.specialistMeta}>
                   <View style={styles.inlineInfo}>
-                    <FontAwesomeIcon icon={faStar} color={theme.colors.yellow} size={20} />
+                    <FontAwesomeIcon
+                      icon={faStar}
+                      color={theme.colors.yellow}
+                      size={20}
+                    />
                     {/* <AppIcon
                       name="Star"
                       size={14}

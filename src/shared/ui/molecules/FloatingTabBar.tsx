@@ -1,5 +1,13 @@
-import { useEffect } from "react";
-import { View, Pressable, StyleSheet, useWindowDimensions } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  Dimensions,
+  NativeSyntheticEvent,
+  TextLayoutEventData,
+} from "react-native";
 import { BlurView } from "expo-blur";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,40 +17,69 @@ import Animated, {
   withSpring,
   interpolate,
   Extrapolation,
-  SharedValue,
 } from "react-native-reanimated";
 import { AppIcon } from "../atoms/AppIcon";
 import * as Icons from "lucide-react-native";
-import { PatientTabParamList } from "@/core/navigation/navigation.types";
+import { PatientTabParamList } from "@/core/navigation/types";
 import { lightColors } from "@/theme";
 import { useAppTheme } from "@/app/providers/ThemeProvider";
-import { AppText } from "../atoms/AppText";
+
 export type AppIconName = keyof typeof Icons;
 
 const icons: Record<keyof PatientTabParamList, AppIconName> = {
-  HomeStack: "House",
-  ServicesStack: "Sparkles",
-  AppointmentsStack: "CalendarDays",
-  ProgressStack: "ChartNoAxesColumnIncreasing",
-  ProfileStack: "UserRound",
+  PatientHome: "House",
+  PatientServices: "Sparkles",
+  PatientAppointments: "CalendarDays",
+  PatientProfile: "UserRound",
 };
 
-const ITEM_SIZE = 56; // collapsed circle size
-const GAP = 10;
-const PADDING = 12;
-const ICON_SIZE = 32;
-const ICON_PAD = (ITEM_SIZE - ICON_SIZE) / 2; // keeps the icon centered when collapsed
-const LABEL_GAP = 6;
-const LABEL_PAD_RIGHT = 14;
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+// --- Layout ---------------------------------------------------------------
+
+const ITEM_SIZE = Math.min(Math.max(SCREEN_WIDTH * 0.14, 52), 64);
+const ITEM_HEIGHT = ITEM_SIZE;
+const GAP = Math.max(SCREEN_WIDTH * 0.025, 8);
+const PADDING = Math.max(SCREEN_WIDTH * 0.03, 10);
 const BAR_WIDTH_RATIO = 0.9;
 
-// Critically damped spring: smooth, no overshoot (so widths never exceed the bar).
-const SPRING = { damping: 26, stiffness: 220, mass: 0.8 };
+// Space on each side of the label inside the active item.
+const LABEL_H_PAD = 10;
+
+// Inactive items never get squeezed below this, however long the label is.
+const MIN_INACTIVE_WIDTH = ITEM_SIZE * 0.7;
+
+// --- Shape ------------------------------------------------------------------
+
+// Concentric corners: the bar's radius is the item radius plus the padding
+// between them, so the curves stay parallel instead of looking mismatched.
+const ITEM_RADIUS = 14;
+const BAR_RADIUS = ITEM_RADIUS + PADDING;
+
+// --- Icon + label stack -------------------------------------------------------
+
+const ICON_SIZE = ITEM_SIZE * 0.48;
+const LABEL_FONT_SIZE = 11;
+const LABEL_LINE_HEIGHT = 14;
+const LABEL_GAP = 2;
+
+// Height of icon + gap + label, centred in the item when active.
+const STACK_HEIGHT = ICON_SIZE + LABEL_GAP + LABEL_LINE_HEIGHT;
+const STACK_PAD = (ITEM_HEIGHT - STACK_HEIGHT) / 2;
+// How far the icon travels up from dead-centre to make room for the label.
+const ICON_LIFT = (LABEL_GAP + LABEL_LINE_HEIGHT) / 2;
+
+// Floor for an item's flex weight, so an item that undershoots while closing
+// can squish slightly below its resting width but never collapses to nothing.
+const MIN_WEIGHT = 0.8;
+
+// Underdamped spring => overshoot and wobble. `damping` is the bounce dial:
+// lower is bouncier (~19% overshoot here), higher settles faster and flatter.
+const SPRING = { damping: 12, stiffness: 190, mass: 0.9 };
 
 type TabItemProps = {
-  index: number;
-  position: SharedValue<number>; // animated (fractional) active index
-  expandedWidth: number;
+  available: number; // row width once padding and gaps are removed
+  count: number; // total number of tabs
   name: AppIconName;
   label: string;
   color: string;
@@ -52,9 +89,8 @@ type TabItemProps = {
 };
 
 function TabItem({
-  index,
-  position,
-  expandedWidth,
+  available,
+  count,
   name,
   label,
   color,
@@ -62,43 +98,67 @@ function TabItem({
   onPress,
   onLongPress,
 }: TabItemProps) {
-  const labelWidth =
-    expandedWidth - ICON_PAD - ICON_SIZE - LABEL_GAP - LABEL_PAD_RIGHT;
+  // Natural width of the label text, measured by the hidden <Text> below.
+  const [textWidth, setTextWidth] = useState(0);
 
-  // 0 = collapsed, 1 = fully expanded. Derived from the shared position so every
-  // item (the one growing and the one shrinking) stays perfectly in sync.
-  const containerStyle = useAnimatedStyle(() => {
-    const p = Math.max(0, Math.min(1, 1 - Math.abs(position.value - index)));
-    return {
-      width: interpolate(
-        p,
-        [0, 1],
-        [ITEM_SIZE, expandedWidth],
-        Extrapolation.CLAMP,
-      ),
-    };
-  });
+  const handleMeasure = (e: NativeSyntheticEvent<TextLayoutEventData>) => {
+    const width = e.nativeEvent.lines[0]?.width;
+    if (width) {
+      setTextWidth((prev) => (Math.abs(prev - width) < 0.5 ? prev : Math.ceil(width)));
+    }
+  };
 
-  const activeBgStyle = useAnimatedStyle(() => {
-    const p = Math.max(0, Math.min(1, 1 - Math.abs(position.value - index)));
-    return { opacity: p };
-  });
+  // Active width = label + padding. Inactive items share whatever is left, so
+  // the flex weight that produces exactly that width is
+  //   weight = target * (count - 1) / (available - target)
+  // (an inactive item has weight 1). Falls back to a rough estimate until the
+  // label has been measured.
+  const expandWeight = useMemo(() => {
+    const others = count - 1;
+    if (others <= 0) return 1;
 
-  const iconStyle = useAnimatedStyle(() => {
-    const p = Math.max(0, Math.min(1, 1 - Math.abs(position.value - index)));
-    return { transform: [{ scale: interpolate(p, [0, 1], [1, 1.08]) }] };
-  });
+    const natural = (textWidth || label.length * 7) + LABEL_H_PAD * 2;
+    const equalShare = available / count; // never narrower than an inactive item
+    const maxActive = available - others * MIN_INACTIVE_WIDTH;
+    const target = Math.min(Math.max(natural, equalShare), maxActive);
 
-  const labelStyle = useAnimatedStyle(() => {
-    const p = Math.max(0, Math.min(1, 1 - Math.abs(position.value - index)));
-    return {
-      // text fades in only once the pill is mostly open, and fades out first on close
-      opacity: interpolate(p, [0.45, 1], [0, 1], Extrapolation.CLAMP),
-      transform: [
-        { translateX: interpolate(p, [0, 1], [-8, 0], Extrapolation.CLAMP) },
-      ],
-    };
-  });
+    return (target * others) / (available - target);
+  }, [textWidth, label, available, count]);
+
+  // 0 = collapsed, 1 = expanded. Each item owns its own spring, so the item
+  // opening overshoots past 1 while the one closing undershoots below 0 —
+  // that's where the bounce comes from.
+  const progress = useSharedValue(focused ? 1 : 0);
+
+  useEffect(() => {
+    progress.value = withSpring(focused ? 1 : 0, SPRING);
+  }, [focused, progress]);
+
+  // Widths are animated as flex weights rather than fixed pixels: the row
+  // always fills the bar, so overshoot just shifts the proportions and can
+  // never push the row past the bar's edges.
+  const containerStyle = useAnimatedStyle(() => ({
+    flexGrow: Math.max(MIN_WEIGHT, 1 + (expandWeight - 1) * progress.value),
+  }));
+
+  const activeBgStyle = useAnimatedStyle(() => ({
+    opacity: Math.min(1, Math.max(0, progress.value)),
+  }));
+
+  // Icon lifts to make room for the label and pops slightly.
+  const iconStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: -ICON_LIFT * progress.value },
+      { scale: 1 + 0.08 * progress.value },
+    ],
+  }));
+
+  // Label fades in once the item is mostly open and springs up from below.
+  // translateY extrapolates (no clamp) so it bounces with the spring.
+  const labelStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(progress.value, [0.4, 1], [0, 1], Extrapolation.CLAMP),
+    transform: [{ translateY: interpolate(progress.value, [0, 1], [6, 0]) }],
+  }));
 
   return (
     <Animated.View style={[styles.item, containerStyle]}>
@@ -106,6 +166,20 @@ function TabItem({
         pointerEvents="none"
         style={[StyleSheet.absoluteFill, styles.activeBg, activeBgStyle]}
       />
+
+      {/* Invisible, unconstrained copy of the label used only to measure its
+          natural width. Must match the visible label's font styling. */}
+      <View
+        pointerEvents="none"
+        style={styles.measureWrap}
+        importantForAccessibility="no-hide-descendants"
+        accessibilityElementsHidden
+      >
+        <Text numberOfLines={1} onTextLayout={handleMeasure} style={styles.measureText}>
+          {label}
+        </Text>
+      </View>
+
       <Pressable
         onPress={onPress}
         onLongPress={onLongPress}
@@ -119,7 +193,8 @@ function TabItem({
         </Animated.View>
         <Animated.Text
           numberOfLines={1}
-          style={[styles.label, { width: labelWidth, color }, labelStyle]}
+          ellipsizeMode="clip"
+          style={[styles.label, { color }, labelStyle]}
         >
           {label}
         </Animated.Text>
@@ -135,19 +210,10 @@ export function FloatingTabBar({
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const theme = useAppTheme();
-  const { width: screenWidth } = useWindowDimensions();
 
   const count = state.routes.length;
-  const barWidth = screenWidth * BAR_WIDTH_RATIO;
-  // The active pill takes whatever space the collapsed circles leave over.
-  const expandedWidth =
-    barWidth - PADDING * 2 - (count - 1) * (ITEM_SIZE + GAP);
-
-  const position = useSharedValue(state.index);
-
-  useEffect(() => {
-    position.value = withSpring(state.index, SPRING);
-  }, [state.index, position]);
+  const barWidth = SCREEN_WIDTH * BAR_WIDTH_RATIO;
+  const available = barWidth - PADDING * 2 - (count - 1) * GAP;
 
   return (
     <View
@@ -155,7 +221,7 @@ export function FloatingTabBar({
       style={[styles.wrapper, { bottom: insets.bottom }]}
     >
       <BlurView
-        intensity={35}
+        intensity={20}
         tint="light"
         style={[styles.bar, { width: barWidth }]}
       >
@@ -182,9 +248,8 @@ export function FloatingTabBar({
             return (
               <TabItem
                 key={route.key}
-                index={index}
-                position={position}
-                expandedWidth={expandedWidth}
+                available={available}
+                count={count}
                 name={icons[route.name as keyof PatientTabParamList]}
                 label={label}
                 color={theme.colors.background}
@@ -202,6 +267,12 @@ export function FloatingTabBar({
   );
 }
 
+const labelFont = {
+  fontSize: LABEL_FONT_SIZE,
+  lineHeight: LABEL_LINE_HEIGHT,
+  fontWeight: "600" as const,
+};
+
 const styles = StyleSheet.create({
   wrapper: {
     position: "absolute",
@@ -211,9 +282,9 @@ const styles = StyleSheet.create({
   },
   bar: {
     padding: PADDING,
-    borderRadius: 999,
+    borderRadius: BAR_RADIUS,
     overflow: "hidden",
-    backgroundColor: lightColors.overlayDark,
+    backgroundColor: lightColors.primaryDark,
   },
   row: {
     flexDirection: "row",
@@ -221,24 +292,38 @@ const styles = StyleSheet.create({
     gap: GAP,
   },
   item: {
-    height: ITEM_SIZE,
-    borderRadius: ITEM_SIZE / 2,
+    height: ITEM_HEIGHT,
+    flexBasis: 0, // width comes entirely from the animated flexGrow
+    borderRadius: ITEM_RADIUS,
     overflow: "hidden",
-    backgroundColor: lightColors.overlay_2,
+    backgroundColor: lightColors.overlay_1,
   },
   activeBg: {
-    backgroundColor: lightColors.overlayDark,
-    borderRadius: ITEM_SIZE / 2,
+    backgroundColor: lightColors.overlay,
+    borderRadius: ITEM_RADIUS,
   },
   pressable: {
     flex: 1,
-    flexDirection: "row",
     alignItems: "center",
-    paddingLeft: ICON_PAD,
+    justifyContent: "center",
   },
   label: {
-    marginLeft: LABEL_GAP,
-    fontSize: 16,
-    fontWeight: "600",
+    ...labelFont,
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: STACK_PAD,
+    textAlign: "center",
+  },
+  measureWrap: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    opacity: 0,
+  },
+  // Wide enough that the text never wraps, so line width = natural width.
+  measureText: {
+    ...labelFont,
+    width: 400,
   },
 });

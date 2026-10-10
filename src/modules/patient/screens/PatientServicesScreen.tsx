@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { useAppTheme } from '../../../app/providers/ThemeProvider';
 // import { PatientTabParamList } from '../../../core/navigation/navigation.types';
-import { PatientStackParamList } from '../../../core/navigation/navigation.types';
+import { PatientStackParamList } from '../../../core/navigation/types';
 import { AppButton } from '../../../shared/ui/atoms/AppButton';
 import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
 import { AppInput } from '../../../shared/ui/atoms/AppInput';

@@ -2,21 +2,21 @@
 
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { AuthStackParamList } from './navigation.types';
+import { AuthStackParamList } from '../types';
 
-import { SplashScreen } from '../../modules/auth/screens/SplashScreen';
-import { WelcomeScreen } from '../../modules/auth/screens/WelcomeScreen';
-import { LoginScreen } from '../../modules/auth/screens/LoginScreen';
-import { RegisterScreen } from '../../modules/auth/screens/RegisterScreen';
-import { OtpVerificationScreen } from '../../modules/auth/screens/OtpVerificationScreen';
-import { ForgotPasswordScreen } from '../../modules/auth/screens/ForgotPasswordScreen';
-import { RoleSelectionScreen } from '../../modules/auth/screens/RoleSelectionScreen';
-import LoginViaFile from '../../modules/auth/screens/LoginViaFile';
+import { SplashScreen } from '../../../modules/auth/screens/SplashScreen';
+import { WelcomeScreen } from '../../../modules/auth/screens/WelcomeScreen';
+import { LoginScreen } from '../../../modules/auth/screens/LoginScreen';
+import { RegisterScreen } from '../../../modules/auth/screens/RegisterScreen';
+import { OtpVerificationScreen } from '../../../modules/auth/screens/OtpVerificationScreen';
+import { ForgotPasswordScreen } from '../../../modules/auth/screens/ForgotPasswordScreen';
+import { RoleSelectionScreen } from '../../../modules/auth/screens/RoleSelectionScreen';
+import LoginViaFile from '../../../modules/auth/screens/LoginViaFile';
 import OnboardingScreen from '@/modules/auth/screens/OnboardingScreen';
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
-export function Auth() {
+export function AuthStack() {
 
   return (
     <Stack.Navigator

@@ -4,15 +4,15 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { DoctorTabParamList } from './navigation.types';
-import { useAppTheme } from '../../app/providers/ThemeProvider';
-import { AppIcon, AppIconName } from '../../shared/ui/atoms/AppIcon';
+import { DoctorTabParamList } from '../types';
+import { useAppTheme } from '../../../app/providers/ThemeProvider';
+import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
 
-import { DoctorDashboardScreen } from '../../modules/doctor/screens/DoctorDashboardScreen';
-import { DoctorAppointmentsScreen } from '../../modules/doctor/screens/DoctorAppointmentsScreen';
-import { DoctorPatientsScreen } from '../../modules/doctor/screens/DoctorPatientsScreen';
-import { DoctorMessagesScreen } from '../../modules/doctor/screens/DoctorMessagesScreen';
-import { DoctorProfileScreen } from '../../modules/doctor/screens/DoctorProfileScreen';
+import { DoctorDashboardScreen } from '../../../modules/doctor/screens/DoctorDashboardScreen';
+import { DoctorAppointmentsScreen } from '../../../modules/doctor/screens/DoctorAppointmentsScreen';
+import { DoctorPatientsScreen } from '../../../modules/doctor/screens/DoctorPatientsScreen';
+import { DoctorMessagesScreen } from '../../../modules/doctor/screens/DoctorMessagesScreen';
+import { DoctorProfileScreen } from '../../../modules/doctor/screens/DoctorProfileScreen';
 
 const Tab = createBottomTabNavigator<DoctorTabParamList>();
 

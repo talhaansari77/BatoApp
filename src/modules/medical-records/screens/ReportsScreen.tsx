@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, SectionList, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { ReportsStackParamList } from "../../../core/navigation/navigation.types";
+import { ReportsStackParamList } from "../../../core/navigation/types";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppInput } from "../../../shared/ui/atoms/AppInput";
@@ -102,7 +102,7 @@ function transformReportsToSections(reportsList: ApiReport[]): ReportSection[] {
   }));
 }
 
-export function MedicalReportsScreen({ navigation }: any) {
+export function ReportsScreen({ navigation }: any) {
   const theme = useAppTheme();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -163,6 +163,7 @@ export function MedicalReportsScreen({ navigation }: any) {
     <Screen
       title="Medical Reports"
       subtitle="Review your medical history and diagnostic reports."
+      
     >
       <View style={{ gap: theme.spacing.md }}>
         <AppInput

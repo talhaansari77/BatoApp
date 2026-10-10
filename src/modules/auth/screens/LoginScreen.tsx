@@ -21,7 +21,7 @@ import Animated, {
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Host, Picker } from "@expo/ui";
 
-import { AuthStackParamList } from "../../../core/navigation/navigation.types";
+import { AuthStackParamList } from "../../../core/navigation/types";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";

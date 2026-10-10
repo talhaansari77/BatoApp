@@ -6,9 +6,10 @@ import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { Screen } from "../../../shared/ui/templates/Screen";
-import { PatientStackParamList } from "@/core/navigation/navigation.types";
+import { PatientStackParamList } from "@/core/navigation/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { usePatientAppointmentStore } from "../store/patientAppointment.store";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 const findAppointment = (a: any, aId: any, setAppointment: any) => {
   let result = a.find((a: any) => a.id == aId);
@@ -40,7 +41,7 @@ type props = NativeStackScreenProps<
   "AppointmentDetails"
 >;
 
-export function AppointmentDetailsScreen({ navigation, route }: props) {
+export function AppointmentDetailsScreen({ navigation, route }: any) {
   const appointmentId = route?.params?.appointmentId;
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
@@ -53,7 +54,7 @@ export function AppointmentDetailsScreen({ navigation, route }: props) {
   useEffect(() => {
     findAppointment(appointments, appointmentId, setAppointment);
   }, []);
-
+// const tabBarHeight = useBottomTabBarHeight();
   return (
     <Screen
       title="Appointment Details"
@@ -62,6 +63,7 @@ export function AppointmentDetailsScreen({ navigation, route }: props) {
       actions={[{ icon: "Ellipsis", onPress: () => {} }]}
       footer={
         <AppButton
+        // style={{marginBottom: tabBarHeight+tabBarHeight}}
           title="View Details"
           onPress={() => {
             navigation.navigate("AppointmentMoreDetails", {
@@ -71,6 +73,7 @@ export function AppointmentDetailsScreen({ navigation, route }: props) {
         />
       }
     >
+      
       <View style={styles.card}>
         {/* Status + appointment no. */}
         <View style={styles.topRow}>

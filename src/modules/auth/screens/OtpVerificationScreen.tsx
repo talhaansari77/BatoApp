@@ -14,7 +14,7 @@ import { CompositeScreenProps } from "@react-navigation/native";
 import {
   AuthStackParamList,
   RootStackParamList,
-} from "../../../core/navigation/navigation.types";
+} from "../../../core/navigation/types";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";

@@ -6,7 +6,7 @@ import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { PatientStackParamList } from "@/core/navigation/navigation.types";
+import { PatientStackParamList } from "@/core/navigation/types";
 import { usePatientAppointmentStore } from "../store/patientAppointment.store";
 
 /* ------------------------------------------------------------------ */

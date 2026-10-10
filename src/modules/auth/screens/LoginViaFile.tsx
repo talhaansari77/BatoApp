@@ -16,7 +16,7 @@ import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { useAuthStore } from "../store/auth.store";
 import Assets from "../../../assets";
-import { AuthStackParamList } from "../../../core/navigation/navigation.types";
+import { AuthStackParamList } from "../../../core/navigation/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "LoginViaFile">;

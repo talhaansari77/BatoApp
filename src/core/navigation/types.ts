@@ -24,11 +24,10 @@ export type AuthStackParamList = {
 };
 
 export type PatientTabParamList = {
-  HomeStack: undefined;
-  ServicesStack: undefined;
-  AppointmentsStack: undefined;
-  ProgressStack?: undefined;
-  ProfileStack: undefined;
+  PatientHome: undefined;
+  PatientServices: undefined;
+  PatientAppointments: undefined;
+  PatientProfile: undefined;
 };
 
 export type DoctorTabParamList = {

@@ -2,13 +2,14 @@
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { Auth } from "./AuthNavigator";
-import { RootStackParamList } from "./navigation.types";
+import { AuthStack } from "./Stacks/";
+import { RootStackParamList } from "./types";
 import { useAuthStore } from "../../modules/auth/store/auth.store";
-import { PatientApp } from "./PatientNavigator";
+import { PatientApp } from "./Tabs/PatientTabs";
 import { StyleSheet } from "react-native";
+import { AppointmentDetailsScreen } from "@/modules/patient/screens/AppointmentDetailsScreen";
 
-  const Stack = createNativeStackNavigator<RootStackParamList>();
+  const Stack = createNativeStackNavigator<any>();
 
 export function RootNavigator() {
   const status = useAuthStore((state) => state.status);
@@ -27,8 +28,9 @@ export function RootNavigator() {
       screenOptions={{ headerShown: false }}
     >
       
-      <Stack.Screen name="Auth" component={Auth} />
+      <Stack.Screen name="Auth" component={AuthStack} />
       <Stack.Screen name="PatientApp" component={PatientApp} />
+      
 
       {/* {status === "authenticated" && user ? (
           <Stack.Screen name="PatientApp" component={PatientNavigator} />

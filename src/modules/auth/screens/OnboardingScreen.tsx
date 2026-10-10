@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { RootStackParamList } from "@/core/navigation/navigation.types";
+import { RootStackParamList } from "@/core/navigation/types";
 import Assets from "@/assets";
 import { useAppTheme } from "@/app/providers/ThemeProvider";
 // import type { RootStackParamList } from '../navigation/types';

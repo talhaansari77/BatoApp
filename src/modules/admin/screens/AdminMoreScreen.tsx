@@ -4,7 +4,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 
 import { useAppTheme } from '../../../app/providers/ThemeProvider';
-import { AdminStackParamList } from '../../../core/navigation/navigation.types';
+import { AdminStackParamList } from '../../../core/navigation/types';
 import { AppButton } from '../../../shared/ui/atoms/AppButton';
 import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
 import { AppText } from '../../../shared/ui/atoms/AppText';

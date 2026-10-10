@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Linking, Pressable, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { ReportsStackParamList } from "../../../core/navigation/navigation.types";
+import { ReportsStackParamList } from "../../../core/navigation/types";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
