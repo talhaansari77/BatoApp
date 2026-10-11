@@ -1,6 +1,4 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Pressable } from "react-native";
-import { ArrowLeft } from "lucide-react-native";
 import { ReportDetailsScreen } from "@/modules/medical-records/screens/ReportDetailsScreen";
 import { ReportsScreen } from "@/modules/medical-records/screens/ReportsScreen";
 

@@ -1,6 +1,5 @@
 // Central place for app environment/config values.
 // Later we can move this to Expo env variables.
-const MY_MAC_IP = '0.0.0.0';
 
 export const env = {
   // iOS Simulator can use localhost.

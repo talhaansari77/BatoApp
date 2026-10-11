@@ -1,6 +1,5 @@
 // src/core/navigation/DoctorNavigator.tsx
 
-import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 

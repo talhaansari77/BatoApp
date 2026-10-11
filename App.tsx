@@ -1,6 +1,6 @@
 import "./src/core/i18n/i18n";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";

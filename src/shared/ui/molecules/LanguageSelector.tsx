@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import { Pressable, View } from "react-native";
 
 import { useAppLanguage } from "../../../app/providers/LanguageProvider";

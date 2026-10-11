@@ -1,4 +1,3 @@
-import React from 'react';
 import { Text, TextProps, TextStyle } from 'react-native';
 import { useAppTheme } from '../../../app/providers/ThemeProvider';
 

@@ -1,4 +1,3 @@
-import React from "react";
 import { Image, Platform, useWindowDimensions, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 

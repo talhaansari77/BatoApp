@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Alert, Image, Pressable, Text, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 

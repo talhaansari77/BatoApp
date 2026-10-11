@@ -3,11 +3,8 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { AuthStack } from "./Stacks/";
-import { RootStackParamList } from "./types";
 import { useAuthStore } from "../../modules/auth/store/auth.store";
 import { PatientApp } from "./Tabs/PatientTabs";
-import { StyleSheet } from "react-native";
-import { AppointmentDetailsScreen } from "@/modules/patient/screens/AppointmentDetailsScreen";
 
   const Stack = createNativeStackNavigator<any>();
 
@@ -46,23 +43,3 @@ export function RootNavigator() {
     </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  splashContainer: {
-    flex: 1,
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "#1E293B",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 999, // Keeps splash screen on top
-  },
-  splashImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "contain",
-  },
-});

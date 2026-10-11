@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import { useState } from "react";
 import { AppInput } from "../../../shared/ui/atoms/AppInput";
 import { PhoneNumberInput } from "../../../shared/ui/atoms/PhoneNumberInput";
 import { AppText } from "../../../shared/ui/atoms/AppText";
