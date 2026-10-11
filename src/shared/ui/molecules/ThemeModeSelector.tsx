@@ -176,7 +176,7 @@ export function ThemeModeSelector() {
   return (
     <ThemeToggle
       value={effectiveMode}
-      disabled={theme.isThemeTransitioning}
+      // disabled={theme.isThemeTransitioning}
       onChange={(mode) => {
         void theme.setMode(mode).catch((error) => {
           console.warn("Unable to save theme preference:", error);

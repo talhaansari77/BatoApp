@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { ColorSchemeName, useColorScheme } from 'react-native';
+import { useColorScheme } from 'react-native';
 
 import {
   AppColors,
@@ -24,7 +24,7 @@ const THEME_STORAGE_KEY = 'bato.theme.mode';
 
 type AppTheme = {
   mode: ThemeMode;
-  resolvedMode: Exclude<ColorSchemeName, null>;
+  resolvedMode: 'light' | 'dark';
   colors: AppColors;
   spacing: typeof spacing;
   radius: typeof radius;
@@ -55,8 +55,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     loadThemeMode();
   }, []);
 
+  // Safely fallback systemMode if it's null, undefined, or 'unspecified'
+  const safeSystemMode: 'light' | 'dark' =
+    systemMode === 'dark' ? 'dark' : 'light';
+
   const resolvedMode: 'light' | 'dark' =
-    mode === 'system' ? systemMode ?? 'light' : mode;
+    mode === 'system' ? safeSystemMode : mode;
 
   const setMode = async (nextMode: ThemeMode) => {
     setThemeMode(nextMode);

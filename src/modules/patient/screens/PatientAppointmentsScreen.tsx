@@ -27,6 +27,7 @@ import { CompositeScreenProps } from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { getAppointmentCounts, getFirstName, getStatusColors } from "@/utils";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { EmptyState, ErrorState } from "@/shared/ui/templates/FeedbackStates";
 
 const filters = [
   { label: "All", value: "all" },
@@ -56,11 +57,7 @@ type AppointmentApiResponse = {
   payment_status?: string;
 };
 
-
-
-export function PatientAppointmentsScreen({
-  navigation,
-}: any) {
+export function PatientAppointmentsScreen({ navigation }: any) {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const insets = useSafeAreaInsets();
@@ -307,10 +304,16 @@ export function PatientAppointmentsScreen({
       );
     }
 
-    if (error && !refreshing) {
+    if (!error && !refreshing) {
       return (
+        <>
+        {/* <ErrorState 
+        message={error}
+        onRetry={() => getPatientAppointments(user?.id)}/> */}
+
+
         <View style={styles.emptyContainer}>
-          <View style={styles.errorIconContainer}>
+          <View style={[styles.errorIconContainer,{}]}>
             <AppIcon
               name="AlertCircle"
               size={32}
@@ -340,6 +343,7 @@ export function PatientAppointmentsScreen({
             </AppText>
           </Pressable>
         </View>
+        </>
       );
     }
 
@@ -347,43 +351,21 @@ export function PatientAppointmentsScreen({
       searchQuery.trim().length > 0 || selectedFilter !== "all";
 
     return (
-      <View style={styles.emptyContainer}>
-        <View style={styles.emptyIconContainer}>
-          <AppIcon name="CalendarX" size={36} color={theme.colors.textMuted} />
-        </View>
-        <AppText variant="bodyMedium" style={styles.emptyTitle}>
-          No appointments found
-        </AppText>
-        <AppText
-          variant="caption"
-          color={theme.colors.textMuted}
-          style={styles.emptySubtext}
-        >
-          {isFiltered
+      <EmptyState
+        title="No Appoinments found"
+        description={
+          isFiltered
             ? "No appointments match your search or filter criteria."
-            : "You don't have any appointments scheduled."}
-        </AppText>
-        {isFiltered ? (
-          <Pressable
-            style={({ pressed }) => [
-              styles.clearFilterButton,
-              pressed && styles.btnPressedIn,
-            ]}
-            onPress={() => {
-              setSearchQuery("");
-              setSelectedFilter("all");
-            }}
-          >
-            <AppText
-              variant="caption"
-              color={theme.colors.primaryDark}
-              style={styles.clearFilterButtonText}
-            >
-              Clear Filters
-            </AppText>
-          </Pressable>
-        ) : null}
-      </View>
+            : "You don't have any appointments scheduled."
+        }
+        {...(isFiltered && {
+          actionLabel: "Clear Filters",
+          onAction: () => {
+            setSearchQuery("");
+            setSelectedFilter("all");
+          },
+        })}
+      />
     );
   }, [
     isLoading,
@@ -521,8 +503,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       justifyContent: "center",
     },
     crossSearchBtn: {
-      backgroundColor:theme.colors.greyGlass,
-      borderRadius:99,
+      backgroundColor: theme.colors.greyGlass,
+      borderRadius: 99,
     },
 
     filterRow: {

@@ -5,7 +5,7 @@ import { Screen } from "../../../shared/ui/templates/Screen";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppInput } from "../../../shared/ui/atoms/AppInput";
 import { AuthCard } from "../../../shared/ui/molecules/AuthCard";
-import { AppHeader } from "../../../shared/ui/organisms/AppHeader";
+import { AppHeader } from "../../../shared/ui/molecules/AppHeader";
 import { Pressable, StyleSheet, View } from "react-native";
 import { AppIcon } from "../../../shared/ui/atoms/AppIcon";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
-import { AppHeader } from "../organisms/AppHeader";
+import { AppHeader } from "../molecules/AppHeader";
 
 type ScreenProps = {
   children: React.ReactNode;

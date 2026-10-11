@@ -3,11 +3,11 @@
 // Use the returned string in a WebView (source={{ html }}) or with expo-print.
 
 export interface ReportTestRow {
-  name: string;
-  result: string;
-  status?: "NORMAL" | "HIGH" | "LOW" | string; // shown next to the result
+  test_name: string;
+  test_value: string;
+  flag?: "NORMAL" | "HIGH" | "LOW" | string; // shown next to the result
   unit?: string;
-  ref_range?: string; // use "\n" for multi-line ranges
+  normal_range?: string; // use "\n" for multi-line ranges
   remarks?: string;
 }
 
@@ -57,14 +57,14 @@ export function reportDetail(data: ReportDetailData): string {
     .map(
       (t) => `
       <tr>
-        <td>${escapeHtml(t.name)}</td>
-        <td>${escapeHtml(t.result)}${
-          t.status
-            ? ` <b style="color:${statusColor(t.status)}">${escapeHtml(t.status)}</b>`
+        <td>${escapeHtml(t.test_name)}</td>
+        <td>${escapeHtml(t.test_value)}${
+          t.flag
+            ? ` <b style="color:${statusColor(t.flag)}">${escapeHtml(t.flag)}</b>`
             : ""
         }</td>
         <td>${escapeHtml(t.unit)}</td>
-        <td>${escapeHtml(t.ref_range).replace(/\n/g, "<br/>")}</td>
+        <td>${escapeHtml(t.normal_range).replace(/\n/g, "<br/>")}</td>
         <td>${escapeHtml(t.remarks)}</td>
       </tr>`
     )
