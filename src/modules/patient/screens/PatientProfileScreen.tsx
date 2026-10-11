@@ -36,7 +36,7 @@ const MOCK_PATIENT = {
 };
 
 type CareItemId =
-  "personalSummary" | "treatments" | "medicalInfo" | "documents";
+  "personalSummary" | "treatments" | "medicalInfo" | "reports";
 
 type CareItem = {
   id: CareItemId;
@@ -234,8 +234,8 @@ export function PatientProfileScreen() {
       isExpandable: true,
     },
     {
-      id: "documents",
-      label: t("profile.documents", { defaultValue: "Documents" }),
+      id: "reports",
+      label: t("profile.reports", { defaultValue: "Reports" }),
       icon: "FileText",
       isExpandable: false,
       onPress: () => navigation.navigate("ProfileStack"),

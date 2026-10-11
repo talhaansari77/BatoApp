@@ -1,4 +1,3 @@
-
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Pressable } from "react-native";
 import { ArrowLeft } from "lucide-react-native";
@@ -14,27 +13,41 @@ export function ProfileStack() {
       }}
     >
       <Stack.Screen
-        name="MedicalReports"
-           options={({ navigation }) => ({
-          headerShown: true,
-          title: "Medical Reports",
+  name="MedicalReports"
+  component={ReportsScreen}
+  options={({ navigation }) => ({
+    headerShown: true,
+    title: "Medical Reports",
 
-          headerSearchBarOptions: {
-            placeholder: "Search reports...",
-          },
+    headerTransparent: true,
+    headerBlurEffect: "systemMaterial",
+    headerShadowVisible: false,
+    headerTintColor: "#000",
 
-          headerLeft: () => (
-            <Pressable onPress={() => navigation.goBack()}>
-              <ArrowLeft size={24} color="#000" />
-            </Pressable>
-          ),
-        })}
-        component={ReportsScreen}
-      />
-      <Stack.Screen
-        name="ReportDetails" 
-        component={ReportDetailsScreen}
-      />
+    headerLargeTitle: true,
+    headerLargeTitleShadowVisible: false,
+    headerLargeTitleStyle: {
+      color: "#000",
+    },
+
+    headerSearchBarOptions: {
+      placeholder: "Search reports...",
+      autoCapitalize: "none",
+      hideWhenScrolling: false,
+      hideNavigationBar: false,
+      obscureBackground: false,
+      onChangeText: (event) => {
+        navigation.setParams({
+          searchQuery: event.nativeEvent.text,
+        });
+      },
+      onCancelButtonPress: () => {
+        navigation.setParams({ searchQuery: "" });
+      },
+    },
+  })}
+/>
+      <Stack.Screen name="ReportDetails" component={ReportDetailsScreen} />
     </Stack.Navigator>
   );
 }

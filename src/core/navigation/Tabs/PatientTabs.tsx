@@ -31,7 +31,7 @@ const Stack = createNativeStackNavigator<any>();
 export function PatientTabs() {
   return (
     <Tab.Navigator
-      // initialRouteName="PatientProfile"
+      initialRouteName="PatientProfile"
       tabBar={(props) => <FloatingTabBar {...props} />}
       screenOptions={{
         headerShown: false,
@@ -69,7 +69,9 @@ export function PatientTabs() {
 
 export function PatientApp() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator 
+    // initialRouteName="ProfileStack"
+    screenOptions={{ headerShown: false }}>
       <Stack.Screen name="PatientTabs" component={PatientTabs} />
       <Stack.Screen name="AppointmentsStack" component={AppointmentsStack} />
       <Stack.Screen name="HomeStack" component={HomeStack} />
