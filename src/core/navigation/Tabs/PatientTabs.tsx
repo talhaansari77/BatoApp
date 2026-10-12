@@ -15,7 +15,7 @@ const Stack = createNativeStackNavigator<any>();
 export function PatientTabs() {
   return (
     <Tab.Navigator
-      initialRouteName="PatientProfile"
+      // initialRouteName="PatientProfile"
       tabBar={(props) => <FloatingTabBar {...props} />}
       screenOptions={{
         headerShown: false,

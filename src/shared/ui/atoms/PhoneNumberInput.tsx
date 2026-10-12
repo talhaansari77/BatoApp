@@ -87,6 +87,7 @@ export function PhoneNumberInput({
             styles.input,
             {
               color: theme.colors.text,
+              textAlign: isRTL ? "right" : "left",
             },
             style,
           ]}

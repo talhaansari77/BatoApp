@@ -6,7 +6,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../../app/providers/ThemeProvider';
 import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
 import { AppText } from '../../../shared/ui/atoms/AppText';
-import Assets from '@/assets';
 
 /* ------------------------------------------------------------------ */
 /* Mock data from the design                                           */
@@ -19,7 +18,7 @@ const doctor = {
   price: '$30 KWD',
   priceLabel: 'Per Session',
   // Replace with your own image. A transparent PNG cut-out gives the exact look.
-  image: { uri: Assets.Images.DoctorPicOnline1 },
+  image: { uri: '' },
   about:
     'Dr. Willam James is a board-certified heart expert with over 12 years of experience in the field of cardiovascular medicine. He focuses on preventive cardiology, heart failure care and long-term patient follow-up.',
 };

@@ -8,9 +8,7 @@ import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { LanguageSelector } from "../../../shared/ui/molecules/LanguageSelector";
-import {
-  ThemeModeSelector,
-} from "../../../shared/ui/molecules/ThemeModeSelector";
+import { ThemeModeSelector } from "../../../shared/ui/molecules/ThemeModeSelector";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { useAuthStore } from "../../auth/store/auth.store";
 import {
@@ -35,8 +33,7 @@ const MOCK_PATIENT = {
   allergies: "Penicillin, Peanuts",
 };
 
-type CareItemId =
-  "personalSummary" | "treatments" | "medicalInfo" | "reports";
+type CareItemId = "personalSummary" | "treatments" | "medicalInfo" | "reports";
 
 type CareItem = {
   id: CareItemId;
@@ -295,10 +292,9 @@ export function PatientProfileScreen() {
         {/* Personal Information */}
         <View style={styles.section}>
           <SectionLabel
-            title={t("profile.personalInformation", {
-              defaultValue: "Personal Information",
-            })}
+            title={t("profile.personalInformation", { defaultValue: "Personal Information" })}
           />
+
           <View style={styles.card}>
             <InfoRow
               label={t("profile.dateOfBirth", {
@@ -544,6 +540,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>, isRTL: boolean) {
       // Yoga mirrors inherited row layouts in RTL; keep flexDirection: "row"
       // below to avoid reversing the layout twice.
       direction: isRTL ? "rtl" : "ltr",
+      // writingDirection: isRTL ? "rtl" : "ltr",
       // paddingHorizontal: theme.spacing.lg,
       // paddingBottom: theme.spacing["2xl"],
     },

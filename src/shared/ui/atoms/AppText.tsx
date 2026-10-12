@@ -1,5 +1,6 @@
 import { Text, TextProps, TextStyle } from 'react-native';
 import { useAppTheme } from '../../../app/providers/ThemeProvider';
+import { useAppLanguage } from '@/app/providers/LanguageProvider';
 
 type AppTextVariant = 'h1' | 'h2' | 'h3'| 'h4' | 'body' | 'bodyMedium' | 'caption' | 'small';
 
@@ -17,6 +18,7 @@ export function AppText({
   ...props
 }: AppTextProps) {
   const theme = useAppTheme();
+  const {isRTL} = useAppLanguage();
 
   return (
     <Text
@@ -25,7 +27,7 @@ export function AppText({
         theme.typography[variant],
         {
           color: color ?? theme.colors.text,
-          textAlign: align,
+          textAlign: align || (isRTL ? 'right' : 'left'),
         },
         style,
       ]}

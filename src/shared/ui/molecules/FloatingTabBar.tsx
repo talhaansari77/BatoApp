@@ -23,6 +23,7 @@ import * as Icons from "lucide-react-native";
 import { PatientTabParamList } from "@/core/navigation/types";
 import { lightColors } from "@/theme";
 import { useAppTheme } from "@/app/providers/ThemeProvider";
+import { useTranslation } from "react-i18next";
 
 export type AppIconName = keyof typeof Icons;
 
@@ -98,6 +99,7 @@ function TabItem({
   onPress,
   onLongPress,
 }: TabItemProps) {
+  const { t } = useTranslation();
   // Natural width of the label text, measured by the hidden <Text> below.
   const [textWidth, setTextWidth] = useState(0);
 
@@ -196,7 +198,9 @@ function TabItem({
           ellipsizeMode="clip"
           style={[styles.label, { color }, labelStyle]}
         >
-          {label}
+          {t(`navigation.${label.toLowerCase()}`, {
+            defaultValue: label,
+          })}
         </Animated.Text>
       </Pressable>
     </Animated.View>

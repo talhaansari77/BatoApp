@@ -5,7 +5,6 @@ import {
   NativeSyntheticEvent,
   Pressable,
   TextInput,
-  TextInputKeyPressEventData,
   View,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -117,7 +116,7 @@ export function OtpVerificationScreen({ navigation,route }: Props) {
   // Pressing backspace on an already-empty box moves focus back and clears
   // the previous digit too, matching how most OTP inputs feel to use.
   const handleKeyPress = (
-    event: NativeSyntheticEvent<TextInputKeyPressEventData>,
+    event: NativeSyntheticEvent<{ key: string; eventCount?: number }>,
     index: number,
   ) => {
     if (event.nativeEvent.key === "Backspace" && !otp[index] && index > 0) {

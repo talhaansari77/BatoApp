@@ -8,6 +8,7 @@ import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { useAppLanguage } from "../../../app/providers/LanguageProvider";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Assets } from "assets";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Welcome">;
 
@@ -29,9 +30,9 @@ export function WelcomeScreen({ navigation }: Props) {
         }}
       >
         <Image
-          style={{ height: "100%", width: "100%",}}
+          style={{ height: "100%", width: "100%",opacity:0.6}}
           resizeMode="stretch"
-          source={require("../../../assets/images/welcomeLight.png")}
+          source={Assets.WelcomeLight}
         />
       </View>
 
@@ -48,7 +49,7 @@ export function WelcomeScreen({ navigation }: Props) {
 
         <AppButton
           title="Create Account"
-          variant="outline"
+          variant="white"
           
           onPress={() => navigation.navigate("Register")}
         />

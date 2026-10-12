@@ -19,27 +19,18 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Host, Picker } from "@expo/ui";
 
 import { AuthStackParamList } from "../../../core/navigation/types";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
-import { AppInput } from "../../../shared/ui/atoms/AppInput";
-import { AuthCard } from "../../../shared/ui/molecules/AuthCard";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { useAppLanguage } from "../../../app/providers/LanguageProvider";
-import { authApi } from "../services/auth.Api";
 import { useAuthStore } from "../store/auth.store";
-import CountryPickerField from "../../../shared/ui/atoms/CountryPickerField";
 import { PhoneNumberInput } from "../../../shared/ui/atoms/PhoneNumberInput";
-import Assets from "../../../assets";
-import Icons from "../../../assets/icons";
-import LanguageToggle, {
-  Language,
-} from "../../../shared/ui/molecules/LanguageToggle";
 import { LanguageSelector } from "@/shared/ui/molecules/LanguageSelector";
 import { useTranslation } from "react-i18next";
+import { Assets } from "assets";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -163,11 +154,16 @@ export function LoginScreen({ navigation }: Props) {
         />
       }
     >
-      <View style={{ direction: isRTL ? "rtl" : "ltr", alignItems: "flex-end" }}>
+      <View
+        style={{ direction: isRTL ? "rtl" : "ltr", alignItems: "flex-end" }}
+      >
         {/* <LanguageToggle value={lang} onChange={handleLanguageChange} /> */}
         <LanguageSelector />
       </View>
-      <ScrollView nestedScrollEnabled={true} style={{ direction: isRTL ? "rtl" : "ltr" }}>
+      <ScrollView
+        nestedScrollEnabled={true}
+        style={{ direction: isRTL ? "rtl" : "ltr" }}
+      >
         <View
           style={{
             alignItems: "center",
@@ -176,150 +172,57 @@ export function LoginScreen({ navigation }: Props) {
           }}
         >
           <Image
-            source={Assets.Icons.appIcon}
+            source={Assets.Logo1024}
             style={{ width: "100%", height: 150 }}
             resizeMode="contain"
           />
         </View>
 
         {/* Animates the card's height smoothly whenever its content changes size. */}
-        <Animated.View
-          layout={LinearTransition.springify().damping(18).stiffness(180)}
-          style={{ gap: theme.spacing.md }}
-        >
-          {/* Each method's fields is a distinct keyed element, so Reanimated
-              treats a method switch as an unmount/mount and animates the
-              enter/exit automatically — no manual fade sequencing needed. */}
-          {isMobileLogin ? (
-            <Animated.View
-              key="mobile-fields"
-              entering={FadeIn.duration(200)}
-              exiting={FadeOut.duration(120)}
-              style={{ gap: theme.spacing.md }}
+        <View style={{ gap: theme.spacing.md }}>
+          <View style={{ gap: theme.spacing.md }}>
+            <PhoneNumberInput
+              label={t("auth.phone")}
+              placeholder={t("auth.enterPhone")}
+              value={phoneNumber}
+              onChangeText={(v: string) => {
+                setPhoneNumber(v);
+              }}
+              keyboardType="phone-pad"
+              // maxLength={5}
+              countryCode={countryCode}
+              callingCode={callingCode}
+              onSelect={(country) => {
+                setCountryCode(country.cca2);
+                setCallingCode(country.callingCode[0]);
+              }}
+            />
+
+            <AppText variant="small" color={theme.colors.textMuted}>
+              {t("auth.phoneDescription")}
+            </AppText>
+
+            {/* Login with File Number */}
+            <Pressable
+              onPress={() => navigation.navigate("LoginViaFile")}
+              style={{ marginTop: theme.spacing.md }}
             >
-              <PhoneNumberInput
-                label={t("auth.phone")}
-                placeholder="0000 0000"
-                value={phoneNumber}
-                onChangeText={(v: string) => {
-                  setPhoneNumber(v)
-                }}
-                keyboardType="phone-pad"
-                // maxLength={5}
-                countryCode={countryCode}
-                callingCode={callingCode}
-                onSelect={(country) => {
-                  setCountryCode(country.cca2);
-                  setCallingCode(country.callingCode[0]);
-                }}
-              />
-
-              <AppText variant="small" color={theme.colors.textMuted}
-              style={isRTL && {textAlign: 'left'}}
-              >
-                {t("auth.phoneDescription")}
+              <AppText variant="bodyMedium" color={theme.colors.primaryDark}>
+                {t("auth.loginViaFile")}
               </AppText>
-
-              {/* Login with File Number */}
-              <Pressable
-                onPress={() => navigation.navigate("LoginViaFile")}
-                style={{ marginTop: theme.spacing.md }}
-              >
-                <AppText
-                  variant="bodyMedium"
-                  color={theme.colors.primaryDark}
-                  align={isRTL ? "left" : "right"}
-                >
-                  {t("auth.loginViaFile")}
-                </AppText>
-              </Pressable>
-              {/* Forgot or Reset Password */}
-              <Pressable
-                onPress={() => navigation.navigate("ForgotPassword")}
-                style={{ marginTop: theme.spacing.md }}
-              >
-                <AppText
-                  variant="bodyMedium"
-                  color={theme.colors.primaryDark}
-                  align={isRTL ? "left" : "right"}
-                >
-                  {t("auth.forgotOrResetPassword")}
-                </AppText>
-              </Pressable>
-            </Animated.View>
-          ) : (
-            <Animated.View
-              key="file-fields"
-              entering={FadeIn.duration(200)}
-              exiting={FadeOut.duration(120)}
-              style={{ gap: theme.spacing.md }}
+            </Pressable>
+            {/* Forgot or Reset Password */}
+            
+            <Pressable
+              onPress={() => navigation.navigate("ForgotPassword")}
+              style={{ marginTop: theme.spacing.md }}
             >
-              <AppInput
-                label="File Number"
-                placeholder="Enter File Number"
-                leftIcon="FileText"
-                autoCapitalize="characters"
-                onChangeText={setFileNumber}
-                value={fileNumber}
-              />
-
-              <AppInput
-                label="Civil ID"
-                placeholder="Enter Civil ID"
-                leftIcon="CreditCard"
-                keyboardType="number-pad"
-                onChangeText={setCivilId}
-                value={civilId}
-              />
-
-              <PhoneNumberInput
-                label="Phone"
-                placeholder="0000 0000"
-                // value={countryCode}
-                onChangeText={(v: string) => {}}
-                keyboardType="phone-pad"
-                // maxLength={5}
-                countryCode={countryCode}
-                callingCode={callingCode}
-                onSelect={(country) => {
-                  setCountryCode(country.cca2);
-                  setCallingCode(country.callingCode[0]);
-                }}
-              />
-
-              <AppText variant="small" color={theme.colors.textMuted} align={isRTL ? "right" : "left"}>
-                We'll send the OTP to this number via WhatsApp.
+              <AppText variant="bodyMedium" color={theme.colors.primaryDark}>
+                {t("auth.forgotOrResetPassword")}
               </AppText>
-
-              {/* Login with Mobile Number */}
-              <Pressable
-                onPress={() => handleMethodChange("mobile")}
-                style={{ marginTop: theme.spacing.md }}
-              >
-                <AppText
-                  variant="bodyMedium"
-                  color={theme.colors.primaryDark}
-                  align={isRTL ? "left" : "right"}
-                >
-                  Login via Mobile Number
-                </AppText>
-              </Pressable>
-              {/* Forgot or Reset Password */}
-              <Pressable
-                onPress={() => navigation.navigate("ForgotPassword")}
-                style={{ marginTop: theme.spacing.md }}
-              >
-                <AppText
-                  variant="bodyMedium"
-                  color={theme.colors.primaryDark}
-                  align={isRTL ? "left" : "right"}
-                >
-                  Forgot or Reset Password
-                </AppText>
-              </Pressable>
-            </Animated.View>
-          )}
-        </Animated.View>
+            </Pressable>
+          </View>
+        </View>
       </ScrollView>
     </Screen>
   );

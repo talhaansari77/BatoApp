@@ -10,22 +10,22 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { AppIcon } from "../../../shared/ui/atoms/AppIcon";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { useAppLanguage } from "../../../app/providers/LanguageProvider";
+import { useTranslation } from "react-i18next";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "ForgotPassword">;
 
 export function ForgotPasswordScreen({ navigation }: Props) {
   const theme = useAppTheme();
   const { isRTL } = useAppLanguage();
+  const {t}=useTranslation()
   return (
     <Screen
-      title="Forgot Password"
-      subtitle="Recover your account"
       showBack
       onBackPress={() => navigation.goBack()}
       footer={
         <AppButton
-          title="Send Reset Link"
-          onPress={() => navigation.goBack()}
+          title={t("auth.submit")}
+          onPress={() => navigation.navigate("OtpVerification")}
         />
       }
     >
@@ -39,12 +39,12 @@ export function ForgotPasswordScreen({ navigation }: Props) {
       </Pressable>
 
       <AuthCard
-        title="Reset your password"
-        subtitle="Enter your Phone number and we will send password recovery instructions."
+        title={t("auth.forgotPassword.title")}
+        subtitle={t("auth.forgotPassword.subtitle")}
       >
         <AppInput
-          label="Phone number"
-          placeholder="Enter your Phone number "
+          label={t("auth.forgotPassword.phoneLabel")}
+          placeholder={t("auth.forgotPassword.phonePlaceholder")}
           autoCapitalize="none"
           keyboardType="number-pad"
           leftIcon="Phone"

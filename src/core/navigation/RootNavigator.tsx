@@ -25,7 +25,7 @@ export function RootNavigator() {
 
   return (
     <Stack.Navigator
-      initialRouteName="PatientApp"
+      initialRouteName="PlayGround"
       screenOptions={{ headerShown: false }}
     >
       
@@ -34,10 +34,10 @@ export function RootNavigator() {
       <Stack.Screen name="PlayGround" component={PlayGroundStack} />
       
 
-      {/* {status === "authenticated" && user ? (
-          <Stack.Screen name="PatientApp" component={PatientNavigator} />
+      {/* {status === "authenticated" ? (
+          <Stack.Screen name="PatientApp" component={PatientApp} />
         ) : (
-          <Stack.Screen name="Auth" component={AuthNavigator} />
+          <Stack.Screen name="Auth" component={AuthStack} />
         )} */}
 
       {/* <Stack.Screen name="Auth" component={AuthNavigator} />

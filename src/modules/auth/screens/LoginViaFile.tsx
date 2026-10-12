@@ -16,13 +16,15 @@ import { useAppLanguage } from "../../../app/providers/LanguageProvider";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { Screen } from "../../../shared/ui/templates/Screen";
 import { useAuthStore } from "../store/auth.store";
-import Assets from "../../../assets";
 import { AuthStackParamList } from "../../../core/navigation/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useTranslation } from "react-i18next";
+import { Assets } from "assets";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "LoginViaFile">;
 
 const LoginViaFile = ({ navigation }: Props) => {
+  const { t } = useTranslation();
   const [fileNumber, setFileNumber] = useState("");
   const [civilId, setCivilId] = useState("");
   const [mobileNumber, setMobileNumber] = useState<string>("");
@@ -60,15 +62,15 @@ const LoginViaFile = ({ navigation }: Props) => {
   const { isRTL } = useAppLanguage();
   return (
     <Screen
-      title="LOGIN"
       footer={
         <AppButton
-          title={isLoading ? "Sending Otp" : "Send Otp"}
+          title={isLoading ? t("auth.submitting") : t("auth.submit")}
           loading={isLoading}
           disabled={isLoading}
           onPress={handleSendOtp}
         />
       }
+      
     >
       <ScrollView nestedScrollEnabled={true} style={{ direction: isRTL ? "rtl" : "ltr" }}>
         <View
@@ -79,15 +81,15 @@ const LoginViaFile = ({ navigation }: Props) => {
           }}
         >
           <Image
-            source={Assets.Icons.appIcon}
+            source={Assets.Logo1024}
             style={{ width: "100%", height: 150 }}
             resizeMode="contain"
           />
         </View>
         <View style={{ gap: theme.spacing.md }}>
           <AppInput
-            label="File Number"
-            placeholder="Enter File Number"
+            label={t("auth.fileNumber")}
+            placeholder={t("auth.enterFileNumber")}
             leftIcon="FileText"
             autoCapitalize="characters"
             onChangeText={setFileNumber}
@@ -95,8 +97,8 @@ const LoginViaFile = ({ navigation }: Props) => {
           />
 
           <AppInput
-            label="Civil ID"
-            placeholder="Enter Civil ID"
+            label={t("auth.civilId")}
+            placeholder={t("auth.enterCivilId")}
             leftIcon="CreditCard"
             keyboardType="number-pad"
             onChangeText={setCivilId}
@@ -104,8 +106,8 @@ const LoginViaFile = ({ navigation }: Props) => {
           />
 
           <PhoneNumberInput
-            label="Phone"
-            placeholder="0000 0000"
+            label={t("auth.phone")}
+            placeholder={t("auth.enterPhone")}
             value={mobileNumber}
             onChangeText={(v: string) => {
               setMobileNumber(v);
@@ -120,8 +122,8 @@ const LoginViaFile = ({ navigation }: Props) => {
             }}
           />
 
-          <AppText variant="small" color={theme.colors.textMuted} align={isRTL ? "right" : "left"}>
-            We'll send the OTP to this number via WhatsApp.
+          <AppText variant="small" color={theme.colors.textMuted} >
+            {t("auth.phoneDescription")}
           </AppText>
 
           {/* Login with Mobile Number */}
@@ -137,22 +139,20 @@ const LoginViaFile = ({ navigation }: Props) => {
             <AppText
               variant="bodyMedium"
               color={theme.colors.primaryDark}
-              align={isRTL ? "left" : "right"}
             >
-              Login via Mobile Number
+              {t("auth.loginViaFile")}
             </AppText>
           </Pressable>
           {/* Forgot or Reset Password */}
           <Pressable
-            onPress={() => navigation.goBack()}
+            onPress={() => navigation.navigate("ForgotPassword")}
             style={{ marginTop: theme.spacing.md }}
           >
             <AppText
               variant="bodyMedium"
               color={theme.colors.primaryDark}
-              align={isRTL ? "left" : "right"}
             >
-              Forgot or Reset Password
+              {t("auth.forgotOrResetPassword")}
             </AppText>
           </Pressable>
         </View>

@@ -96,11 +96,11 @@ export const useAuthStore = create<AuthState>((set) => ({
         error: null,
       });
 
-      const data = await authApi.senOtp(payload);
+      const data = await authApi.sendOtp(payload);
 
       //need to review this
       set({
-        status: "authenticated",
+        status: "unauthenticated",
         isLoading: false,
       });
 
@@ -176,8 +176,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       const data = await authApi.register(payload);
 
-      console.log('data')
-      console.log(data)
+      console.log("data");
+      console.log(data);
 
       set({
         status: "unauthenticated",

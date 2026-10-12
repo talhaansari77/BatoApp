@@ -28,6 +28,7 @@ import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { getAppointmentCounts, getFirstName, getStatusColors } from "@/utils";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState, ErrorState } from "@/shared/ui/templates/FeedbackStates";
+import { useTranslation } from "react-i18next";
 
 const filters = [
   { label: "All", value: "all" },
@@ -61,6 +62,7 @@ export function PatientAppointmentsScreen({ navigation }: any) {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const insets = useSafeAreaInsets();
+  const {t}=useTranslation()
 
   const user = useAuthStore((state) => state.user);
   const getPatientAppointments = usePatientAppointmentStore(
@@ -189,7 +191,9 @@ export function PatientAppointmentsScreen({ navigation }: any) {
             </View>
 
             <View style={styles.heroText}>
-              <AppText variant="h2">Appointments</AppText>
+              <AppText variant="h2" align="left">
+                {t("appointments.appointments")}
+              </AppText>
             </View>
           </View>
 
@@ -199,7 +203,7 @@ export function PatientAppointmentsScreen({ navigation }: any) {
                 {upcomingCount}
               </AppText>
               <AppText variant="caption" color={theme.colors.textMuted}>
-                Upcoming
+                {t("appointments.upcoming")}
               </AppText>
             </View>
 
@@ -210,7 +214,7 @@ export function PatientAppointmentsScreen({ navigation }: any) {
                 {pendingCount}
               </AppText>
               <AppText variant="caption" color={theme.colors.textMuted}>
-                Pending
+                {t("appointments.pending")}
               </AppText>
             </View>
           </View>
@@ -221,7 +225,7 @@ export function PatientAppointmentsScreen({ navigation }: any) {
           <AppIcon name="Search" size={20} color={theme.colors.textMuted} />
 
           <TextInput
-            placeholder="Search by name, ID or appointment no."
+            placeholder={t("appointments.searchPlaceholder")}
             placeholderTextColor={theme.colors.textMuted}
             style={styles.searchInput}
             value={searchQuery}
@@ -268,7 +272,7 @@ export function PatientAppointmentsScreen({ navigation }: any) {
                   }
                   style={isSelected ? styles.selectedFilterText : undefined}
                 >
-                  {filter.label}
+                  {t(`appointments.${filter.label.toLocaleLowerCase()}`)}
                 </AppText>
               </Pressable>
             );
@@ -304,46 +308,12 @@ export function PatientAppointmentsScreen({ navigation }: any) {
       );
     }
 
-    if (!error && !refreshing) {
+    if (error && !refreshing) {
       return (
-        <>
-        {/* <ErrorState 
-        message={error}
-        onRetry={() => getPatientAppointments(user?.id)}/> */}
-
-
-        <View style={styles.emptyContainer}>
-          <View style={[styles.errorIconContainer,{}]}>
-            <AppIcon
-              name="AlertCircle"
-              size={32}
-              color={theme.colors.errorText}
-            />
-          </View>
-          <AppText variant="bodyMedium" style={styles.emptyTitle}>
-            Failed to load appointments
-          </AppText>
-          <AppText
-            variant="caption"
-            color={theme.colors.textMuted}
-            style={styles.emptySubtext}
-          >
-            {error}
-          </AppText>
-          <Pressable
-            style={styles.retryButton}
-            onPress={() => getPatientAppointments(user?.id)}
-          >
-            <AppText
-              variant="caption"
-              color={theme.colors.card}
-              style={styles.retryButtonText}
-            >
-              Try Again
-            </AppText>
-          </Pressable>
-        </View>
-        </>
+        <ErrorState
+          message={error}
+          onRetry={() => getPatientAppointments(user?.id)}
+        />
       );
     }
 

@@ -10,6 +10,7 @@ import { ThemeProvider, useAppTheme } from "./src/app/providers/ThemeProvider";
 import { RootNavigator } from "./src/core/navigation/RootNavigator";
 import { useAuthStore } from "./src/modules/auth/store/auth.store";
 import * as SplashScreen from 'expo-splash-screen';
+import { LogBox } from "react-native";
 
 
 SplashScreen.setOptions({
@@ -17,6 +18,12 @@ SplashScreen.setOptions({
   fade: true,
 });
 
+// Ignore specific warning messages (partial text matching works)
+// LogBox.ignoreLogs([
+//   'statusBarStyle',
+//   'TextInputKeyPressEventData',
+// ]);
+LogBox.ignoreAllLogs(); // Hides all yellow warning boxes
 
 function AppContent() {
   const theme = useAppTheme();

@@ -12,8 +12,8 @@ import { useAppLanguage } from "../../../app/providers/LanguageProvider";
 import { useAuthStore } from "../store/auth.store";
 import { LoginScreen } from "./LoginScreen";
 import axios from "axios";
-import Assets from "../../../assets";
 import { PhoneNumberInput } from "../../../shared/ui/atoms/PhoneNumberInput";
+import { Assets } from "assets";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Register">;
 
@@ -408,7 +408,7 @@ export function RegisterScreen({ navigation }: Props) {
       }
     >
       <Image
-        source={Assets.Icons.appIcon}
+        source={Assets.Logo1024}
         style={{
           width: 100,
           height: 100,

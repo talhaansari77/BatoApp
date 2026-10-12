@@ -9,6 +9,7 @@ import {
 import { useAppTheme } from '../../../app/providers/ThemeProvider';
 import { AppText } from './AppText';
 import { AppIcon, AppIconName } from './AppIcon';
+import { useAppLanguage } from '@/app/providers/LanguageProvider';
 
 type AppInputProps = TextInputProps & {
   label?: string;
@@ -29,6 +30,7 @@ export function AppInput({
   ...props
 }: AppInputProps) {
   const theme = useAppTheme();
+  const { isRTL } = useAppLanguage();
 
   return (
     <View style={styles.wrapper}>
@@ -67,6 +69,7 @@ export function AppInput({
             styles.input,
             {
               color: theme.colors.text,
+              textAlign: isRTL ? "right" : "left",
             },
             style,
           ]}

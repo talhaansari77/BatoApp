@@ -10,6 +10,7 @@ import { PatientStackParamList } from "@/core/navigation/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { usePatientAppointmentStore } from "../store/patientAppointment.store";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useTranslation } from "react-i18next";
 
 const findAppointment = (a: any, aId: any, setAppointment: any) => {
   let result = a.find((a: any) => a.id == aId);
@@ -44,6 +45,7 @@ type props = NativeStackScreenProps<
 export function AppointmentDetailsScreen({ navigation, route }: any) {
   const appointmentId = route?.params?.appointmentId;
   const theme = useAppTheme();
+  const {t}=useTranslation()
   const styles = useMemo(() => createStyles(theme), [theme]);
   const [appointment, setAppointment] = useState<any>();
 
@@ -57,14 +59,14 @@ export function AppointmentDetailsScreen({ navigation, route }: any) {
 // const tabBarHeight = useBottomTabBarHeight();
   return (
     <Screen
-      title="Appointment Details"
+      title={t("appointments.details")}
       showBack
       onBackPress={() => {}}
       actions={[{ icon: "Ellipsis", onPress: () => {} }]}
       footer={
         <AppButton
         // style={{marginBottom: tabBarHeight+tabBarHeight}}
-          title="View Details"
+          title={t("appointments.details.viewDetails")}
           onPress={() => {
             navigation.navigate("AppointmentMoreDetails", {
               appointmentId: appointmentId,
@@ -104,11 +106,11 @@ export function AppointmentDetailsScreen({ navigation, route }: any) {
 
             <View style={styles.idRow}>
               <AppText variant="caption" color={theme.colors.textMuted}>
-                Patient ID: {appointment?.patientId}
+                {t("appointments.details.aptientId")}: {appointment?.patientId}
               </AppText>
               <View style={styles.inlineDivider} />
               <AppText variant="caption" color={theme.colors.textMuted}>
-                File No: {appointment?.fileNo}
+                {t("appointments.details.fileNumber")}: {appointment?.fileNo}
               </AppText>
             </View>
           </View>
@@ -168,22 +170,22 @@ export function AppointmentDetailsScreen({ navigation, route }: any) {
 
         {/* Payment summary */}
         <View style={styles.summaryBox}>
-          <SummaryRow label="Sub Total" value={appointment?.subTotal} />
-          <SummaryRow label="Discount" value={appointment?.discount} />
-          <SummaryRow label="Extra Amount" value={appointment?.extraAmount} />
+          <SummaryRow label={t("appointments.details.subTotal")} value={appointment?.subTotal} />
+          <SummaryRow label={t("appointments.details.discount")} value={appointment?.discount} />
+          <SummaryRow label={t("appointments.details.extraAmount")} value={appointment?.extraAmount} />
 
           <View style={styles.divider} />
 
           <SummaryRow
-            label="Full Amount"
+            label={t("appointments.details.fullAmount")}
             value={appointment?.fullAmount}
             strong
           />
 
           <View style={styles.divider} />
 
-          <SummaryRow label="Paid Amount" value={appointment?.paidAmount} />
-          <SummaryRow label="Due Amount" value={appointment?.dueAmount} accent />
+          <SummaryRow label={t("appointments.details.paidAmount")} value={appointment?.paidAmount} />
+          <SummaryRow label={t("appointments.details.dueAmount")} value={appointment?.dueAmount} accent />
         </View>
       </View>
     </Screen>

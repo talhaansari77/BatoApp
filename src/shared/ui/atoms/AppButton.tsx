@@ -8,7 +8,7 @@ import {
 import { useAppTheme } from '../../../app/providers/ThemeProvider';
 import { AppText } from './AppText';
 
-type AppButtonVariant = 'primary' | 'outline' | 'ghost';
+type AppButtonVariant = 'primary' | 'outline' | 'ghost'|'white';
 
 type AppButtonProps = PressableProps & {
   title: string;
@@ -44,6 +44,13 @@ export function AppButton({
       return {
         backgroundColor: 'transparent',
         borderColor: 'transparent',
+        borderWidth: 1,
+      };
+    }
+    if (variant === 'white') {
+      return {
+        backgroundColor: theme.colors.nude,
+        borderColor: theme.colors.nude,
         borderWidth: 1,
       };
     }

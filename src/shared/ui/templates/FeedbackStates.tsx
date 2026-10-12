@@ -8,10 +8,11 @@ import { AppIcon, AppIconName } from "../atoms/AppIcon";
 
 type StateMessageProps = {
   title: string;
-  description?: string;
+  description?: string | null;
   actionLabel?: string;
   icon?: AppIconName;
   onAction?: () => void;
+  status?: "error" | "warning" | "info" | "success";
 };
 
 function StateMessage({
@@ -20,26 +21,30 @@ function StateMessage({
   actionLabel,
   icon = "CalendarX",
   onAction,
+  status,
 }: StateMessageProps) {
   const theme = useAppTheme();
   const styles = createStyles(theme);
   return (
-    <>
-      <View style={styles.emptyContainer}>
-        <View style={styles.emptyIconContainer}>
-          <AppIcon
-            name={icon}
-            size={36}
-            color={
-              icon == "AlertCircle"
-                ? theme.colors.errorText
-                : theme.colors.textMuted
-            }
-          />
-        </View>
-        <AppText variant="bodyMedium" style={styles.emptyTitle}>
-          {title}
-        </AppText>
+    <View style={styles.emptyContainer}>
+      <View
+        style={[
+          styles.emptyIconContainer,
+          status === "error" && { backgroundColor: theme.colors.error },
+        ]}
+      >
+        <AppIcon
+          name={icon}
+          size={36}
+          color={
+            status === "error" ? theme.colors.errorText : theme.colors.textMuted
+          }
+        />
+      </View>
+      <AppText variant="bodyMedium" style={styles.emptyTitle}>
+        {title}
+      </AppText>
+      {description && (
         <AppText
           variant="caption"
           color={theme.colors.textMuted}
@@ -47,25 +52,26 @@ function StateMessage({
         >
           {description}
         </AppText>
-        {actionLabel && onAction ? (
-          <Pressable
-            style={({ pressed }) => [
-              styles.clearFilterButton,
-              pressed && styles.btnPressedIn,
-            ]}
-            onPress={onAction}
+      )}
+
+      {actionLabel && onAction ? (
+        <Pressable
+          style={({ pressed }) => [
+            styles.clearFilterButton,
+            pressed && styles.btnPressedIn,
+          ]}
+          onPress={onAction}
+        >
+          <AppText
+            variant="caption"
+            color={theme.colors.inverted}
+            style={styles.clearFilterButtonText}
           >
-            <AppText
-              variant="caption"
-              color={theme.colors.primaryDark}
-              style={styles.clearFilterButtonText}
-            >
-              {actionLabel}
-            </AppText>
-          </Pressable>
-        ) : null}
-      </View>
-    </>
+            {actionLabel}
+          </AppText>
+        </Pressable>
+      ) : null}
+    </View>
   );
 }
 
@@ -95,19 +101,22 @@ export function EmptyState({
 type ErrorStateProps = {
   message?: string | null;
   onRetry: () => void;
+  title?: string;
 };
 
 export function ErrorState({
-  message = "Something went wrong. Please try again.",
+  title,
+  message,
   onRetry,
 }: ErrorStateProps) {
   return (
     <StateMessage
-      title="Failed to load appointments"
-      description={message || "Something went wrong. Please try again."}
+      title={title || "Failed to load Appointments"}
+      description={message}
       actionLabel="Try again"
       onAction={onRetry}
       icon="AlertCircle"
+      status="error"
     />
   );
 }
@@ -185,7 +194,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
       paddingHorizontal: theme.spacing.xl,
       paddingVertical: theme.spacing.sm,
       borderRadius: theme.radius.full,
-      backgroundColor: theme.colors.card,
+      backgroundColor: theme.colors.primary,
     },
     btnPressedIn: {
       opacity: 0.8,

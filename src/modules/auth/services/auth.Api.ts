@@ -70,7 +70,7 @@ export type MeResponse = {
 };
 
 export const authApi = {
-  async senOtp(payload: OtpPayload) {
+  async sendOtp(payload: OtpPayload) {
     const response = await apiClient.post<OtpResponse>(
       "/patient/send-otp",
       payload,

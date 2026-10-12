@@ -15,7 +15,6 @@ import {
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { AppText } from "@/shared/ui/atoms/AppText";
 import { AppIcon } from "@/shared/ui/atoms/AppIcon";
-import Assets from "@/assets";
 import { HeartPlus } from "lucide-react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faHeart, faStar } from "@fortawesome/free-solid-svg-icons";
@@ -296,7 +295,7 @@ const navigation = useNavigation<any>();
       priceLabel="Per Session"
       rating={4.9}
       onPress={()=>{navigation.navigate("DoctorDetails")}}
-      imageSource={{ uri: Assets.Images.DoctorPicOnline1 }}
+      imageSource={{ uri: '' }}
       isFavorite={isFav}
       onFavoritePress={() => setIsFav((v) => !v)}
       month="December"

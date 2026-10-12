@@ -16,9 +16,9 @@ import {
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RootStackParamList } from "@/core/navigation/types";
-import Assets from "@/assets";
 import { useAppTheme } from "@/app/providers/ThemeProvider";
 import { useAppLanguage } from "@/app/providers/LanguageProvider";
+import { Assets } from "assets";
 // import type { RootStackParamList } from '../navigation/types';
 
 const { width } = Dimensions.get("window");
@@ -44,21 +44,21 @@ interface SlideItem {
 const SLIDES: SlideItem[] = [
   {
     id: "1",
-    image: Assets.Icons.appIcon,
+    image: Assets.Logo1024,
     title: "",
     description:
       "Welcome to BATO –  Where beauty and health meet",
   },
   {
     id: "2",
-    image: Assets.Icons.appIcon,
+    image: Assets.OnBoarding01,
     title: "Seamless Booking",
     description:
       "At BATO – we aspire to give you the best results through a customized plan made specifically for you.",
   },
   {
     id: "3",
-    image: Assets.Icons.appIcon,
+    image: Assets.OnBoarding02,
     title: "Your Beauty Routine",
     description:
       "Track treatments, view recommendations, and unlock VIP member perks.",
