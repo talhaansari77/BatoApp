@@ -7,6 +7,7 @@ import {
 } from "lucide-react-native";
 import { ProductsScreen } from "@/shared/ui/templates/ProductsScreen";
 import Testing from "@/shared/ui/templates/Testing";
+import ProductListScreen from "@/shared/ui/templates/SearchWithFilters/ProductListScreen";
 
 const Stack = createNativeStackNavigator<any>();
 
@@ -14,6 +15,7 @@ const Stack = createNativeStackNavigator<any>();
 export function PlayGroundStack() {
   return (
     <Stack.Navigator>
+        <Stack.Screen name="ProductListScreen" component={ProductListScreen} />
         <Stack.Screen name="Testing" component={Testing} />
       <Stack.Screen
         name="Health & Beauty"
