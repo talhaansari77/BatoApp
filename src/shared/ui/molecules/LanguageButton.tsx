@@ -17,7 +17,7 @@ interface LanguageToggleProps {
 
 const TOGGLE_HEIGHT = 40;
 
-const LanguageToggleOne = ({
+const LanguageButton = ({
   value,
   onChange,
   style,
@@ -40,7 +40,7 @@ const LanguageToggleOne = ({
     >
       <Languages size={18} color="#1A1D1E" style={styles.icon} />
       <Text style={[styles.label, value === 'ar' && styles.arabicLabel]}>
-        {value === 'en' ? 'English' : 'العربية'}
+        {value !== 'en' ? 'English' : 'العربية'}
       </Text>
     </TouchableOpacity>
   );
@@ -77,4 +77,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LanguageToggleOne;
+export default LanguageButton;

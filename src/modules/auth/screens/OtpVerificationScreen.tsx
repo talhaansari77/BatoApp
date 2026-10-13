@@ -154,7 +154,7 @@ export function OtpVerificationScreen({ navigation,route }: Props) {
     try {
       clearError();
       await login(LoginPayload);
-      // console.log("UserStatus",status)
+      console.log("UserStatus",status)
       if (status == "authenticated") navigation.navigate("PatientApp");
     } catch {
       Alert.alert(

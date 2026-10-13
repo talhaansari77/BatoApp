@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   ShoppingBag,
 } from "lucide-react-native";
-import { ProductsScreen } from "@/shared/ui/templates/ProductsScreen";
 import Testing from "@/shared/ui/templates/Testing";
 import Search from "@/shared/ui/templates/SearchWithFilters/Search";
 
@@ -15,7 +14,7 @@ const Stack = createNativeStackNavigator<any>();
 export function PlayGroundStack() {
   return (
     <Stack.Navigator>
-        <Stack.Screen name="Search" component={Search} />
+        <Stack.Screen name="FilterTest" component={Search} />
         <Stack.Screen name="Testing" component={Testing} />
       <Stack.Screen
         name="Health & Beauty"

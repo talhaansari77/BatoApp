@@ -20,7 +20,7 @@ import {
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
-const THEME_STORAGE_KEY = 'bato.theme.mode';
+export const THEME_STORAGE_KEY = 'themeMode';
 
 type AppTheme = {
   mode: ThemeMode;
@@ -62,7 +62,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const resolvedMode: 'light' | 'dark' =
     mode === 'system' ? safeSystemMode : mode;
 
-  const setMode = async (nextMode: ThemeMode) => {
+   const setMode = async (nextMode: ThemeMode) => {
     setThemeMode(nextMode);
     await AsyncStorage.setItem(THEME_STORAGE_KEY, nextMode);
   };

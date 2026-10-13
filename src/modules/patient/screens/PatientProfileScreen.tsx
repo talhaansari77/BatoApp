@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { useNavigation } from "@react-navigation/native";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 
 import { useAppLanguage } from "../../../app/providers/LanguageProvider";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
@@ -496,9 +496,14 @@ export function PatientProfileScreen() {
 
         {/* Sign Out Button */}
         <Pressable
-          onPress={() => {
-            logout();
-            navigation.navigate("Auth");
+          onPress={async () => {
+            await logout();
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: "Auth" }],
+              })
+            );
           }}
           disabled={isLoading}
           style={({ pressed }) => [

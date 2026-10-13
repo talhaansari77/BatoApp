@@ -158,7 +158,7 @@ export function LoginScreen({ navigation }: Props) {
         style={{ direction: isRTL ? "rtl" : "ltr", alignItems: "flex-end" }}
       >
         {/* <LanguageToggle value={lang} onChange={handleLanguageChange} /> */}
-        <LanguageSelector />
+        <LanguageSelector withToggle />
       </View>
       <ScrollView
         nestedScrollEnabled={true}
@@ -198,7 +198,7 @@ export function LoginScreen({ navigation }: Props) {
               }}
             />
 
-            <AppText variant="small" color={theme.colors.textMuted}>
+            <AppText variant="small" color={theme.colors.textMuted} align="right">
               {t("auth.phoneDescription")}
             </AppText>
 
@@ -212,7 +212,7 @@ export function LoginScreen({ navigation }: Props) {
               </AppText>
             </Pressable>
             {/* Forgot or Reset Password */}
-            
+
             <Pressable
               onPress={() => navigation.navigate("ForgotPassword")}
               style={{ marginTop: theme.spacing.md }}

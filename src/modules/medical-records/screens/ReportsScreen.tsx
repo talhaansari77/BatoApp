@@ -9,6 +9,16 @@ import { AppInput } from "../../../shared/ui/atoms/AppInput";
 import { AppIcon } from "../../../shared/ui/atoms/AppIcon";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { usePatientReportsStore } from "./store/patientReports.store";
+import {
+  DateFilter,
+  FilterModal,
+  getDateRange,
+} from "@/shared/ui/templates/SearchWithFilters/molecules/FilterModal";
+import { DEFAULT_FILTER } from "@/shared/ui/templates/SearchWithFilters/Search";
+import {
+  mockAppointments,
+  mockReportList,
+} from "@/shared/ui/templates/SearchWithFilters/molecules/mock";
 
 type Props = NativeStackScreenProps<ReportsStackParamList, "MedicalReports">;
 
@@ -107,11 +117,15 @@ export function ReportsScreen({ navigation }: any) {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterKey>("all");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [applied, setApplied] = useState<DateFilter>(DEFAULT_FILTER);
 
   const storeReports = usePatientReportsStore(
-    (state) => state.reports
+    (state) => state.reports,
   ) as unknown as ApiReportsResponse | ApiReport[] | null;
-  const getMedicalReports = usePatientReportsStore((state) => state.getMedicalReports);
+  const getMedicalReports = usePatientReportsStore(
+    (state) => state.getMedicalReports,
+  );
 
   useEffect(() => {
     getMedicalReports();
@@ -119,19 +133,21 @@ export function ReportsScreen({ navigation }: any) {
 
   // Works whether the store holds the full response object or just the reports array
   const rawReports: ApiReport[] = useMemo(() => {
+    // return mockReportList
     if (!storeReports) return [];
-    return Array.isArray(storeReports) ? storeReports : storeReports.reports ?? [];
+    return Array.isArray(storeReports)
+      ? storeReports
+      : (storeReports.reports ?? []);
   }, [storeReports]);
 
   const sections = useMemo(() => {
-    // Date range filter
-    const days = DAYS_BY_FILTER[activeFilter];
-    const now = Date.now();
+    // Date range filter (week / month / quarter / all / custom from–to)
+    const range = getDateRange(applied); // null = "all"
 
-    const dateFiltered = days
+    const dateFiltered = range
       ? rawReports.filter((r) => {
-          const diffDays = (now - new Date(r.report_date).getTime()) / 86400000;
-          return diffDays <= days;
+          const d = new Date(r.report_date);
+          return d >= range.from && d <= range.to;
         })
       : rawReports;
 
@@ -147,11 +163,11 @@ export function ReportsScreen({ navigation }: any) {
             report.doctorName.toLowerCase().includes(query) ||
             report.date.toLowerCase().includes(query) ||
             report.tags.some((tag) => tag.toLowerCase().includes(query)) ||
-            (report.note && report.note.toLowerCase().includes(query))
+            (report.note && report.note.toLowerCase().includes(query)),
         ),
       }))
       .filter((section) => section.data.length > 0);
-  }, [rawReports, searchTerm, activeFilter]);
+  }, [rawReports, searchTerm, applied]); // activeFilter → applied
 
   // Navigate using the report_token
   const handleOpenReport = (report: MedicalReportSummary) => {
@@ -163,55 +179,46 @@ export function ReportsScreen({ navigation }: any) {
     <Screen
       title="Medical Reports"
       subtitle="Review your medical history and diagnostic reports."
-      
     >
+      <FilterModal
+        visible={filterOpen}
+        appliedFilters={applied}
+        onApply={(f: DateFilter) => {
+          setApplied(f);
+          setFilterOpen(false);
+        }}
+        onReset={() => setApplied(DEFAULT_FILTER)}
+        onClose={() => setFilterOpen(false)}
+      />
+
       <View style={{ gap: theme.spacing.md }}>
         <AppInput
           placeholder="Search by doctor, test, date, conclusion..."
           leftIcon="Search"
           value={searchTerm}
           onChangeText={setSearchTerm}
+          rightIcon="SlidersHorizontal"
+          onRightIconPress={() => setFilterOpen(true)}
         />
-
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-          {FILTERS.map((filter) => {
-            const isActive = filter.key === activeFilter;
-            return (
-              <Pressable
-                key={filter.key}
-                onPress={() => setActiveFilter(filter.key)}
-                style={{
-                  paddingVertical: 8,
-                  paddingHorizontal: 16,
-                  borderRadius: 20,
-                  backgroundColor: isActive
-                    ? theme.colors.primary ?? "#B08968"
-                    : theme.colors.cardMuted,
-                }}
-              >
-                <AppText
-                  variant="bodyMedium"
-                  color={isActive ? "#FFFFFF" : theme.colors.textMuted}
-                >
-                  {filter.label}
-                </AppText>
-              </Pressable>
-            );
-          })}
-        </View>
       </View>
 
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
         scrollEnabled={false}
-        contentContainerStyle={{ gap: theme.spacing.sm, paddingTop: theme.spacing.md }}
+        contentContainerStyle={{
+          gap: theme.spacing.sm,
+          paddingTop: theme.spacing.md,
+        }}
         stickySectionHeadersEnabled={false}
         renderSectionHeader={({ section }) => (
           <AppText
             variant="bodyMedium"
             color={theme.colors.textMuted}
-            style={{ marginTop: theme.spacing.md, marginBottom: theme.spacing.xs }}
+            style={{
+              marginTop: theme.spacing.md,
+              marginBottom: theme.spacing.xs,
+            }}
           >
             {section.title}
           </AppText>
@@ -220,7 +227,10 @@ export function ReportsScreen({ navigation }: any) {
           <ReportCard report={item} onPress={() => handleOpenReport(item)} />
         )}
         ListEmptyComponent={
-          <AppText color={theme.colors.textMuted} style={{ marginTop: theme.spacing.lg }}>
+          <AppText
+            color={theme.colors.textMuted}
+            style={{ marginTop: theme.spacing.lg }}
+          >
             No reports match your search.
           </AppText>
         }
@@ -261,7 +271,14 @@ function ReportCard({
           {report.date}
         </AppText>
 
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 2 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: 6,
+            marginTop: 2,
+          }}
+        >
           {report.tags.map((tag, index) => (
             <View
               key={`${tag}-${index}`}
@@ -280,7 +297,11 @@ function ReportCard({
         </View>
 
         {report.note ? (
-          <AppText variant="small" color={theme.colors.textMuted} style={{ marginTop: 2 }}>
+          <AppText
+            variant="small"
+            color={theme.colors.textMuted}
+            style={{ marginTop: 2 }}
+          >
             {report.note}
           </AppText>
         ) : null}
