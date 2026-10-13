@@ -45,6 +45,7 @@ export function OtpVerificationScreen({ navigation,route }: Props) {
   const clearError = useAuthStore((state) => state.clearError);
   const login = useAuthStore((state) => state.login);
   const status = useAuthStore((state) => state.status);
+  const isLoading = useAuthStore((state) => state.isLoading);
 
   const inputRefs = useRef<Array<TextInput | null>>([]);
 
@@ -152,8 +153,8 @@ export function OtpVerificationScreen({ navigation,route }: Props) {
 
     try {
       clearError();
-
-      const response = await login(LoginPayload);
+      await login(LoginPayload);
+      // console.log("UserStatus",status)
       if (status == "authenticated") navigation.navigate("PatientApp");
     } catch {
       Alert.alert(
@@ -162,6 +163,8 @@ export function OtpVerificationScreen({ navigation,route }: Props) {
       );
     }
   };
+
+  useEffect(()=>{},[status])
 
   return (
     <Screen
@@ -173,7 +176,8 @@ export function OtpVerificationScreen({ navigation,route }: Props) {
         <AppButton
           title="Verify OTP"
           onPress={handleVerityOtp}
-          disabled={!isComplete}
+          loading={isLoading}
+          disabled={!isComplete ||isLoading}
         />
       }
     >

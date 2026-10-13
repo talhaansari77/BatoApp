@@ -100,7 +100,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       //need to review this
       set({
-        status: "unauthenticated",
         isLoading: false,
       });
 

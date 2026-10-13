@@ -194,7 +194,7 @@ export default function ProductListScreen() {
       <StatusBar barStyle="dark-content" />
 
       <View style={styles.header}>
-        <Text style={styles.title}>Products</Text>
+        {/* <Text style={styles.title}>Products</Text> */}
         <Text style={styles.count}>
           {results.length} of {ALL_PRODUCTS.length}
         </Text>

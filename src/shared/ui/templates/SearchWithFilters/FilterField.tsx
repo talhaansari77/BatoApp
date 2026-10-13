@@ -1,21 +1,10 @@
-/**
- * FilterField renders the appropriate input for each FilterConfig type.
- *
- * expo/ui used:   Switch (boolean filters), TextInput (text filters)
- * RN fallbacks:   TouchableOpacity for single/multi-select,
- *                 TextInput from RN for number-range (expo/ui TextInput is used for text filters)
- *                 DateTimePicker from @react-native-community/datetimepicker
- *
- * Expo UI does NOT provide a Picker, Checkbox, or DatePicker component.
- * expo-checkbox is used for multi-select checkboxes.
- */
+
 
 import React from "react";
 import {
   View,
   Text,
   TouchableOpacity,
-  TextInput as RNTextInput,
   StyleSheet,
   Platform,
   TextInput,
@@ -210,7 +199,7 @@ const DateField: React.FC<{
           value={date}
           mode="date"
           display={Platform.OS === "ios" ? "inline" : "default"}
-          onChange={(_, selected) => {
+          onValueChange={(_, selected) => {
             setShow(Platform.OS === "ios");
             if (selected) onChange(selected.toISOString().split("T")[0]);
           }}
@@ -239,7 +228,7 @@ const NumberRangeField: React.FC<{
       <Text style={styles.label}>{config.label}</Text>
       {/* ⚠️ RN TextInput fallback — expo/ui TextInput lacks numeric keyboard + range concept */}
       <View style={styles.rangeRow}>
-        <RNTextInput
+        <TextInput
           style={[styles.textInput, styles.rangeInput]}
           placeholder={config.min !== undefined ? `Min (${config.min})` : "Min"}
           value={current.min !== undefined ? String(current.min) : ""}
@@ -248,7 +237,7 @@ const NumberRangeField: React.FC<{
           accessibilityLabel={`${config.label} minimum`}
         />
         <Text style={styles.rangeSeparator}>–</Text>
-        <RNTextInput
+        <TextInput
           style={[styles.textInput, styles.rangeInput]}
           placeholder={config.max !== undefined ? `Max (${config.max})` : "Max"}
           value={current.max !== undefined ? String(current.max) : ""}

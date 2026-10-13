@@ -25,7 +25,7 @@ export function RootNavigator() {
 
   return (
     <Stack.Navigator
-      initialRouteName="PlayGround"
+      // initialRouteName="PlayGround"
       screenOptions={{ headerShown: false }}
     >
       

@@ -5,7 +5,7 @@ import {
   StyleSheet,
   Text,
   Platform,
-  TextInput
+  TextInput,
 } from "react-native";
 
 import { FilterConfig, FilterValues, SearchWithFiltersProps } from "./types";
@@ -14,7 +14,7 @@ import { AppIcon } from "../../atoms/AppIcon";
 
 function countActiveFilters(
   filters: FilterConfig[],
-  applied: FilterValues
+  applied: FilterValues,
 ): number {
   return filters.reduce((count, f) => {
     const val = applied[f.key];
@@ -30,7 +30,9 @@ function countActiveFilters(
       return count;
     // Exclude if matches default
     const defaultVal =
-      "defaultValue" in f ? (f as { defaultValue?: unknown }).defaultValue : undefined;
+      "defaultValue" in f
+        ? (f as { defaultValue?: unknown }).defaultValue
+        : undefined;
     if (JSON.stringify(val) === JSON.stringify(defaultVal)) return count;
     return count + 1;
   }, 0);
@@ -60,7 +62,7 @@ export const SearchWithFilters: React.FC<SearchWithFiltersProps> = ({
       setQuery(text);
       onQueryChange?.(text);
     },
-    [onQueryChange]
+    [onQueryChange],
   );
 
   const handleClear = useCallback(() => {
@@ -79,7 +81,7 @@ export const SearchWithFilters: React.FC<SearchWithFiltersProps> = ({
       onFiltersApply?.(next);
       onSearch?.(query, next);
     },
-    [query, onFiltersApply, onSearch]
+    [query, onFiltersApply, onSearch],
   );
 
   const handleFiltersReset = useCallback(() => {
@@ -97,23 +99,19 @@ export const SearchWithFilters: React.FC<SearchWithFiltersProps> = ({
       <View style={styles.row}>
         {/* Search field */}
         <View style={styles.inputWrapper}>
-          <AppIcon
-            name="Search"
-            size={18}
-            color="#8E8E93"
+          <AppIcon name="Search" size={18} color="#8E8E93" />
+          <TextInput
+            value={query}
+            onChangeText={handleQueryChange}
+            onSubmitEditing={handleSearch}
+            placeholder={placeholder}
+            placeholderTextColor="#8E8E93"
+            returnKeyType="search"
+            autoCorrect={false}
+            autoCapitalize="none"
+            style={styles.input}
+            accessibilityLabel="Search input"
           />
-<TextInput
-  value={query}
-  onChangeText={handleQueryChange}
-  onSubmitEditing={handleSearch}
-  placeholder={placeholder}
-  placeholderTextColor="#8E8E93"
-  returnKeyType="search"
-  autoCorrect={false}
-  autoCapitalize="none"
-  style={styles.input}
-  accessibilityLabel="Search input"
-/>
           {/* Clear button — shown only when query is non-empty */}
           {query.length > 0 && (
             <TouchableOpacity
