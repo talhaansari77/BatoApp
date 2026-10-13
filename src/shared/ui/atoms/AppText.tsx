@@ -18,19 +18,17 @@ export function AppText({
   ...props
 }: AppTextProps) {
   const theme = useAppTheme();
-  const {isRTL} = useAppLanguage();
+  // const {isRTL} = useAppLanguage();
 
   return (
-    <Text
-      {...props}
-      style={[
-        theme.typography[variant],
-        {
-          color: color ?? theme.colors.text,
-          textAlign: align || (isRTL ? 'right' : 'left'),
-        },
-        style,
-      ]}
-    />
-  );
+  <Text
+    {...props}
+    style={[
+      theme.typography[variant],
+      { color: color ?? theme.colors.text },
+      style,
+    { textAlign: align ?? 'left' },
+    ]}
+  />
+);
 }

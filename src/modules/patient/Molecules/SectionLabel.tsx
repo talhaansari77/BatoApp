@@ -24,7 +24,7 @@ const { isRTL } = useAppLanguage();
         letterSpacing: 1,
         marginBottom: theme.spacing.xs,
         marginLeft: theme.spacing.xs,
-        direction: "ltr",
+        // direction: "ltr",
       }}
     >
       {title}

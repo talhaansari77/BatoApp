@@ -479,7 +479,7 @@ export function PatientProfileScreen() {
                 {t("common.language")}
               </AppText>
               <View>
-                <LanguageSelector />
+                <LanguageSelector/>
               </View>
             </View>
 

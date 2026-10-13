@@ -158,7 +158,7 @@ export function LoginScreen({ navigation }: Props) {
         style={{ direction: isRTL ? "rtl" : "ltr", alignItems: "flex-end" }}
       >
         {/* <LanguageToggle value={lang} onChange={handleLanguageChange} /> */}
-        <LanguageSelector withToggle />
+        <LanguageSelector />
       </View>
       <ScrollView
         nestedScrollEnabled={true}
@@ -198,7 +198,9 @@ export function LoginScreen({ navigation }: Props) {
               }}
             />
 
-            <AppText variant="small" color={theme.colors.textMuted} align="right">
+            <AppText variant="small" color={theme.colors.textMuted} 
+            // align="right"
+            >
               {t("auth.phoneDescription")}
             </AppText>
 

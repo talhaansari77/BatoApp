@@ -31,10 +31,10 @@ type Props = CompositeScreenProps<
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 30;
 
-export function OtpVerificationScreen({ navigation,route }: Props) {
+export function OtpVerificationScreen({ navigation, route }: Props) {
   const theme = useAppTheme();
   const { isRTL } = useAppLanguage();
-// Safe destructuring with fallback
+  // Safe destructuring with fallback
   const { handleSendOtp } = route.params ?? {};
   // The original TextInputs had no `value`/`onChangeText` at all — fully
   // uncontrolled and never wired to any state. This is the actual source
@@ -135,8 +135,8 @@ export function OtpVerificationScreen({ navigation,route }: Props) {
     setSecondsLeft(RESEND_SECONDS);
     inputRefs.current[0]?.focus();
     // TODO: trigger the actual resend-OTP request here.
-    console.log('OTP Resend')
-    handleSendOtp?.()
+    console.log("OTP Resend");
+    handleSendOtp?.();
   };
 
   const handleVerityOtp = async () => {
@@ -152,10 +152,13 @@ export function OtpVerificationScreen({ navigation,route }: Props) {
     };
 
     try {
+      
       clearError();
       await login(LoginPayload);
-      console.log("UserStatus",status)
-      if (status == "authenticated") navigation.navigate("PatientApp");
+      // Read the current value, not the previous render's value.
+      const currentStatus = useAuthStore.getState().status;
+      if (currentStatus == "authenticated") navigation.navigate("PatientApp");
+
     } catch {
       Alert.alert(
         "Login failed",
@@ -164,7 +167,7 @@ export function OtpVerificationScreen({ navigation,route }: Props) {
     }
   };
 
-  useEffect(()=>{},[status])
+  useEffect(() => {}, [status]);
 
   return (
     <Screen
@@ -177,91 +180,91 @@ export function OtpVerificationScreen({ navigation,route }: Props) {
           title="Verify OTP"
           onPress={handleVerityOtp}
           loading={isLoading}
-          disabled={!isComplete ||isLoading}
+          disabled={!isComplete || isLoading}
         />
       }
     >
       <View style={{ direction: isRTL ? "rtl" : "ltr" }}>
-      <AuthCard
-        title="Enter verification code"
-        subtitle="We sent a 6-digit code to your phone number."
-      >
-        <View
-          style={{
-            direction: "ltr",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            gap: theme.spacing.sm,
-          }}
+        <AuthCard
+          title="Enter verification code"
+          subtitle="We sent a 6-digit code to your phone number."
         >
-          {otp.map((digit, index) => (
-            <TextInput
-              key={index}
-              ref={(ref) => {
-                inputRefs.current[index] = ref;
-              }}
-              value={digit}
-              onChangeText={(text) => handleChangeText(text, index)}
-              onKeyPress={(event) => handleKeyPress(event, index)}
-              onFocus={() => setFocusedIndex(index)}
-              onBlur={() =>
-                setFocusedIndex((current) =>
-                  current === index ? null : current,
-                )
-              }
-              keyboardType="number-pad"
-              // Lets iOS/Android surface the incoming SMS code as a
-              // one-tap suggestion above the keyboard, and lets a normal
-              // clipboard paste of the full code land here too.
-              textContentType="oneTimeCode"
-              autoComplete="sms-otp"
-              maxLength={OTP_LENGTH}
-              selectTextOnFocus
-              autoFocus={index === 0}
-              accessibilityLabel={`Digit ${index + 1} of ${OTP_LENGTH}`}
-              style={{
-                flex: 1,
-                minHeight: 52,
-                borderRadius: theme.radius.md,
-                borderWidth: focusedIndex === index ? 2 : 1,
-                borderColor:
-                  focusedIndex === index
-                    ? (theme.colors.primaryDark ?? theme.colors.text)
-                    : theme.colors.border,
-                backgroundColor: theme.colors.background,
-                writingDirection: "ltr",
-                textAlign: "center",
-                fontSize: 20,
-                color: theme.colors.text,
-              }}
-            />
-          ))}
-        </View>
+          <View
+            style={{
+              direction: "ltr",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              gap: theme.spacing.sm,
+            }}
+          >
+            {otp.map((digit, index) => (
+              <TextInput
+                key={index}
+                ref={(ref) => {
+                  inputRefs.current[index] = ref;
+                }}
+                value={digit}
+                onChangeText={(text) => handleChangeText(text, index)}
+                onKeyPress={(event) => handleKeyPress(event, index)}
+                onFocus={() => setFocusedIndex(index)}
+                onBlur={() =>
+                  setFocusedIndex((current) =>
+                    current === index ? null : current,
+                  )
+                }
+                keyboardType="number-pad"
+                // Lets iOS/Android surface the incoming SMS code as a
+                // one-tap suggestion above the keyboard, and lets a normal
+                // clipboard paste of the full code land here too.
+                textContentType="oneTimeCode"
+                autoComplete="sms-otp"
+                maxLength={OTP_LENGTH}
+                selectTextOnFocus
+                autoFocus={index === 0}
+                accessibilityLabel={`Digit ${index + 1} of ${OTP_LENGTH}`}
+                style={{
+                  flex: 1,
+                  minHeight: 52,
+                  borderRadius: theme.radius.md,
+                  borderWidth: focusedIndex === index ? 2 : 1,
+                  borderColor:
+                    focusedIndex === index
+                      ? (theme.colors.primaryDark ?? theme.colors.text)
+                      : theme.colors.border,
+                  backgroundColor: theme.colors.background,
+                  writingDirection: "ltr",
+                  textAlign: "center",
+                  fontSize: 20,
+                  color: theme.colors.text,
+                }}
+              />
+            ))}
+          </View>
 
-        {secondsLeft > 0 ? (
-          <AppText
-            variant="caption"
-            color={theme.colors.textMuted}
-            align="center"
-            style={{ marginTop: theme.spacing.lg }}
-          >
-            Didn’t receive a code? Resend in {secondsLeft}s
-          </AppText>
-        ) : (
-          <Pressable
-            onPress={handleResend}
-            style={{ marginTop: theme.spacing.lg }}
-          >
+          {secondsLeft > 0 ? (
             <AppText
               variant="caption"
-              color={theme.colors.primaryDark}
+              color={theme.colors.textMuted}
               align="center"
+              style={{ marginTop: theme.spacing.lg }}
             >
-              Didn’t receive a code? Resend
+              Didn’t receive a code? Resend in {secondsLeft}s
             </AppText>
-          </Pressable>
-        )}
-      </AuthCard>
+          ) : (
+            <Pressable
+              onPress={handleResend}
+              style={{ marginTop: theme.spacing.lg }}
+            >
+              <AppText
+                variant="caption"
+                color={theme.colors.primaryDark}
+                align="center"
+              >
+                Didn’t receive a code? Resend
+              </AppText>
+            </Pressable>
+          )}
+        </AuthCard>
       </View>
     </Screen>
   );

@@ -16,9 +16,9 @@ export function LanguageSelector({ withToggle = false }) {
   return (
     <View style={{ gap: theme.spacing.sm, alignItems: "flex-end" }}>
       {withToggle ? (
-        <LanguageButton value={language} onChange={setLanguage} />
-      ) : (
         <LanguageToggle value={language} onChange={setLanguage} />
+      ) : (
+        <LanguageButton value={language} onChange={setLanguage} />
       )}
     </View>
   );
