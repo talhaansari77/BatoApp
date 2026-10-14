@@ -3,7 +3,7 @@ import { FlatList, Text, View } from 'react-native';
 import {
   StateView,
   type ViewState,
-} from './StateView';
+} from '../Placeholders/StateView';
 
 type Product = {
   id: string;

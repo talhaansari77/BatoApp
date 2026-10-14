@@ -8,11 +8,12 @@ import { PatientTabParamList } from "../../../core/navigation/types";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
 import { AppText } from "../../../shared/ui/atoms/AppText";
-import { Screen } from "../../../shared/ui/templates/Screen";
+import { Screen } from "../../../shared/ui/templates/Screens/Screen";
 import { useAuthStore } from "../../auth/store/auth.store";
 import { DoctorCard, DoctorCardExample } from "../components/DoctorCard";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
+import Header from "../Molecules/Header";
 
 type PatientHomeNavigation = BottomTabNavigationProp<
   PatientTabParamList,
@@ -122,55 +123,8 @@ export function PatientHomeScreen() {
     >
       <View style={styles.root}>
         <View style={styles.welcomeCard}>
-          <View style={styles.welcomeTop}>
-            <View style={styles.avatar}>
-              <AppIcon
-                name="UserRound"
-                size={28}
-                color={theme.colors.primaryDark}
-              />
-            </View>
-
-            <View style={styles.welcomeText}>
-              <AppText variant="caption" color={theme.colors.textMuted}>
-                Good morning
-              </AppText>
-
-              <AppText variant="h3">
-                {user?.full_name ? user?.full_name : "patient"}
-              </AppText>
-            </View>
-            <View style={{ flexDirection: "row", gap: 10 }}>
-              <Pressable
-                onPress={() => {}}
-                hitSlop={12}
-                style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: 25,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: theme.colors.cardMuted,
-                }}
-              >
-                <AppIcon name="Search" color={theme.colors.primaryDark} />
-              </Pressable>
-              <Pressable
-                onPress={() => {}}
-                hitSlop={12}
-                style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: 25,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: theme.colors.cardMuted,
-                }}
-              >
-                <AppIcon name="Bell" color={theme.colors.primaryDark} />
-              </Pressable>
-            </View>
-          </View>
+          {/* Home Header */}
+          <Header user={user} navigation={navigation}/>
           <View style={styles.heroBox}>
             <View style={styles.heroContent}>
               <View style={styles.heroBadge}>
@@ -197,7 +151,7 @@ export function PatientHomeScreen() {
                 title="Book Appointment"
                 fullWidth={false}
                 style={styles.heroButton}
-                onPress={() => navigateToTab('PatientServices')}
+                onPress={() => navigateToTab("PatientServices")}
               />
             </View>
 
@@ -775,7 +729,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>) {
     },
 
     pressed: {
-      opacity: 0.82,
+      opacity: 0.8,
       transform: [{ scale: 0.99 }],
     },
   });

@@ -24,6 +24,7 @@ import { PatientTabParamList } from "@/core/navigation/types";
 import { lightColors } from "@/theme";
 import { useAppTheme } from "@/app/providers/ThemeProvider";
 import { useTranslation } from "react-i18next";
+import { themeTextTransition } from "@/theme/transitions";
 
 export type AppIconName = keyof typeof Icons;
 
@@ -38,11 +39,11 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 // --- Layout ---------------------------------------------------------------
 
-const ITEM_SIZE = Math.min(Math.max(SCREEN_WIDTH * 0.14, 52), 64);
+const ITEM_SIZE = Math.min(Math.max(SCREEN_WIDTH * 0.12, 44), 56);
 const ITEM_HEIGHT = ITEM_SIZE;
-const GAP = Math.max(SCREEN_WIDTH * 0.025, 8);
-const PADDING = Math.max(SCREEN_WIDTH * 0.03, 10);
-const BAR_WIDTH_RATIO = 0.9;
+const GAP = Math.max(SCREEN_WIDTH * 0.02, 6);
+const PADDING = Math.max(SCREEN_WIDTH * 0.025, 8);
+const BAR_WIDTH_RATIO = 0.85;
 
 // Space on each side of the label inside the active item.
 const LABEL_H_PAD = 10;
@@ -102,11 +103,15 @@ function TabItem({
   const { t } = useTranslation();
   // Natural width of the label text, measured by the hidden <Text> below.
   const [textWidth, setTextWidth] = useState(0);
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   const handleMeasure = (e: NativeSyntheticEvent<TextLayoutEventData>) => {
     const width = e.nativeEvent.lines[0]?.width;
     if (width) {
-      setTextWidth((prev) => (Math.abs(prev - width) < 0.5 ? prev : Math.ceil(width)));
+      setTextWidth((prev) =>
+        Math.abs(prev - width) < 0.5 ? prev : Math.ceil(width),
+      );
     }
   };
 
@@ -177,7 +182,11 @@ function TabItem({
         importantForAccessibility="no-hide-descendants"
         accessibilityElementsHidden
       >
-        <Text numberOfLines={1} onTextLayout={handleMeasure} style={styles.measureText}>
+        <Text
+          numberOfLines={1}
+          onTextLayout={handleMeasure}
+          style={styles.measureText}
+        >
           {label}
         </Text>
       </View>
@@ -196,7 +205,7 @@ function TabItem({
         <Animated.Text
           numberOfLines={1}
           ellipsizeMode="clip"
-          style={[styles.label, { color }, labelStyle]}
+          style={[styles.label, { color }, labelStyle,themeTextTransition]}
         >
           {t(`navigation.${label.toLowerCase()}`, {
             defaultValue: label,
@@ -214,7 +223,7 @@ export function FloatingTabBar({
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const theme = useAppTheme();
-
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const count = state.routes.length;
   const barWidth = SCREEN_WIDTH * BAR_WIDTH_RATIO;
   const available = barWidth - PADDING * 2 - (count - 1) * GAP;
@@ -222,7 +231,7 @@ export function FloatingTabBar({
   return (
     <View
       pointerEvents="box-none"
-      style={[styles.wrapper, { bottom: insets.bottom }]}
+      style={[styles.wrapper, { bottom: insets.bottom/2 }]}
     >
       <BlurView
         intensity={20}
@@ -277,57 +286,61 @@ const labelFont = {
   fontWeight: "600" as const,
 };
 
-const styles = StyleSheet.create({
-  wrapper: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    alignItems: "center",
-  },
-  bar: {
-    padding: PADDING,
-    borderRadius: BAR_RADIUS,
-    overflow: "hidden",
-    backgroundColor: lightColors.primaryDark,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: GAP,
-  },
-  item: {
-    height: ITEM_HEIGHT,
-    flexBasis: 0, // width comes entirely from the animated flexGrow
-    borderRadius: ITEM_RADIUS,
-    overflow: "hidden",
-    backgroundColor: lightColors.overlay_1,
-  },
-  activeBg: {
-    backgroundColor: lightColors.overlay,
-    borderRadius: ITEM_RADIUS,
-  },
-  pressable: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  label: {
-    ...labelFont,
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: STACK_PAD,
-    textAlign: "center",
-  },
-  measureWrap: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    opacity: 0,
-  },
-  // Wide enough that the text never wraps, so line width = natural width.
-  measureText: {
-    ...labelFont,
-    width: 400,
-  },
-});
+// ---------- Styles ----------
+function createStyles(theme: ReturnType<typeof useAppTheme>) {
+  return StyleSheet.create({
+    wrapper: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      alignItems: "center",
+    },
+    bar: {
+      padding: PADDING,
+      borderRadius: 100,
+      overflow: "hidden",
+      backgroundColor: theme.colors.primaryDark,
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: GAP,
+    },
+    item: {
+      height: ITEM_HEIGHT,
+      flexBasis: 0, // width comes entirely from the animated flexGrow
+      borderRadius: 100,
+      overflow: "hidden",
+      backgroundColor: theme.colors.overlayDark,
+      
+    },
+    activeBg: {
+      backgroundColor: theme.colors.overlay_1,
+      borderRadius: ITEM_RADIUS,
+    },
+    pressable: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    label: {
+      ...labelFont,
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: STACK_PAD,
+      textAlign: "center",
+    },
+    measureWrap: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      opacity: 0,
+    },
+    // Wide enough that the text never wraps, so line width = natural width.
+    measureText: {
+      ...labelFont,
+      width: 400,
+    },
+  });
+}

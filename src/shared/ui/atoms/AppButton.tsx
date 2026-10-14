@@ -4,11 +4,13 @@ import {
   PressableProps,
   StyleSheet,
   ViewStyle,
-} from 'react-native';
-import { useAppTheme } from '../../../app/providers/ThemeProvider';
-import { AppText } from './AppText';
+} from "react-native";
+import { useAppTheme } from "../../../app/providers/ThemeProvider";
+import { AppText } from "./AppText";
+import Animated from "react-native-reanimated";
+import { themeTransition } from "@/theme/transitions";
 
-type AppButtonVariant = 'primary' | 'outline' | 'ghost'|'white';
+type AppButtonVariant = "primary" | "outline" | "ghost" | "white";
 
 type AppButtonProps = PressableProps & {
   title: string;
@@ -20,7 +22,7 @@ type AppButtonProps = PressableProps & {
 
 export function AppButton({
   title,
-  variant = 'primary',
+  variant = "primary",
   loading = false,
   fullWidth = true,
   disabled,
@@ -32,22 +34,22 @@ export function AppButton({
   const isDisabled = disabled || loading;
 
   const getButtonStyle = () => {
-    if (variant === 'outline') {
+    if (variant === "outline") {
       return {
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
         borderColor: theme.colors.primaryDark,
         borderWidth: 1,
       };
     }
 
-    if (variant === 'ghost') {
+    if (variant === "ghost") {
       return {
-        backgroundColor: 'transparent',
-        borderColor: 'transparent',
+        backgroundColor: "transparent",
+        borderColor: "transparent",
         borderWidth: 1,
       };
     }
-    if (variant === 'white') {
+    if (variant === "white") {
       return {
         backgroundColor: theme.colors.nude,
         borderColor: theme.colors.nude,
@@ -62,31 +64,36 @@ export function AppButton({
     };
   };
 
-  const textColor =
-    variant === 'primary' ? '#FFFFFF' : theme.colors.primaryDark;
+  const textColor = variant === "primary" ? theme.colors.inverted : theme.colors.primaryDark;
 
   return (
     <Pressable
       {...props}
       disabled={isDisabled}
       style={({ pressed }) => [
-        styles.base,
         {
-          borderRadius: theme.radius.lg,
+          width: fullWidth ? "100%" : undefined,
           opacity: isDisabled ? 0.6 : pressed ? 0.85 : 1,
-          width: fullWidth ? '100%' : undefined,
         },
-        getButtonStyle(),
         style,
       ]}
     >
-      {loading ? (
-        <ActivityIndicator color={textColor} />
-      ) : (
-        <AppText variant="bodyMedium" color={textColor}>
-          {title}
-        </AppText>
-      )}
+      <Animated.View
+        style={[
+          styles.base,
+          { borderRadius: theme.radius.lg },
+          getButtonStyle(),
+          themeTransition,
+        ]}
+      >
+        {loading ? (
+          <ActivityIndicator color={textColor} />
+        ) : (
+          <AppText variant="bodyMedium" color={textColor}>
+            {title}
+          </AppText>
+        )}
+      </Animated.View>
     </Pressable>
   );
 }
@@ -95,7 +102,7 @@ const styles = StyleSheet.create({
   base: {
     minHeight: 52,
     paddingHorizontal: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

@@ -9,7 +9,7 @@ import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { LanguageSelector } from "../../../shared/ui/molecules/LanguageSelector";
 import { ThemeModeSelector } from "../../../shared/ui/molecules/ThemeModeSelector";
-import { Screen } from "../../../shared/ui/templates/Screen";
+import { Screen } from "../../../shared/ui/templates/Screens/Screen";
 import { useAuthStore } from "../../auth/store/auth.store";
 import {
   EditProfileModal,
@@ -244,29 +244,29 @@ export function PatientProfileScreen() {
   };
 
   return (
-    <Screen>
-      <View style={styles.root}>
+    <Screen contentStyle={styles.root}>
+      
         {/* Identity Hero */}
         <View style={styles.hero}>
           <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <AppText variant="h1" color={theme.colors.primaryDark}>
-                {getInitials(patient.fullName)}
-              </AppText>
-            </View>
             <Pressable
               onPress={() => setIsEditModalVisible(true)}
               style={({ pressed }) => [
-                styles.editBadge,
+                styles.avatar,
                 pressed && styles.pressed,
-              ]}
+              ]} >
+              <AppText variant="h1" color={theme.colors.primaryDark}>
+                {getInitials(patient.fullName)}
+              </AppText>
+            </Pressable>
+            <View style={styles.editBadge}
             >
               <AppIcon
                 name="Pencil"
                 size={12}
                 color={theme.colors.primaryDark}
               />
-            </Pressable>
+            </View>
           </View>
 
           <View style={styles.heroText}>
@@ -518,7 +518,7 @@ export function PatientProfileScreen() {
               : t("profile.signOut", { defaultValue: "Sign Out" })}
           </AppText>
         </Pressable>
-      </View>
+      
 
       {/* Edit Profile Modal */}
       <EditProfileModal

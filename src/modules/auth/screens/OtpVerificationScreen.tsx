@@ -14,7 +14,7 @@ import {
   AuthStackParamList,
   RootStackParamList,
 } from "../../../core/navigation/types";
-import { Screen } from "../../../shared/ui/templates/Screen";
+import { Screen } from "../../../shared/ui/templates/Screens/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AuthCard } from "../../../shared/ui/molecules/AuthCard";

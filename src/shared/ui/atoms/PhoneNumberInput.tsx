@@ -1,20 +1,22 @@
+import { useMemo } from "react";
 import {
-  Text,
   TextInput,
   TextInputProps,
   View,
   StyleSheet,
-  Pressable,
 } from "react-native";
-
-import { useAppTheme } from "../../../app/providers/ThemeProvider";
-import { AppText } from "./AppText";
-import { AppIcon, AppIconName } from "./AppIcon";
+import Animated from "react-native-reanimated";
 import CountryPicker, {
   Country,
   CountryCode,
+  DEFAULT_THEME,
 } from "react-native-country-picker-modal";
+
+import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { useAppLanguage } from "@/app/providers/LanguageProvider";
+import { themeTransition } from "@/theme/transitions";
+import { AppText } from "./AppText";
+import { AppIconName } from "./AppIcon";
 
 type AppInputProps = TextInputProps & {
   label?: string;
@@ -30,18 +32,27 @@ type AppInputProps = TextInputProps & {
 export function PhoneNumberInput({
   label,
   error,
-  leftIcon,
-  rightIcon,
-  onRightIconPress,
   style,
   placeholderTextColor,
   countryCode,
-  callingCode,
   onSelect,
   ...props
 }: AppInputProps) {
   const theme = useAppTheme();
-  const {isRTL} = useAppLanguage();
+  const { isRTL } = useAppLanguage();
+
+  const pickerTheme = useMemo(
+    () => ({
+      ...DEFAULT_THEME,
+      backgroundColor: theme.colors.card,          // modal background
+      onBackgroundTextColor: theme.colors.text,    // country names, calling code, search text
+      primaryColor: theme.colors.text,
+      primaryColorVariant: theme.colors.border,    // dividers / alpha filter
+      filterPlaceholderTextColor: theme.colors.textMuted,
+      fontSize: 16,
+    }),
+    [theme.colors],
+  );
 
   return (
     <View style={styles.wrapper}>
@@ -49,13 +60,13 @@ export function PhoneNumberInput({
         <AppText
           variant="caption"
           color={theme.colors.textMuted}
-          style={[styles.label, isRTL && {textAlign: 'left'}]}
+          style={[styles.label, isRTL && { textAlign: "left" }]}
         >
           {label}
         </AppText>
       ) : null}
 
-      <View
+      <Animated.View
         style={[
           styles.inputContainer,
           {
@@ -63,25 +74,27 @@ export function PhoneNumberInput({
             borderColor: error ? theme.colors.errorText : theme.colors.border,
             borderRadius: theme.radius.lg,
           },
+          themeTransition,
         ]}
       >
         <CountryPicker
+          theme={pickerTheme}
           countryCode={countryCode}
           withFilter
           withFlag
-          // withCallingCode={true}
-          withCallingCodeButton={true}
+          withCallingCodeButton
           withCountryNameButton={false}
           withAlphaFilter={false}
           onSelect={onSelect}
-          preferredCountries={['KW','AE','SA','QA','OM','BH']}
-            // disabled={true}
+          preferredCountries={["KW", "AE", "SA", "QA", "OM", "BH"]}
+          closeButtonImageStyle={{ tintColor: theme.colors.text }}
+          filterProps={{
+            placeholderTextColor: theme.colors.textMuted,
+          }}
         />
-        {/* {callingCode && <Text>+{callingCode.replace("+", "")}</Text>} */}
 
         <TextInput
           {...props}
-          
           placeholderTextColor={placeholderTextColor ?? theme.colors.textMuted}
           style={[
             styles.input,
@@ -92,18 +105,14 @@ export function PhoneNumberInput({
             style,
           ]}
         />
-      </View>
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    width: "100%",
-  },
-  label: {
-    marginBottom: 6,
-  },
+  wrapper: { width: "100%" },
+  label: { marginBottom: 6 },
   inputContainer: {
     minHeight: 54,
     borderWidth: 1,
@@ -112,12 +121,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
   },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    paddingVertical: 12,
-  },
-  error: {
-    marginTop: 6,
-  },
+  input: { flex: 1, fontSize: 16, paddingVertical: 12 },
 });

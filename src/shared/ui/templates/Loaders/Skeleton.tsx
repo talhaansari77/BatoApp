@@ -17,8 +17,8 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
-import { useAppTheme } from "../../../app/providers/ThemeProvider";
-import { Screen } from "./Screen";
+import { useAppTheme } from "../../../../app/providers/ThemeProvider";
+import { Screen } from "../Screens/Screen";
 
 const SHIMMER_DURATION = 1300;
 

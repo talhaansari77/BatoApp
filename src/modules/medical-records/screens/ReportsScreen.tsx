@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Pressable, SectionList, View } from "react-native";
+import { ActivityIndicator, Pressable, SectionList, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { ReportsStackParamList } from "../../../core/navigation/types";
-import { Screen } from "../../../shared/ui/templates/Screen";
+import { Screen } from "../../../shared/ui/templates/Screens/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppInput } from "../../../shared/ui/atoms/AppInput";
 import { AppIcon } from "../../../shared/ui/atoms/AppIcon";
@@ -13,14 +13,11 @@ import {
   DateFilter,
   FilterModal,
   getDateRange,
-} from "@/shared/ui/templates/SearchWithFilters/molecules/FilterModal";
-import { DEFAULT_FILTER } from "@/shared/ui/templates/SearchWithFilters/Search";
-import {
-  mockAppointments,
-  mockReportList,
-} from "@/shared/ui/templates/SearchWithFilters/molecules/mock";
+} from "@/shared/ui/molecules/FilterModal";
 
 type Props = NativeStackScreenProps<ReportsStackParamList, "MedicalReports">;
+
+export const DEFAULT_FILTER: DateFilter = { period: "all" };
 
 type FilterKey = "week" | "month" | "quarter" | "all";
 
@@ -126,6 +123,7 @@ export function ReportsScreen({ navigation }: any) {
   const getMedicalReports = usePatientReportsStore(
     (state) => state.getMedicalReports,
   );
+  const isLoading = usePatientReportsStore((state) => state.isLoading);
 
   useEffect(() => {
     getMedicalReports();
@@ -175,6 +173,8 @@ export function ReportsScreen({ navigation }: any) {
     navigation.navigate("ReportDetails", { reportId: report?.report_token });
   };
 
+
+   
   return (
     <Screen
       title="Medical Reports"
@@ -201,7 +201,7 @@ export function ReportsScreen({ navigation }: any) {
           onRightIconPress={() => setFilterOpen(true)}
         />
       </View>
-
+      {/*SectionList  */}
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
@@ -224,7 +224,15 @@ export function ReportsScreen({ navigation }: any) {
           </AppText>
         )}
         renderItem={({ item }) => (
-          <ReportCard report={item} onPress={() => handleOpenReport(item)} />
+          <View>
+          {isLoading && (
+            <ActivityIndicator size="large" color={theme.colors.primaryDark} />
+          )}
+          {!isLoading && (
+             <ReportCard report={item} onPress={() => handleOpenReport(item)} />
+          )}
+         
+          </View>
         )}
         ListEmptyComponent={
           <AppText

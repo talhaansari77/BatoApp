@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AuthStackParamList } from "../../../core/navigation/types";
-import { Screen } from "../../../shared/ui/templates/Screen";
+import { Screen } from "../../../shared/ui/templates/Screens/Screen";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppInput } from "../../../shared/ui/atoms/AppInput";
 import { AuthCard } from "../../../shared/ui/molecules/AuthCard";

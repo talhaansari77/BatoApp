@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
 import { AppText } from "../../../shared/ui/atoms/AppText";
-import { Screen } from "../../../shared/ui/templates/Screen";
+import { Screen } from "../../../shared/ui/templates/Screens/Screen";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { PatientStackParamList } from "@/core/navigation/types";
 import { usePatientAppointmentStore } from "../store/patientAppointment.store";

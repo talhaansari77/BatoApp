@@ -3,21 +3,16 @@ import { Linking, Pressable, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { ReportsStackParamList } from "../../../core/navigation/types";
-import { Screen } from "../../../shared/ui/templates/Screen";
+import { Screen } from "../../../shared/ui/templates/Screens/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppIcon } from "../../../shared/ui/atoms/AppIcon";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { usePatientReportsStore } from "./store/patientReports.store";
-import * as Print from 'expo-print';
-import { shareAsync } from 'expo-sharing';
-import { reportDetail } from "../Molecules";
-
-
-
-
-
-
+import * as Print from "expo-print";
+import { shareAsync } from "expo-sharing";
+import { generateAndSavePDF, reportToHTML } from "../Molecules";
+import { useAuthStore } from "@/modules/auth/store/auth.store";
 
 type Props = NativeStackScreenProps<ReportsStackParamList, "ReportDetails">;
 
@@ -26,7 +21,11 @@ export function ReportDetailsScreen({ navigation, route }: any) {
   const { reportId } = route.params;
 
   const report = usePatientReportsStore((state) => state.reportDetails);
-  const getMedicalReportDetails = usePatientReportsStore((state) => state.getMedicalReportDetails);
+  const getMedicalReportDetails = usePatientReportsStore(
+    (state) => state.getMedicalReportDetails,
+  );
+
+    const user = useAuthStore.getState().user;
 
   useEffect(() => {
     console.log("reportId", reportId);
@@ -34,34 +33,66 @@ export function ReportDetailsScreen({ navigation, route }: any) {
   }, [reportId]);
 
   const handlePrint = async () => {
-    const html = reportDetail(report);
+    const html = reportToHTML(report,user);
     // On iOS/android prints the given html. On web prints the HTML from the current page.
     const { uri } = await Print.printToFileAsync({ html });
-    console.log('File has been saved to:', uri);
-    await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+    console.log("File has been saved to:", uri);
+    await shareAsync(uri, { UTI: ".pdf", mimeType: "application/pdf" });
   };
 
-  const handleOpenPdf = () => {
-    if (report?.pdf_attachment) {
-      Linking.openURL(report.pdf_attachment);
-    }
+  const handleOpenPdf = async () => {
+    console.log(report);
+
+    const html = reportToHTML(report, user);
+    await generateAndSavePDF(html);
+
+    // Use This to open the generated PDF file
+    // if (report?.pdf_attachment) {
+    //   Linking.openURL(report.pdf_attachment);
+    // }
   };
 
   if (!report) {
     return (
-      <Screen title="Report Details" showBack onBackPress={() => navigation.goBack()}>
-        <AppText color={theme.colors.textMuted} style={{ marginTop: theme.spacing.md }}>
+      <Screen
+        title="Report Details"
+        showBack
+        onBackPress={() => navigation.goBack()}
+      >
+        <AppText
+          color={theme.colors.textMuted}
+          style={{ marginTop: theme.spacing.md }}
+        >
           Loading report details...
         </AppText>
       </Screen>
     );
   }
 
+  function InfoRow({ label, value }: { label: string; value: string }) {
+    return (
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <AppText variant="small" color={theme.colors.textMuted}>
+          {label}
+        </AppText>
+        <AppText variant="small" color={theme.colors.text}>
+          {value}
+        </AppText>
+      </View>
+    );
+  }
+
   return (
-    <Screen title="Report Details" showBack onBackPress={() => navigation.goBack()}>
+    <Screen
+      title="Report Details"
+      ShowAppHeader
+      showBack
+      onBackPress={() => navigation.goBack()}
+      footer={<AppButton title="View / Download PDF" onPress={handleOpenPdf} />}
+    >
       <View style={{ gap: theme.spacing.md, paddingBottom: theme.spacing.xl }}>
         {/* Print Action Button */}
-        <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+        {/* <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
           <Pressable
             onPress={handlePrint}
             style={({pressed})=>([{
@@ -85,7 +116,7 @@ export function ReportDetailsScreen({ navigation, route }: any) {
               Print
             </AppText>
           </Pressable>
-        </View>
+        </View> */}
 
         {/* Main Info Card */}
         <View
@@ -99,15 +130,21 @@ export function ReportDetailsScreen({ navigation, route }: any) {
           }}
         >
           <View style={{ alignItems: "flex-end" }}>
-              <AppText variant="small" color={theme.colors.textMuted}>
-                Report Date
-              </AppText>
-              <AppText variant="bodyMedium" color={theme.colors.text}>
-                {report.report_date}
-              </AppText>
-            </View>
+            <AppText variant="small" color={theme.colors.textMuted}>
+              Report Date
+            </AppText>
+            <AppText variant="bodyMedium" color={theme.colors.text}>
+              {report.report_date}
+            </AppText>
+          </View>
           {/* Header section */}
-          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
             <View style={{ flex: 1 }}>
               <AppText variant="h2" color={theme.colors.text}>
                 Medical Investigation
@@ -116,7 +153,6 @@ export function ReportDetailsScreen({ navigation, route }: any) {
                 Token: #{report.report_token}
               </AppText>
             </View>
-            
           </View>
 
           <View style={{ height: 1, backgroundColor: theme.colors.border }} />
@@ -170,8 +206,18 @@ export function ReportDetailsScreen({ navigation, route }: any) {
                   }}
                 >
                   {/* Test Name & Flag Badge */}
-                  <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                    <AppText variant="bodyMedium" color={theme.colors.text} style={{ flex: 1, fontWeight: "600" }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <AppText
+                      variant="bodyMedium"
+                      color={theme.colors.text}
+                      style={{ flex: 1, fontWeight: "600" }}
+                    >
                       {item.test_name}
                     </AppText>
                     <View
@@ -182,23 +228,38 @@ export function ReportDetailsScreen({ navigation, route }: any) {
                         backgroundColor: flagBgColor,
                       }}
                     >
-                      <AppText variant="small" color={flagTextColor} style={{ fontWeight: "600" }}>
+                      <AppText
+                        variant="small"
+                        color={flagTextColor}
+                        style={{ fontWeight: "600" }}
+                      >
                         {item.flag}
                       </AppText>
                     </View>
                   </View>
 
                   {/* Value, Unit, & Reference Range */}
-                  <View style={{ flexDirection: "row", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                      gap: 8,
+                    }}
+                  >
                     <View>
-                      <AppText variant="small" color={theme.colors.textMuted}>Result</AppText>
+                      <AppText variant="small" color={theme.colors.textMuted}>
+                        Result
+                      </AppText>
                       <AppText variant="bodyMedium" color={theme.colors.text}>
                         {item.test_value} {item.unit}
                       </AppText>
                     </View>
                     {item.normal_range ? (
                       <View style={{ alignItems: "flex-end" }}>
-                        <AppText variant="small" color={theme.colors.textMuted}>Ref. Range</AppText>
+                        <AppText variant="small" color={theme.colors.textMuted}>
+                          Ref. Range
+                        </AppText>
                         <AppText variant="small" color={theme.colors.text}>
                           {item.normal_range}
                         </AppText>
@@ -208,7 +269,14 @@ export function ReportDetailsScreen({ navigation, route }: any) {
 
                   {/* Remarks if available */}
                   {item.remarks ? (
-                    <View style={{ borderTopWidth: 1, borderColor: theme.colors.border, paddingTop: 6, marginTop: 2 }}>
+                    <View
+                      style={{
+                        borderTopWidth: 1,
+                        borderColor: theme.colors.border,
+                        paddingTop: 6,
+                        marginTop: 2,
+                      }}
+                    >
                       <AppText variant="small" color={theme.colors.textMuted}>
                         Remarks: {item.remarks}
                       </AppText>
@@ -221,7 +289,7 @@ export function ReportDetailsScreen({ navigation, route }: any) {
         </View>
 
         {/* Attached PDF Section */}
-        <View
+        {/* <View
           style={{
             flexDirection: "row",
             alignItems: "center",
@@ -242,25 +310,13 @@ export function ReportDetailsScreen({ navigation, route }: any) {
                 : "No PDF document attached to this report."}
             </AppText>
           </View>
-        </View>
+        </View> */}
 
-        {report.pdf_attachment && (
+        {/* TODO: Uncomment this when you want to show the button */}
+        {/* {report.pdf_attachment && (
           <AppButton title="View / Download PDF" onPress={handleOpenPdf} />
-        )}
+        )} */}
       </View>
     </Screen>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-      <AppText variant="small" color="textMuted">
-        {label}
-      </AppText>
-      <AppText variant="small" color="text">
-        {value}
-      </AppText>
-    </View>
   );
 }

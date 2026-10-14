@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 
 import { useAppTheme } from '../../../app/providers/ThemeProvider';
-import { Screen } from '../../../shared/ui/templates/Screen';
+import { Screen } from '../../../shared/ui/templates/Screens/Screen';
 import { AppIcon } from '../../../shared/ui/atoms/AppIcon';
 import { useServicesStore } from '../store/services.store';
 import { ClinicService } from '../services/servicesApi';

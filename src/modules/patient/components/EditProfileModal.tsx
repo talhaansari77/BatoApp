@@ -120,6 +120,7 @@ export function EditProfileModal({
       snapPoints={Platform.OS === "android" ? ["full"] : [{ fraction: 0.85 }]}
       showDragIndicator
       containerColor={theme.colors.card}
+      
     >
       <RNHostView>
         <View style={styles.sheetRoot}>

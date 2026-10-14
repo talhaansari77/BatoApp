@@ -21,7 +21,7 @@ import Animated, {
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AuthStackParamList } from "../../../core/navigation/types";
-import { Screen } from "../../../shared/ui/templates/Screen";
+import { Screen } from "../../../shared/ui/templates/Screens/Screen";
 import { AppText } from "../../../shared/ui/atoms/AppText";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
@@ -172,7 +172,11 @@ export function LoginScreen({ navigation }: Props) {
           }}
         >
           <Image
-            source={Assets.Logo1024}
+            source={
+              theme.resolvedMode === "dark"
+                ? Assets.TextLogoWhite
+                : Assets.TextLogo
+            }
             style={{ width: "100%", height: 150 }}
             resizeMode="contain"
           />

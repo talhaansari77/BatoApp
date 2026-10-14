@@ -9,7 +9,7 @@ import { PatientStackParamList } from '../../../core/navigation/types';
 import { AppButton } from '../../../shared/ui/atoms/AppButton';
 import { AppIcon } from '../../../shared/ui/atoms/AppIcon';
 import { AppText } from '../../../shared/ui/atoms/AppText';
-import { Screen } from '../../../shared/ui/templates/Screen';
+import { Screen } from '../../../shared/ui/templates/Screens/Screen';
 
 type NavigationProp = NativeStackNavigationProp<
   PatientStackParamList,

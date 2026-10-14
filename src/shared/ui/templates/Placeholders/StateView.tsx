@@ -1,6 +1,6 @@
 // components/states/StateView.tsx
 import React, { type ReactNode } from 'react';
-import { Skeleton } from './Skeleton';
+import { Skeleton } from '../Loaders/Skeleton';
 import {
   ConnectionState,
   EmptyState,

@@ -2,9 +2,9 @@
 
 import { View } from 'react-native';
 
-import { useAppTheme } from '../../../app/providers/ThemeProvider';
-import { AppText } from '../atoms/AppText';
-import { Screen } from './Screen';
+import { useAppTheme } from '../../../../app/providers/ThemeProvider';
+import { AppText } from '../../atoms/AppText';
+import { Screen } from '../Screens/Screen';
 
 type PlaceholderScreenProps = {
   title: string;

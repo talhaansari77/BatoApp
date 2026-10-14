@@ -1,12 +1,12 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Playground from "@/shared/ui/templates/Playground";
+import Playground from "@/shared/ui/templates/PlayGround/Playground";
 import { Pressable } from "react-native";
 import {
   ArrowLeft,
   ShoppingBag,
 } from "lucide-react-native";
-import Testing from "@/shared/ui/templates/Testing";
-import Search from "@/shared/ui/templates/SearchWithFilters/Search";
+import Testing from "@/shared/ui/templates/PlayGround/Testing";
+import Search from "@/shared/ui/templates/PlayGround/Search";
 
 const Stack = createNativeStackNavigator<any>();
 

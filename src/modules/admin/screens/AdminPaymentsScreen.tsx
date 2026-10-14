@@ -13,7 +13,7 @@ import {
 import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
 import { AppInput } from '../../../shared/ui/atoms/AppInput';
 import { AppText } from '../../../shared/ui/atoms/AppText';
-import { Screen } from '../../../shared/ui/templates/Screen';
+import { Screen } from '../../../shared/ui/templates/Screens/Screen';
 
 type PaymentStatus = 'paid' | 'pending' | 'refunded';
 type FilterType = 'all' | PaymentStatus;

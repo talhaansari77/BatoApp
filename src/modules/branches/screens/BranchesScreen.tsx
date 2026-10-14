@@ -10,7 +10,7 @@ import {
 
 import { useAppTheme } from '../../../app/providers/ThemeProvider';
 import { AppIcon } from '../../../shared/ui/atoms/AppIcon';
-import { Screen } from '../../../shared/ui/templates/Screen';
+import { Screen } from '../../../shared/ui/templates/Screens/Screen';
 import { Branch } from '../services/branchesApi';
 import { useBranchesStore } from '../store/branches.store';
 

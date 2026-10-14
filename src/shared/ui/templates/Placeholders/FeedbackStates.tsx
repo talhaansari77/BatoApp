@@ -1,10 +1,10 @@
 // components/states/FeedbackStates.tsx
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { AppButton } from "../atoms/AppButton";
-import { AppText } from "../atoms/AppText";
+import { AppButton } from "../../atoms/AppButton";
+import { AppText } from "../../atoms/AppText";
 import { useAppTheme } from "@/app/providers/ThemeProvider";
-import { AppIcon, AppIconName } from "../atoms/AppIcon";
+import { AppIcon, AppIconName } from "../../atoms/AppIcon";
 
 type StateMessageProps = {
   title: string;

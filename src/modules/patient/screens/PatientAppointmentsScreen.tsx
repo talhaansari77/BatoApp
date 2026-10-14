@@ -14,7 +14,7 @@ import {
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { AppIcon } from "../../../shared/ui/atoms/AppIcon";
 import { AppText } from "../../../shared/ui/atoms/AppText";
-import { Screen } from "../../../shared/ui/templates/Screen";
+import { Screen } from "../../../shared/ui/templates/Screens/Screen";
 import { usePatientAppointmentStore } from "../store/patientAppointment.store";
 import { useAuthStore } from "../../auth/store/auth.store";
 import AppointmentCard from "../components/AppointmentCard";
@@ -27,7 +27,7 @@ import { CompositeScreenProps } from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { getAppointmentCounts, getFirstName, getStatusColors } from "@/utils";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { EmptyState, ErrorState } from "@/shared/ui/templates/FeedbackStates";
+import { EmptyState, ErrorState } from "@/shared/ui/templates/Placeholders/FeedbackStates";
 import { useTranslation } from "react-i18next";
 
 const filters = [

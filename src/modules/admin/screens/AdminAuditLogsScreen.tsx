@@ -11,7 +11,7 @@ import { AppButton } from '../../../shared/ui/atoms/AppButton';
 import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
 import { AppInput } from '../../../shared/ui/atoms/AppInput';
 import { AppText } from '../../../shared/ui/atoms/AppText';
-import { Screen } from '../../../shared/ui/templates/Screen';
+import { Screen } from '../../../shared/ui/templates/Screens/Screen';
 
 type AuditType = 'login' | 'appointment' | 'payment' | 'security';
 type FilterType = 'all' | AuditType;

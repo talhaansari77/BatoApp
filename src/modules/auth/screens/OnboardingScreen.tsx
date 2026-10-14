@@ -19,6 +19,9 @@ import { RootStackParamList } from "@/core/navigation/types";
 import { useAppTheme } from "@/app/providers/ThemeProvider";
 import { useAppLanguage } from "@/app/providers/LanguageProvider";
 import { Assets } from "assets";
+import LottieView from "lottie-react-native";
+import { LottieFiles } from "@/utils/LottieFiles";
+
 // import type { RootStackParamList } from '../navigation/types';
 
 const { width } = Dimensions.get("window");
@@ -28,45 +31,20 @@ const TEXT_DARK = "#111827";
 const TEXT_GRAY = "#6B7280";
 
 // ---------- Types ----------
-type OnboardingScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  "Onboarding"
->;
+
 
 interface SlideItem {
   id: string;
-  image: ImageSourcePropType;
+  image: any;
+  lottie: boolean;
   title: string;
   description: string;
 }
 
 // ---------- Data ----------
-const SLIDES: SlideItem[] = [
-  {
-    id: "1",
-    image: Assets.Logo1024,
-    title: "",
-    description:
-      "Welcome to BATO –  Where beauty and health meet",
-  },
-  {
-    id: "2",
-    image: Assets.OnBoarding01,
-    title: "Seamless Booking",
-    description:
-      "At BATO – we aspire to give you the best results through a customized plan made specifically for you.",
-  },
-  {
-    id: "3",
-    image: Assets.OnBoarding02,
-    title: "Your Beauty Routine",
-    description:
-      "Track treatments, view recommendations, and unlock VIP member perks.",
-  },
-];
 
 // ---------- Component ----------
-const OnboardingScreen = ({ navigation }: OnboardingScreenProps) => {
+const OnboardingScreen = ({ navigation }: any) => {
   const theme = useAppTheme();
   const { isRTL } = useAppLanguage();
   const styles = useMemo(() => createStyles(theme, isRTL), [theme, isRTL]);
@@ -75,6 +53,32 @@ const OnboardingScreen = ({ navigation }: OnboardingScreenProps) => {
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef<FlatList<SlideItem>>(null);
 
+  const SLIDES: SlideItem[] = [
+    {
+      id: "1",
+      image:
+        theme.resolvedMode === "dark" ? Assets.TextLogoWhite : Assets.TextLogo,
+      lottie: false,
+      title: "",
+      description: "Welcome to BATO –  Where beauty and health meet",
+    },
+    {
+      id: "2",
+      image: LottieFiles.Booking01,
+      lottie: true,
+      title: "Seamless Booking",
+      description:
+        "At BATO – we aspire to give you the best results through a customized plan made specifically for you.",
+    },
+    {
+      id: "3",
+      image: LottieFiles.Booking02,
+      lottie: true,
+      title: "Your Beauty Routine",
+      description:
+        "Track treatments, view recommendations, and unlock VIP member perks.",
+    },
+  ];
   const isLastSlide = currentIndex === SLIDES.length - 1;
 
   const handleFinishOnboarding = async () => {
@@ -83,18 +87,9 @@ const OnboardingScreen = ({ navigation }: OnboardingScreenProps) => {
       await AsyncStorage.setItem("hasSeenOnboarding", "true");
     } catch (e) {
       console.warn("Failed to save onboarding status", e);
+    } finally {
+      navigation.replace("Welcome");
     }
-    navigation.reset({
-      index: 0,
-      routes: [
-        {
-          name: "Auth",
-          state: {
-            routes: [{ name: "Welcome" }],
-          },
-        },
-      ], // changed from 'Home'
-    });
   };
 
   const handleNext = () => {
@@ -127,7 +122,20 @@ const OnboardingScreen = ({ navigation }: OnboardingScreenProps) => {
   const renderItem = ({ item }: { item: SlideItem }) => (
     <View style={styles.slide}>
       <View style={styles.imageContainer}>
-        <Image source={item.image} style={styles.image} resizeMode="contain" />
+        {item.lottie ? (
+          <LottieView
+            source={item.image}
+            autoPlay
+            loop
+            style={styles.animation}
+          />
+        ) : (
+          <Image
+            source={item.image}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        )}
       </View>
 
       <View style={styles.textContainer}>
@@ -227,7 +235,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>, isRTL: boolean) {
     container: {
       direction: isRTL ? "rtl" : "ltr",
       flex: 1,
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.background,
     },
     slide: {
       direction: isRTL ? "rtl" : "ltr",
@@ -243,6 +251,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>, isRTL: boolean) {
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 40,
+      // backgroundColor:"red"
     },
     image: {
       width: "100%",
@@ -306,6 +315,10 @@ function createStyles(theme: ReturnType<typeof useAppTheme>, isRTL: boolean) {
       color: theme.colors.nude,
       fontSize: 16,
       fontWeight: "700",
+    },
+    animation: {
+      width: "100%",
+      height: "100%",
     },
   });
 }

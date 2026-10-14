@@ -16,6 +16,8 @@ import { useAuthStore } from "./src/modules/auth/store/auth.store";
 import * as SplashScreen from "expo-splash-screen";
 import { LogBox } from "react-native";
 
+
+SplashScreen.preventAutoHideAsync()
 SplashScreen.setOptions({
   duration: 1000,
   fade: true,

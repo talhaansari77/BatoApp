@@ -8,8 +8,10 @@ import {
   ViewStyle,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAppTheme } from "../../../app/providers/ThemeProvider";
-import { AppHeader } from "../molecules/AppHeader";
+import { useAppTheme } from "../../../../app/providers/ThemeProvider";
+import { AppHeader } from "../../molecules/AppHeader";
+import Animated from "react-native-reanimated";
+import { themeTransition } from "@/theme/transitions";
 
 type ScreenProps = {
   children: React.ReactNode;
@@ -59,7 +61,7 @@ export function Screen({
   );
 
   return (
-    <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
+    <Animated.View style={[styles.root, { backgroundColor: theme.colors.background },themeTransition]}>
       {ShowAppHeader ? (
         <AppHeader
           title={title}
@@ -103,7 +105,7 @@ export function Screen({
           </View>
         ) : null}
       </KeyboardAvoidingView>
-    </View>
+    </Animated.View>
   );
 }
 

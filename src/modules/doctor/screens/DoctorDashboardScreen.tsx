@@ -8,7 +8,7 @@ import { DoctorTabParamList } from '../../../core/navigation/types';
 import { AppButton } from '../../../shared/ui/atoms/AppButton';
 import { AppIcon, AppIconName } from '../../../shared/ui/atoms/AppIcon';
 import { AppText } from '../../../shared/ui/atoms/AppText';
-import { Screen } from '../../../shared/ui/templates/Screen';
+import { Screen } from '../../../shared/ui/templates/Screens/Screen';
 
 type DoctorDashboardNavigation = BottomTabNavigationProp<
   DoctorTabParamList,

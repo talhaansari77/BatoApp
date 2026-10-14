@@ -10,6 +10,7 @@ import {
 } from "../services/auth.Api";
 import { tokenStorage } from "../../../core/storage/tokenStorage";
 import { User } from "lucide-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type AuthStatus = "checking" | "authenticated" | "unauthenticated";
 
@@ -59,7 +60,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
 
       const accessToken = await tokenStorage.getAccessToken();
-      console.log(accessToken);
+
       if (!accessToken) {
         set({
           user: null,

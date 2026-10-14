@@ -5,7 +5,7 @@ import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
 import { AppIcon, AppIconName } from "../../../shared/ui/atoms/AppIcon";
 import { AppText } from "../../../shared/ui/atoms/AppText";
-import { Screen } from "../../../shared/ui/templates/Screen";
+import { Screen } from "../../../shared/ui/templates/Screens/Screen";
 import { PatientStackParamList } from "@/core/navigation/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { usePatientAppointmentStore } from "../store/patientAppointment.store";

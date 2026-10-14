@@ -14,7 +14,7 @@ import { AppText } from "../../../shared/ui/atoms/AppText";
 import { useAppTheme } from "../../../app/providers/ThemeProvider";
 import { useAppLanguage } from "../../../app/providers/LanguageProvider";
 import { AppButton } from "../../../shared/ui/atoms/AppButton";
-import { Screen } from "../../../shared/ui/templates/Screen";
+import { Screen } from "../../../shared/ui/templates/Screens/Screen";
 import { useAuthStore } from "../store/auth.store";
 import { AuthStackParamList } from "../../../core/navigation/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -81,7 +81,11 @@ const LoginViaFile = ({ navigation }: Props) => {
           }}
         >
           <Image
-            source={Assets.Logo1024}
+            source={
+              theme.resolvedMode === "dark"
+                ? Assets.TextLogoWhite
+                : Assets.TextLogo
+            }
             style={{ width: "100%", height: 150 }}
             resizeMode="contain"
           />

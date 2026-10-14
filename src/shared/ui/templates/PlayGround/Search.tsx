@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { FilterModal, DateFilter, getDateRange } from "./molecules/FilterModal";
+import { FilterModal, DateFilter, getDateRange } from "../../molecules/FilterModal";
 
 // ── Mock data (dates are relative to today so every filter shows results) ──
 const daysAgo = (n: number) => {
