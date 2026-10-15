@@ -163,12 +163,7 @@ export function PatientProgressScreen() {
     <Screen
       title="Progress"
       subtitle="Track your treatment journey"
-      actions={[
-        {
-          icon: 'Bell',
-          onPress: () => {},
-        },
-      ]}
+     
     >
       <View style={styles.root}>
         <View style={styles.heroCard}>

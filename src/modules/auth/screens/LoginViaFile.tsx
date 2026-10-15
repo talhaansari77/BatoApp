@@ -1,13 +1,13 @@
 import {
   Alert,
+  Platform,
   Pressable,
   ScrollView,
-  Image,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
 import { useState } from "react";
+import { Phone, Lock } from "lucide-react-native";
 import { AppInput } from "../../../shared/ui/atoms/AppInput";
 import { PhoneNumberInput } from "../../../shared/ui/atoms/PhoneNumberInput";
 import { AppText } from "../../../shared/ui/atoms/AppText";
@@ -19,12 +19,21 @@ import { useAuthStore } from "../store/auth.store";
 import { AuthStackParamList } from "../../../core/navigation/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
-import { Assets } from "assets";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "LoginViaFile">;
 
+const SERIF = Platform.select({
+  ios: "Georgia",
+  android: "serif",
+  default: "serif",
+});
+
 const LoginViaFile = ({ navigation }: Props) => {
   const { t } = useTranslation();
+  const theme = useAppTheme();
+  const { isRTL } = useAppLanguage();
+  const isDark = theme.resolvedMode === "dark";
+
   const [fileNumber, setFileNumber] = useState("");
   const [civilId, setCivilId] = useState("");
   const [mobileNumber, setMobileNumber] = useState<string>("");
@@ -32,6 +41,19 @@ const LoginViaFile = ({ navigation }: Props) => {
   const [callingCode, setCallingCode] = useState("965");
   const loginViaFile = useAuthStore((state) => state.loginViaFile);
   const isLoading = useAuthStore((state) => state.isLoading);
+
+  const canSubmit =
+    fileNumber.trim().length > 0 &&
+    civilId.trim().length > 0 &&
+    mobileNumber.trim().length > 0;
+
+  // Palette for the new warm, editorial look.
+  const palette = {
+    ink: isDark ? "#F3EFE8" : "#2B2723",
+    surface: isDark ? "#2A2622" : "#ECE8E1",
+    border: isDark ? "#3C3731" : "#DAD4CB",
+    note: isDark ? "#2A2622" : "#EFEBE4",
+  };
 
   const handleSendOtp = async () => {
     // Keep the OTP navigation in one place so both login methods
@@ -42,55 +64,59 @@ const LoginViaFile = ({ navigation }: Props) => {
       civil_id: civilId,
       any_mobile: `+${callingCode + mobileNumber}`,
     };
-    console.log("payload", payload);
 
     try {
       const response = await loginViaFile(payload);
       console.log("OTP response:", response);
 
-      navigation.navigate("OtpVerification",{handleSendOtp:handleSendOtp});
+      navigation.navigate("OtpVerification", { handleSendOtp: handleSendOtp });
     } catch {
       Alert.alert(
         "Login failed",
         "Please check your Phone Number and try again.",
       );
     }
-
-    // navigation.navigate("OtpVerification");
   };
-  const theme = useAppTheme();
-  const { isRTL } = useAppLanguage();
+
   return (
-    <Screen
-      footer={
-        <AppButton
-          title={isLoading ? t("auth.submitting") : t("auth.submit")}
-          loading={isLoading}
-          disabled={isLoading}
-          onPress={handleSendOtp}
-        />
-      }
-      
-    >
-      <ScrollView nestedScrollEnabled={true} style={{ direction: isRTL ? "rtl" : "ltr" }}>
+    <Screen>
+      <ScrollView
+        nestedScrollEnabled
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.content}
+        style={{ direction: isRTL ? "rtl" : "ltr" }}
+      >
+        {/* Icon badge */}
         <View
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            padding: theme.spacing["4xl"],
-          }}
+          style={[
+            styles.badge,
+            { backgroundColor: palette.surface, borderColor: palette.border },
+          ]}
         >
-          <Image
-            source={
-              theme.resolvedMode === "dark"
-                ? Assets.TextLogoWhite
-                : Assets.TextLogo
-            }
-            style={{ width: "100%", height: 150 }}
-            resizeMode="contain"
-          />
+          <Phone size={26} color={palette.ink} />
         </View>
-        <View style={{ gap: theme.spacing.md }}>
+
+        {/* Heading */}
+        <AppText
+          style={[styles.title, { color: palette.ink, fontFamily: SERIF }]}
+        >
+          {t("auth.loginViaFileTitle", {
+            defaultValue: "Connect your profile",
+          })}
+        </AppText>
+        <AppText
+          variant="small"
+          color={theme.colors.textMuted}
+          style={styles.subtitle}
+        >
+          {t("auth.loginViaFileSubtitle", {
+            defaultValue:
+              "Enter your file number, civil ID and mobile number so we can verify it's you.",
+          })}
+        </AppText>
+
+        {/* Form */}
+        <View style={{ gap: theme.spacing.md, alignSelf: "stretch" }}>
           <AppInput
             label={t("auth.fileNumber")}
             placeholder={t("auth.enterFileNumber")}
@@ -117,7 +143,6 @@ const LoginViaFile = ({ navigation }: Props) => {
               setMobileNumber(v);
             }}
             keyboardType="phone-pad"
-            // maxLength={5}
             countryCode={countryCode}
             callingCode={callingCode}
             onSelect={(country) => {
@@ -126,39 +151,73 @@ const LoginViaFile = ({ navigation }: Props) => {
             }}
           />
 
-          <AppText variant="small" color={theme.colors.textMuted} >
+          <AppText variant="small" color={theme.colors.textMuted}>
             {t("auth.phoneDescription")}
           </AppText>
+        </View>
 
-          {/* Login with Mobile Number */}
-          <Pressable
-            onPress={() => {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "Login" }],
-              });
-            }}
-            style={{ marginTop: theme.spacing.md }}
+        {/* Primary action */}
+        <View style={styles.action}>
+          <AppButton
+            title={isLoading ? t("auth.submitting") : t("auth.submit")}
+            loading={isLoading}
+            disabled={isLoading || !canSubmit}
+            onPress={handleSendOtp}
+          />
+        </View>
+
+        {/* Secondary links */}
+        <Pressable
+          onPress={() => {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Login" }],
+            });
+          }}
+          hitSlop={8}
+          style={styles.link}
+        >
+          <AppText
+            variant="small"
+            color={palette.ink}
+            style={styles.linkText}
           >
-            <AppText
-              variant="bodyMedium"
-              color={theme.colors.primaryDark}
-            >
-              {t("auth.loginViaFile")}
-            </AppText>
-          </Pressable>
-          {/* Forgot or Reset Password */}
-          <Pressable
-            onPress={() => navigation.navigate("ForgotPassword")}
-            style={{ marginTop: theme.spacing.md }}
+            {t("auth.loginViaFile")}
+          </AppText>
+        </Pressable>
+
+        <Pressable
+          onPress={() => navigation.navigate("ForgotPassword")}
+          hitSlop={8}
+          style={styles.link}
+        >
+          <AppText
+            variant="small"
+            color={palette.ink}
+            style={styles.linkText}
           >
-            <AppText
-              variant="bodyMedium"
-              color={theme.colors.primaryDark}
-            >
-              {t("auth.forgotOrResetPassword")}
-            </AppText>
-          </Pressable>
+            {t("auth.forgotOrResetPassword")}
+          </AppText>
+        </Pressable>
+
+        {/* Privacy note */}
+        <View
+          style={[
+            styles.note,
+            { backgroundColor: palette.note, borderColor: palette.border },
+          ]}
+        >
+          <Lock size={14} color={theme.colors.textMuted} />
+          <AppText
+            variant="small"
+            color={theme.colors.textMuted}
+            style={{ flex: 1 }}
+          >
+            {t("auth.privacyNote", {
+              defaultValue:
+                "Your phone number is only used to verify your login. It is never shared.",
+            })}
+          </AppText>
         </View>
       </ScrollView>
     </Screen>
@@ -167,4 +226,52 @@ const LoginViaFile = ({ navigation }: Props) => {
 
 export default LoginViaFile;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  content: {
+    alignItems: "center",
+    paddingTop: 24,
+    paddingBottom: 32,
+  },
+  badge: {
+    width: 64,
+    height: 64,
+    borderRadius: 18,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 30,
+    lineHeight: 36,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  subtitle: {
+    textAlign: "center",
+    marginBottom: 24,
+    paddingHorizontal: 12,
+  },
+  action: {
+    alignSelf: "stretch",
+    marginTop: 20,
+  },
+  link: {
+    marginTop: 16,
+  },
+  linkText: {
+    textDecorationLine: "underline",
+    textAlign: "center",
+  },
+  note: {
+    alignSelf: "stretch",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 28,
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+});

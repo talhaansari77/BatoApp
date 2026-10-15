@@ -15,11 +15,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Skeleton } from "@/shared/ui/templates/Loaders/Skeleton";
 import * as SplashScreen from "expo-splash-screen";
 import { View } from "react-native";
+import { ProfileConfirmationScreen } from "@/modules/auth/screens/ProfileConfirmationScreen";
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 export function AuthStack() {
-  const [completed, setCompleted] = useState<boolean | null>(null);
+  const [completed, setCompleted] = useState<boolean | null>(false);
 
   useEffect(() => {
     const checkOnboarding = async () => {
@@ -46,17 +47,19 @@ export function AuthStack() {
       }}
     >
       <Stack.Navigator
-        initialRouteName={completed ? "Welcome" : "Onboarding"}
+        // initialRouteName={"Login"}
+        // initialRouteName={completed ? "Welcome" : "Onboarding"}
         screenOptions={{
           headerShown: false,
           animation: "fade",
         }}
       >
-        {!completed && (
+        {/* {!completed && (
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-        )}
+        )} */}
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="ProfileConfirmation" component={ProfileConfirmationScreen} />
         <Stack.Screen name="LoginViaFile" component={LoginViaFile} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen

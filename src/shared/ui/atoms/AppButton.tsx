@@ -58,8 +58,8 @@ export function AppButton({
     }
 
     return {
-      backgroundColor: theme.colors.primaryDark,
-      borderColor: theme.colors.primaryDark,
+      backgroundColor: theme.colors.button,
+      borderColor: theme.colors.button,
       borderWidth: 1,
     };
   };

@@ -62,7 +62,6 @@ export function AppointmentDetailsScreen({ navigation, route }: any) {
       title={t("appointments.details")}
       showBack
       onBackPress={() => {}}
-      actions={[{ icon: "Ellipsis", onPress: () => {} }]}
       footer={
         <AppButton
         // style={{marginBottom: tabBarHeight+tabBarHeight}}

@@ -111,12 +111,7 @@ export function Skeleton() {
   return (
     <Screen
       title="Home"
-      actions={[
-        {
-          icon: "Bell",
-          onPress: () => {},
-        },
-      ]}
+     
     >
       <ShimmerContext.Provider value={shimmer}>
         <View style={styles.root}>

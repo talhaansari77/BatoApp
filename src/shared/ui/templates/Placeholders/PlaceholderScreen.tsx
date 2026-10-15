@@ -23,12 +23,7 @@ export function PlaceholderScreen({
     <Screen
       title={title}
       subtitle={subtitle}
-      actions={[
-        {
-          icon: 'Bell',
-          onPress: () => {},
-        },
-      ]}
+     
     >
       <View
         style={{

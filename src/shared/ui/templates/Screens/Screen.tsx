@@ -21,9 +21,12 @@ type ScreenProps = {
   showBack?: boolean;
   onBackPress?: () => void;
   scroll?: boolean;
-  actions?: React.ComponentProps<typeof AppHeader>["actions"];
   footer?: React.ReactNode;
   contentStyle?: ViewStyle;
+  onMenuPress?: () => void;
+  onSearchPress?: () => void;
+  onGiftPress?: () => void;
+  onNotificationPress?: () => void;
 };
 
 export function Screen({
@@ -34,9 +37,12 @@ export function Screen({
   showBack,
   onBackPress,
   scroll = true,
-  actions,
   footer,
   contentStyle,
+  onMenuPress,
+  onSearchPress,
+  onGiftPress,
+  onNotificationPress,
 }: ScreenProps) {
   const theme = useAppTheme();
   const insets = useSafeAreaInsets();
@@ -64,11 +70,10 @@ export function Screen({
     <Animated.View style={[styles.root, { backgroundColor: theme.colors.background },themeTransition]}>
       {ShowAppHeader ? (
         <AppHeader
-          title={title}
-          subtitle={subtitle}
-          showBack={showBack}
-          onBackPress={onBackPress}
-          actions={actions}
+          onMenuPress={onMenuPress}
+          onSearchPress={onSearchPress}
+          onGiftPress={onGiftPress}
+          onNotificationPress={onNotificationPress}
         />
       ):null}
 

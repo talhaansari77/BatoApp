@@ -31,16 +31,22 @@ export function PatientTabs() {
       />
 
       <Tab.Screen
-        name="PatientServices"
+        name="Assessment"
         component={PatientServicesScreen}
         options={{ title: "Services" }}
       />
-
       <Tab.Screen
         name="PatientAppointments"
         component={PatientAppointmentsScreen}
         options={{ title: "Appointments" }}
       />
+      <Tab.Screen
+        name="Chat"
+        component={PatientServicesScreen}
+        options={{ title: "Messages" }}
+      />
+
+      
 
       <Tab.Screen
         name="PatientProfile"

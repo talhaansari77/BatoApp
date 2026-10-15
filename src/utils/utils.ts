@@ -75,3 +75,4 @@ export function getFirstName(fullName:string) {
   // Return the first part, or an empty string if nothing was provided
   return parts[0] || '';
 }
+

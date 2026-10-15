@@ -114,12 +114,7 @@ export function PatientHomeScreen() {
     <Screen
       title="Home"
       // subtitle="Welcome to BATO Clinic"
-      actions={[
-        {
-          icon: "Bell",
-          onPress: () => {},
-        },
-      ]}
+     
     >
       <View style={styles.root}>
         <View style={styles.welcomeCard}>

@@ -11,6 +11,7 @@ export type RootStackParamList = {
 export type AuthStackParamList = {
   Splash: undefined;
   Welcome: undefined;
+  ProfileConfirmation: undefined;
   Onboarding: undefined;
   Login: undefined;
   LoginViaFile: undefined;
@@ -25,8 +26,9 @@ export type AuthStackParamList = {
 
 export type PatientTabParamList = {
   PatientHome: undefined;
-  PatientServices: undefined;
+  Assessment: undefined;
   PatientAppointments: undefined;
+  Chat: undefined;
   PatientProfile: undefined;
 };
 

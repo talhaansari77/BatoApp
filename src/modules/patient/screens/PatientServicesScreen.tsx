@@ -174,12 +174,7 @@ export function PatientServicesScreen() {
     <Screen
       title="Services"
       subtitle="Choose your treatment"
-      actions={[
-        {
-          icon: 'Bell',
-          onPress: () => {},
-        },
-      ]}
+     
     >
       <View style={styles.root}>
         <View style={styles.heroCard}>
